@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------
+# Lumisk System — root .htaccess for shared cPanel hosting
+#
+# Use this ONLY when the domain/subdomain document root points at the
+# PROJECT ROOT (this folder) instead of the /public folder.
+#
+# Preferred setup: point the subdomain's Document Root directly to the
+# `public/` directory in cPanel. If you can do that, this file is not
+# needed and Laravel's own public/.htaccess handles everything.
+#
+# Fallback (docroot = project root): the rules below transparently
+# forward every request into /public without exposing it in the URL.
+# ---------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to dot-files / sensitive paths.
+    RewriteRule ^(\.env|\.git|storage|bootstrap/cache) - [F,L]
+
+    # Forward all requests to the public/ front controller.
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
