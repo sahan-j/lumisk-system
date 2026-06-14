@@ -1,4 +1,27 @@
 <div>
+    {{-- Overdue warning --}}
+    @if($overdueCount > 0)
+    <div class="mb-5 flex items-center justify-between rounded-lg border border-red-200 border-l-4 border-l-red-500 bg-red-50 px-4 py-3 dark:border-red-800 dark:border-l-red-500 dark:bg-red-900/20">
+        <div class="flex items-center gap-3">
+            <svg class="h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+            <div>
+                <p class="text-sm font-semibold text-red-700 dark:text-red-400">
+                    {{ $overdueCount }} {{ Str::plural('Invoice', $overdueCount) }} Overdue
+                </p>
+                <p class="text-xs text-red-600 dark:text-red-500">
+                    Total outstanding: {{ money($overdueTotal) }}
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('admin.invoices.index', ['status' => 'overdue']) }}"
+           class="rounded-md border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/30">
+            View All &rarr;
+        </a>
+    </div>
+    @endif
+
     {{-- Stat cards --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @php

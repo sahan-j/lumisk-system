@@ -146,6 +146,22 @@
                     <textarea wire:model="default_terms" rows="3" class="form-input-base"></textarea>
                 </div>
             </div>
+
+            <div class="mt-6 border-t border-gray-200 pt-6 dark:border-ink-600">
+                <h3 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Automation</h3>
+                <p class="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                    Requires the Laravel scheduler to be running (cPanel cron job: <code class="rounded bg-gray-100 px-1 py-0.5 dark:bg-ink-700">php artisan schedule:run</code>).
+                </p>
+                <label class="flex cursor-pointer items-center gap-3">
+                    <div class="relative flex-shrink-0" x-data>
+                        <input wire:model="overdue_reminders_enabled" type="checkbox" id="overdue_reminders_enabled" class="sr-only peer">
+                        <div class="h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-brand-purple dark:bg-ink-600 peer-checked:dark:bg-brand-purple transition-colors"></div>
+                        <div class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4"></div>
+                    </div>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Send automatic overdue reminder emails to clients</span>
+                </label>
+                @error('overdue_reminders_enabled') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+            </div>
         </div>
 
         {{-- Tab 3: Estimate Defaults --}}

@@ -58,6 +58,9 @@ class SettingsIndex extends Component
     public string $whatsapp_message_invoice = '';
     public string $whatsapp_message_estimate = '';
 
+    // Automation
+    public bool $overdue_reminders_enabled = true;
+
     public function mount(): void
     {
         $this->company = Company::settings();
@@ -84,6 +87,9 @@ class SettingsIndex extends Component
         // WhatsApp templates — fall back to the code defaults when null
         $this->whatsapp_message_invoice  = $this->company->whatsapp_message_invoice  ?: Company::DEFAULT_WHATSAPP_INVOICE;
         $this->whatsapp_message_estimate = $this->company->whatsapp_message_estimate ?: Company::DEFAULT_WHATSAPP_ESTIMATE;
+
+        // Automation
+        $this->overdue_reminders_enabled = $this->company->overdue_reminders_enabled ?? true;
     }
 
     public function save(): void
@@ -116,6 +122,7 @@ class SettingsIndex extends Component
             'estimate_email_body' => ['required', 'string'],
             'whatsapp_message_invoice' => ['required', 'string'],
             'whatsapp_message_estimate' => ['required', 'string'],
+            'overdue_reminders_enabled' => ['boolean'],
         ]);
 
         if ($this->logo) {

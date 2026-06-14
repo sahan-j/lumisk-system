@@ -43,11 +43,15 @@ class Dashboard extends Component
             ]);
         }
 
+        $overdueInvoices = Invoice::where('status', 'overdue')->get();
+
         return view('livewire.admin.dashboard', [
             'totalRevenue' => $totalRevenue,
             'outstanding' => $outstanding,
             'totalClients' => $totalClients,
             'pendingEstimates' => $pendingEstimates,
+            'overdueCount' => $overdueInvoices->count(),
+            'overdueTotal' => $overdueInvoices->sum('total'),
             'chartLabels' => $months->pluck('label'),
             'chartValues' => $months->pluck('value'),
             'recentInvoices' => Invoice::with('client')->latest()->take(5)->get(),

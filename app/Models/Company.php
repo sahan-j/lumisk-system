@@ -19,6 +19,7 @@ class Company extends Model
             'estimate_next_number' => 'integer',
             'estimate_expiry_days' => 'integer',
             'default_tax_rate' => 'decimal:2',
+            'overdue_reminders_enabled' => 'boolean',
         ];
     }
 
