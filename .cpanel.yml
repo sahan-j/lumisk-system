@@ -4,6 +4,8 @@ deployment:
     - export DEPLOYPATH=/home/sonypufv/system.lumisktechnology.com
     - /bin/cp -Rf . $DEPLOYPATH
     - cd $DEPLOYPATH && php composer.phar install --no-dev --optimize-autoloader
+    - cd $DEPLOYPATH && php artisan migrate --force
+    - cd $DEPLOYPATH && php artisan storage:link
     - cd $DEPLOYPATH && php artisan config:cache
     - cd $DEPLOYPATH && php artisan route:cache
     - cd $DEPLOYPATH && php artisan view:cache
