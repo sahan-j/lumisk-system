@@ -1,4 +1,4 @@
-<div>
+﻿<div>
     {{-- Header --}}
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -122,7 +122,7 @@
                         <div class="mt-4">
                             <label class="form-label">Portal Password {{ $editingId ? '(leave blank to keep current)' : '' }}</label>
                             <div class="relative" x-data="{ show: false }">
-                                <input wire:model="password" :type="show ? 'text' : 'password'" class="form-input-base pr-10" placeholder="Minimum 6 characters">
+                                <input wire:model="password" type="password" :type="show ? 'text' : 'password'" class="form-input-base pr-10" placeholder="Minimum 6 characters">
                                 <button type="button" tabindex="-1" @click="show = !show"
                                         class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple focus:outline-none"
                                         :aria-label="show ? 'Hide password' : 'Show password'">

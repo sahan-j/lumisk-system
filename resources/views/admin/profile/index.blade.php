@@ -1,4 +1,4 @@
-<x-layouts.admin title="My Profile">
+﻿<x-layouts.admin title="My Profile">
     <x-alert />
 
     <div class="grid gap-6 lg:grid-cols-2">
@@ -71,7 +71,7 @@
                 <div>
                     <label for="current_password" class="form-label">Current Password</label>
                     <div class="relative" x-data="{ show: false }">
-                        <input id="current_password" name="current_password" :type="show ? 'text' : 'password'" required class="form-input-base pr-10">
+                        <input id="current_password" name="current_password" type="password" :type="show ? 'text' : 'password'" required class="form-input-base pr-10">
                         <button type="button" tabindex="-1" @click="show = !show"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple focus:outline-none"
                                 :aria-label="show ? 'Hide password' : 'Show password'">
@@ -83,7 +83,7 @@
                 <div>
                     <label for="password" class="form-label">New Password</label>
                     <div class="relative" x-data="{ show: false }">
-                        <input id="password" name="password" :type="show ? 'text' : 'password'" required class="form-input-base pr-10" placeholder="Minimum 8 characters">
+                        <input id="password" name="password" type="password" :type="show ? 'text' : 'password'" required class="form-input-base pr-10" placeholder="Minimum 8 characters">
                         <button type="button" tabindex="-1" @click="show = !show"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple focus:outline-none"
                                 :aria-label="show ? 'Hide password' : 'Show password'">
@@ -95,7 +95,7 @@
                 <div>
                     <label for="password_confirmation" class="form-label">Confirm New Password</label>
                     <div class="relative" x-data="{ show: false }">
-                        <input id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" required class="form-input-base pr-10">
+                        <input id="password_confirmation" name="password_confirmation" type="password" :type="show ? 'text' : 'password'" required class="form-input-base pr-10">
                         <button type="button" tabindex="-1" @click="show = !show"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple focus:outline-none"
                                 :aria-label="show ? 'Hide password' : 'Show password'">

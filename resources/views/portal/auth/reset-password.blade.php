@@ -1,4 +1,4 @@
-<x-layouts.guest title="Reset Password">
+﻿<x-layouts.guest title="Reset Password">
     <div class="mb-8">
         <span class="text-sm font-medium uppercase tracking-widest text-brand-purple">Client Portal</span>
         <h2 class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">Reset Password</h2>
@@ -19,7 +19,7 @@
         <div>
             <label for="password" class="form-label">New Password</label>
             <div class="relative" x-data="{ show: false }">
-                <input id="password" name="password" :type="show ? 'text' : 'password'" required autofocus
+                <input id="password" name="password" type="password" :type="show ? 'text' : 'password'" required autofocus
                        class="form-input-base pr-10" placeholder="Minimum 8 characters">
                 <button type="button" tabindex="-1" @click="show = !show"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple focus:outline-none"
@@ -32,7 +32,7 @@
         <div>
             <label for="password_confirmation" class="form-label">Confirm Password</label>
             <div class="relative" x-data="{ show: false }">
-                <input id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" required
+                <input id="password_confirmation" name="password_confirmation" type="password" :type="show ? 'text' : 'password'" required
                        class="form-input-base pr-10" placeholder="Repeat new password">
                 <button type="button" tabindex="-1" @click="show = !show"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-purple focus:outline-none"
