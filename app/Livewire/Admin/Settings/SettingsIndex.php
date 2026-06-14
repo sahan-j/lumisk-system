@@ -61,6 +61,14 @@ class SettingsIndex extends Component
     // Automation
     public bool $overdue_reminders_enabled = true;
 
+    // Support tickets
+    public string $ticket_prefix = 'TKT';
+    public bool $ticket_notifications_enabled = true;
+    public int $sla_low_hours = 72;
+    public int $sla_medium_hours = 24;
+    public int $sla_high_hours = 4;
+    public int $sla_critical_hours = 1;
+
     public function mount(): void
     {
         $this->company = Company::settings();
@@ -90,6 +98,14 @@ class SettingsIndex extends Component
 
         // Automation
         $this->overdue_reminders_enabled = $this->company->overdue_reminders_enabled ?? true;
+
+        // Support tickets
+        $this->ticket_prefix = $this->company->ticket_prefix ?: 'TKT';
+        $this->ticket_notifications_enabled = $this->company->ticket_notifications_enabled ?? true;
+        $this->sla_low_hours = (int) ($this->company->sla_low_hours ?? 72);
+        $this->sla_medium_hours = (int) ($this->company->sla_medium_hours ?? 24);
+        $this->sla_high_hours = (int) ($this->company->sla_high_hours ?? 4);
+        $this->sla_critical_hours = (int) ($this->company->sla_critical_hours ?? 1);
     }
 
     public function save(): void
@@ -123,6 +139,12 @@ class SettingsIndex extends Component
             'whatsapp_message_invoice' => ['required', 'string'],
             'whatsapp_message_estimate' => ['required', 'string'],
             'overdue_reminders_enabled' => ['boolean'],
+            'ticket_prefix' => ['required', 'string', 'max:10'],
+            'ticket_notifications_enabled' => ['boolean'],
+            'sla_low_hours' => ['required', 'integer', 'min:1'],
+            'sla_medium_hours' => ['required', 'integer', 'min:1'],
+            'sla_high_hours' => ['required', 'integer', 'min:1'],
+            'sla_critical_hours' => ['required', 'integer', 'min:1'],
         ]);
 
         if ($this->logo) {

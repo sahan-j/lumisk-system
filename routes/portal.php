@@ -5,6 +5,7 @@ use App\Http\Controllers\Portal\Auth\PortalPasswordResetController;
 use App\Http\Controllers\Portal\EstimatePdfController;
 use App\Http\Controllers\Portal\InvoicePdfController;
 use App\Http\Controllers\Portal\PortalProfileController;
+use App\Http\Controllers\Portal\TicketAttachmentController;
 use App\Livewire\Portal\Dashboard;
 use App\Livewire\Portal\Estimates\EstimateShow;
 use App\Livewire\Portal\Estimates\EstimatesIndex;
@@ -12,6 +13,9 @@ use App\Livewire\Portal\Invoices\InvoiceShow;
 use App\Livewire\Portal\Invoices\InvoicesIndex;
 use App\Livewire\Portal\Projects\ProjectShow;
 use App\Livewire\Portal\Projects\ProjectsIndex;
+use App\Livewire\Portal\Tickets\TicketCreate;
+use App\Livewire\Portal\Tickets\TicketShow;
+use App\Livewire\Portal\Tickets\TicketsIndex;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -47,6 +51,12 @@ Route::middleware('client.auth')->group(function () {
     // Projects (read-only)
     Route::get('projects', ProjectsIndex::class)->name('projects.index');
     Route::get('projects/{project}', ProjectShow::class)->name('projects.show');
+
+    // Support tickets
+    Route::get('tickets', TicketsIndex::class)->name('tickets.index');
+    Route::get('tickets/create', TicketCreate::class)->name('tickets.create');
+    Route::get('tickets/{ticket}', TicketShow::class)->name('tickets.show');
+    Route::get('tickets/{ticket}/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachment.download');
 
     // Profile
     Route::get('profile', [PortalProfileController::class, 'show'])->name('profile');

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\EstimatePdfController;
 use App\Http\Controllers\Admin\InvoicePdfController;
+use App\Http\Controllers\Admin\TicketAttachmentController;
 use App\Livewire\Admin\Clients\ClientShow;
 use App\Livewire\Admin\Clients\ClientsIndex;
 use App\Livewire\Admin\Dashboard;
@@ -18,6 +19,8 @@ use App\Livewire\Admin\Projects\ProjectShow;
 use App\Livewire\Admin\Projects\ProjectsIndex;
 use App\Livewire\Admin\SavedItems\SavedItemsIndex;
 use App\Livewire\Admin\Settings\SettingsIndex;
+use App\Livewire\Admin\Tickets\TicketShow;
+use App\Livewire\Admin\Tickets\TicketsIndex;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,6 +60,11 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('projects/create', ProjectForm::class)->name('projects.create');
     Route::get('projects/{project}/edit', ProjectForm::class)->name('projects.edit');
     Route::get('projects/{project}', ProjectShow::class)->name('projects.show');
+
+    // Support tickets
+    Route::get('tickets', TicketsIndex::class)->name('tickets.index');
+    Route::get('tickets/{ticket}', TicketShow::class)->name('tickets.show');
+    Route::get('tickets/{ticket}/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachment.download');
 
     // Saved items
     Route::get('saved-items', SavedItemsIndex::class)->name('saved-items.index');

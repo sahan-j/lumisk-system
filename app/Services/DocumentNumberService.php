@@ -24,6 +24,14 @@ class DocumentNumberService
         return self::next('estimate_prefix', 'estimate_next_number');
     }
 
+    /**
+     * Reserve and return the next ticket number (e.g. TKT-001).
+     */
+    public static function nextTicketNumber(): string
+    {
+        return self::next('ticket_prefix', 'ticket_next_number');
+    }
+
     protected static function next(string $prefixColumn, string $counterColumn): string
     {
         return DB::transaction(function () use ($prefixColumn, $counterColumn) {

@@ -49,6 +49,7 @@
                 ['Total Clients', number_format($totalClients), 'blue', 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z'],
                 ['Pending Estimates', number_format($pendingEstimates), 'green', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2'],
                 ['Active Projects', number_format($activeProjects), 'blue', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
+                ['Open Tickets', number_format($openTickets), $openTickets > 0 ? 'red' : 'green', 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z'],
             ];
         @endphp
         @foreach ($cards as [$label, $value, $color, $icon])
@@ -61,6 +62,7 @@
                         'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' => $color === 'amber',
                         'bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple' => $color === 'blue',
                         'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' => $color === 'green',
+                        'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' => $color === 'red',
                     ])>
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}" />
@@ -181,6 +183,28 @@
                     </div>
                     <span class="w-10 text-right text-xs text-gray-400">{{ $pct }}%</span>
                     <x-status-badge :color="$project->statusColor()" :label="$project->statusLabel()" />
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Recent tickets --}}
+    @if ($recentTickets->count())
+    <div class="mt-6 card overflow-hidden">
+        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Tickets</h2>
+            <a href="{{ route('admin.tickets.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-ink-700">
+            @foreach ($recentTickets as $ticket)
+                <a href="{{ route('admin.tickets.show', $ticket) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
+                    <span class="font-mono text-xs font-semibold text-brand-purple">{{ $ticket->ticket_number }}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $ticket->subject }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $ticket->client?->name ?? '—' }} · {{ $ticket->created_at->diffForHumans() }}</p>
+                    </div>
+                    <x-status-badge :color="$ticket->statusColor()" :label="$ticket->statusLabel()" />
                 </a>
             @endforeach
         </div>

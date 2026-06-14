@@ -54,6 +54,11 @@ class Project extends Model
         return $this->belongsToMany(Invoice::class, 'project_invoice');
     }
 
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function getCompletionPercentageAttribute(): int
     {
         $total = $this->tasks->count();

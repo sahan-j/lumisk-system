@@ -7,7 +7,7 @@
     {{-- Tabs --}}
     <div class="mb-6 border-b border-gray-200 dark:border-ink-600">
         <nav class="flex gap-1">
-            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp'] as $key => $label)
+            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'tickets' => 'Support Tickets'] as $key => $label)
                 <button type="button" @click="tab = '{{ $key }}'"
                         :class="tab === '{{ $key }}' ? 'border-gold text-gold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                         class="border-b-2 px-4 py-2.5 text-sm font-medium transition">{{ $label }}</button>
@@ -251,6 +251,57 @@
                     <p class="mt-1 text-xs text-gray-400">{client_name}, {estimate_number}, {total}, {expiry_date}, {link}, {company_name}, {company_phone}</p>
                     @error('whatsapp_message_estimate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
+            </div>
+        </div>
+
+        {{-- Tab 6: Support Tickets --}}
+        <div x-show="tab === 'tickets'" x-cloak class="card max-w-3xl p-6">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="form-label">Ticket Prefix <span class="text-red-500">*</span></label>
+                    <input wire:model="ticket_prefix" type="text" class="form-input-base">
+                    <p class="mt-1 text-xs text-gray-400">Used for ticket numbers, e.g. {{ $ticket_prefix ?: 'TKT' }}-001</p>
+                    @error('ticket_prefix') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div class="mt-6 border-t border-gray-200 pt-6 dark:border-ink-600">
+                <h3 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">SLA Response Targets (hours)</h3>
+                <p class="mb-4 text-xs text-gray-500 dark:text-gray-400">Hours to first response by priority. The SLA-overdue checker runs every 15 minutes.</p>
+                <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div>
+                        <label class="form-label">Low</label>
+                        <input wire:model="sla_low_hours" type="number" min="1" class="form-input-base">
+                        @error('sla_low_hours') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="form-label">Medium</label>
+                        <input wire:model="sla_medium_hours" type="number" min="1" class="form-input-base">
+                        @error('sla_medium_hours') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="form-label">High</label>
+                        <input wire:model="sla_high_hours" type="number" min="1" class="form-input-base">
+                        @error('sla_high_hours') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="form-label">Critical</label>
+                        <input wire:model="sla_critical_hours" type="number" min="1" class="form-input-base">
+                        @error('sla_critical_hours') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 border-t border-gray-200 pt-6 dark:border-ink-600">
+                <label class="flex cursor-pointer items-center gap-3">
+                    <div class="relative flex-shrink-0" x-data>
+                        <input wire:model="ticket_notifications_enabled" type="checkbox" class="sr-only peer">
+                        <div class="h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-brand-purple dark:bg-ink-600 peer-checked:dark:bg-brand-purple transition-colors"></div>
+                        <div class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4"></div>
+                    </div>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Send ticket email notifications (new tickets, replies, status changes)</span>
+                </label>
+                @error('ticket_notifications_enabled') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
 

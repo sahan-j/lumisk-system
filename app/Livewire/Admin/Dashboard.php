@@ -7,6 +7,7 @@ use App\Models\Estimate;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Ticket;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -68,6 +69,8 @@ class Dashboard extends Component
             'activeProjects' => $activeProjects,
             'overdueProjects' => $overdueProjects,
             'recentProjects' => $recentProjects,
+            'openTickets' => Ticket::where('status', 'open')->count(),
+            'recentTickets' => Ticket::with('client')->whereNotIn('status', ['closed'])->latest()->take(3)->get(),
             'chartLabels' => $months->pluck('label'),
             'chartValues' => $months->pluck('value'),
             'recentInvoices' => Invoice::with('client')->latest()->take(5)->get(),

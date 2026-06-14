@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command('invoices:mark-overdue')->dailyAt('08:00');
+Schedule::command('tickets:check-sla')->everyFifteenMinutes();
