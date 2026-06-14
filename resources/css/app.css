@@ -62,6 +62,12 @@
     }
 }
 
+/* Global search dropdown rows (hover + keyboard-active states) */
+.search-item:hover { background: #f8fafc; }
+.dark .search-item:hover { background: #232631; }
+.search-item.active { background: rgba(109, 92, 255, 0.10); }
+.dark .search-item.active { background: rgba(109, 92, 255, 0.18); }
+
 @layer utilities {
     .bg-gradient-brand {
         background: linear-gradient(135deg, #00d4ff, #6d5cff);

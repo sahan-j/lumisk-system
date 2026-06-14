@@ -69,8 +69,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $title ?? '' }}</h1>
-                <div class="ml-auto flex items-center gap-3">
+                <h1 class="shrink-0 text-lg font-semibold text-gray-900 dark:text-white">{{ $title ?? '' }}</h1>
+
+                <div class="ml-auto hidden flex-1 justify-center px-4 md:flex">
+                    <livewire:admin.global-search />
+                </div>
+
+                <div class="ml-auto flex items-center gap-3 md:ml-0">
                     <x-theme-toggle />
                     <div class="relative border-l border-gray-200 pl-3 dark:border-ink-600" x-data="{ open: false }">
                         <button @click="open = !open" type="button" class="flex items-center gap-2">
