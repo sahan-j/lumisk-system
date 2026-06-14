@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('portal_password_resets', function (Blueprint $table) {
-            $table->string('email')->primary();
+            $table->string('email', 191)->index();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
