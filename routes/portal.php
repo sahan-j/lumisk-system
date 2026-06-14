@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Portal\Auth\LoginController;
+use App\Http\Controllers\Portal\Auth\PortalPasswordResetController;
 use App\Http\Controllers\Portal\EstimatePdfController;
 use App\Http\Controllers\Portal\InvoicePdfController;
 use App\Livewire\Portal\Dashboard;
@@ -17,6 +18,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('client.guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::post('login', [LoginController::class, 'store'])->name('login.store');
+
+    // Password reset
+    Route::get('forgot-password', [PortalPasswordResetController::class, 'showForgotForm'])->name('password.request');
+    Route::post('forgot-password', [PortalPasswordResetController::class, 'sendResetLink'])->name('password.email');
+    Route::get('reset-password/{token}', [PortalPasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('reset-password', [PortalPasswordResetController::class, 'resetPassword'])->name('password.update');
 });
 
 Route::middleware('client.auth')->group(function () {

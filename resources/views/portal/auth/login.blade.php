@@ -11,6 +11,12 @@
         </div>
     @endif
 
+    @if (session('status'))
+        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/40 dark:text-green-300">
+            {{ session('status') }}
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('portal.login.store') }}" class="space-y-5">
         @csrf
         <div>
@@ -22,8 +28,11 @@
             <label for="password" class="form-label">Password</label>
             <input id="password" name="password" type="password" required
                    class="form-input-base" placeholder="••••••••">
+            <div class="mt-1.5 text-right">
+                <a href="{{ route('portal.password.request') }}" class="text-xs text-brand-purple hover:underline">Forgot password?</a>
+            </div>
         </div>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center">
             <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <input type="checkbox" name="remember" class="rounded border-gray-300 text-brand-purple focus:ring-brand-purple dark:border-ink-600 dark:bg-ink-800">
                 Remember me
@@ -31,8 +40,4 @@
         </div>
         <button type="submit" class="btn-primary w-full">Sign in</button>
     </form>
-
-    <p class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-        Lumisk staff? <a href="{{ route('admin.login') }}" class="font-medium text-brand-purple hover:underline">Admin panel &rarr;</a>
-    </p>
 </x-layouts.guest>
