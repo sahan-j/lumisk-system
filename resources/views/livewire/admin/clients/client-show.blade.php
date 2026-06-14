@@ -87,4 +87,31 @@
             </div>
         </div>
     </div>
+
+    {{-- Projects --}}
+    <div class="card mt-6 overflow-hidden">
+        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+            <h3 class="font-semibold text-gray-900 dark:text-white">Projects</h3>
+            <a href="{{ route('admin.projects.create', ['client' => $client->id]) }}" class="text-sm font-medium text-gold hover:underline">New project</a>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-ink-700">
+            @forelse ($projects as $project)
+                @php $pct = $project->tasks_count ? (int) round($project->done_tasks_count / $project->tasks_count * 100) : 0; @endphp
+                <a href="{{ route('admin.projects.show', $project) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $project->name }}</p>
+                        <div class="mt-1.5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-100 dark:bg-ink-700">
+                            <div class="h-full rounded-full bg-gradient-brand" style="width: {{ $pct }}%"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-shrink-0 items-center gap-3">
+                        <span class="text-xs text-gray-400">{{ $pct }}%</span>
+                        <x-status-badge :color="$project->statusColor()" :label="$project->statusLabel()" />
+                    </div>
+                </a>
+            @empty
+                <p class="px-5 py-8 text-center text-sm text-gray-400">No projects.</p>
+            @endforelse
+        </div>
+    </div>
 </div>

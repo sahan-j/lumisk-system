@@ -13,6 +13,9 @@ use App\Livewire\Admin\Estimates\EstimatesIndex;
 use App\Livewire\Admin\Invoices\InvoiceForm;
 use App\Livewire\Admin\Invoices\InvoiceShow;
 use App\Livewire\Admin\Invoices\InvoicesIndex;
+use App\Livewire\Admin\Projects\ProjectForm;
+use App\Livewire\Admin\Projects\ProjectShow;
+use App\Livewire\Admin\Projects\ProjectsIndex;
 use App\Livewire\Admin\SavedItems\SavedItemsIndex;
 use App\Livewire\Admin\Settings\SettingsIndex;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +51,12 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('estimates/{estimate}/edit', EstimateForm::class)->name('estimates.edit');
     Route::get('estimates/{estimate}', EstimateShow::class)->name('estimates.show');
     Route::get('estimates/{estimate}/pdf', [EstimatePdfController::class, 'download'])->name('estimates.pdf');
+
+    // Projects
+    Route::get('projects', ProjectsIndex::class)->name('projects.index');
+    Route::get('projects/create', ProjectForm::class)->name('projects.create');
+    Route::get('projects/{project}/edit', ProjectForm::class)->name('projects.edit');
+    Route::get('projects/{project}', ProjectShow::class)->name('projects.show');
 
     // Saved items
     Route::get('saved-items', SavedItemsIndex::class)->name('saved-items.index');

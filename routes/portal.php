@@ -10,6 +10,8 @@ use App\Livewire\Portal\Estimates\EstimateShow;
 use App\Livewire\Portal\Estimates\EstimatesIndex;
 use App\Livewire\Portal\Invoices\InvoiceShow;
 use App\Livewire\Portal\Invoices\InvoicesIndex;
+use App\Livewire\Portal\Projects\ProjectShow;
+use App\Livewire\Portal\Projects\ProjectsIndex;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +43,10 @@ Route::middleware('client.auth')->group(function () {
     Route::get('estimates', EstimatesIndex::class)->name('estimates.index');
     Route::get('estimates/{estimate}', EstimateShow::class)->name('estimates.show');
     Route::get('estimates/{estimate}/pdf', [EstimatePdfController::class, 'download'])->name('estimates.pdf');
+
+    // Projects (read-only)
+    Route::get('projects', ProjectsIndex::class)->name('projects.index');
+    Route::get('projects/{project}', ProjectShow::class)->name('projects.show');
 
     // Profile
     Route::get('profile', [PortalProfileController::class, 'show'])->name('profile');

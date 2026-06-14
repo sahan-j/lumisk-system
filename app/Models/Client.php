@@ -44,4 +44,9 @@ class Client extends Authenticatable
     {
         return $this->hasMany(Estimate::class);
     }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
 }

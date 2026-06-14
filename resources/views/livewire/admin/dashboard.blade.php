@@ -22,6 +22,24 @@
     </div>
     @endif
 
+    {{-- Overdue projects warning --}}
+    @if($overdueProjects > 0)
+    <div class="mb-5 flex items-center justify-between rounded-lg border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:border-l-amber-500 dark:bg-amber-900/20">
+        <div class="flex items-center gap-3">
+            <svg class="h-5 w-5 flex-shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                {{ $overdueProjects }} {{ Str::plural('Project', $overdueProjects) }} past due date
+            </p>
+        </div>
+        <a href="{{ route('admin.projects.index') }}"
+           class="rounded-md border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 dark:border-amber-700 dark:bg-transparent dark:text-amber-400 dark:hover:bg-amber-900/30">
+            View All &rarr;
+        </a>
+    </div>
+    @endif
+
     {{-- Stat cards --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @php
@@ -30,6 +48,7 @@
                 ['Outstanding', money($outstanding), 'amber', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
                 ['Total Clients', number_format($totalClients), 'blue', 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z'],
                 ['Pending Estimates', number_format($pendingEstimates), 'green', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2'],
+                ['Active Projects', number_format($activeProjects), 'blue', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
             ];
         @endphp
         @foreach ($cards as [$label, $value, $color, $icon])
@@ -139,4 +158,32 @@
             </div>
         </div>
     </div>
+
+    {{-- Recent projects --}}
+    @if ($recentProjects->count())
+    <div class="mt-6 card overflow-hidden">
+        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Active Projects</h2>
+            <a href="{{ route('admin.projects.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-ink-700">
+            @foreach ($recentProjects as $project)
+                @php $pct = $project->tasks_count ? (int) round($project->done_tasks_count / $project->tasks_count * 100) : 0; @endphp
+                <a href="{{ route('admin.projects.show', $project) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $project->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $project->client?->name ?? 'No client' }}</p>
+                    </div>
+                    <div class="hidden w-40 sm:block">
+                        <div class="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-700">
+                            <div class="h-full rounded-full bg-gradient-brand" style="width: {{ $pct }}%"></div>
+                        </div>
+                    </div>
+                    <span class="w-10 text-right text-xs text-gray-400">{{ $pct }}%</span>
+                    <x-status-badge :color="$project->statusColor()" :label="$project->statusLabel()" />
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>

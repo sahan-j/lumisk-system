@@ -23,6 +23,9 @@ class ClientShow extends Component
         return view('livewire.admin.clients.client-show', [
             'invoices' => $this->client->invoices()->latest()->get(),
             'estimates' => $this->client->estimates()->latest()->get(),
+            'projects' => $this->client->projects()
+                ->withCount(['tasks', 'tasks as done_tasks_count' => fn ($q) => $q->where('status', 'done')])
+                ->latest()->get(),
             'totalPaid' => $this->client->invoices()->where('status', 'paid')->sum('total'),
             'totalOutstanding' => $this->client->invoices()->whereIn('status', ['sent', 'overdue'])->sum('total'),
         ]);

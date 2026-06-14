@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Estimate;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Project;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -45,6 +46,18 @@ class Dashboard extends Component
 
         $overdueInvoices = Invoice::where('status', 'overdue')->get();
 
+        $activeProjects = Project::where('status', 'active')->count();
+        $overdueProjects = Project::whereNotIn('status', ['completed', 'cancelled'])
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', today())
+            ->count();
+        $recentProjects = Project::with('client')
+            ->withCount(['tasks', 'tasks as done_tasks_count' => fn ($q) => $q->where('status', 'done')])
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->latest()
+            ->take(3)
+            ->get();
+
         return view('livewire.admin.dashboard', [
             'totalRevenue' => $totalRevenue,
             'outstanding' => $outstanding,
@@ -52,6 +65,9 @@ class Dashboard extends Component
             'pendingEstimates' => $pendingEstimates,
             'overdueCount' => $overdueInvoices->count(),
             'overdueTotal' => $overdueInvoices->sum('total'),
+            'activeProjects' => $activeProjects,
+            'overdueProjects' => $overdueProjects,
+            'recentProjects' => $recentProjects,
             'chartLabels' => $months->pluck('label'),
             'chartValues' => $months->pluck('value'),
             'recentInvoices' => Invoice::with('client')->latest()->take(5)->get(),

@@ -22,6 +22,7 @@
                         'portal.dashboard' => 'Dashboard',
                         'portal.invoices.index' => 'Invoices',
                         'portal.estimates.index' => 'Estimates',
+                        'portal.projects.index' => 'Projects',
                     ];
                 @endphp
                 <nav class="hidden items-center gap-1 md:flex">
