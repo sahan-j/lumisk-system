@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\EstimatePdfController;
 use App\Http\Controllers\Admin\InvoicePdfController;
@@ -53,4 +54,9 @@ Route::middleware('admin.auth')->group(function () {
 
     // Settings
     Route::get('settings', SettingsIndex::class)->name('settings.index');
+
+    // Profile
+    Route::get('profile', [AdminProfileController::class, 'show'])->name('profile');
+    Route::put('profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password');
 });

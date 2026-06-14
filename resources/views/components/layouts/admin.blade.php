@@ -72,11 +72,26 @@
                 <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $title ?? '' }}</h1>
                 <div class="ml-auto flex items-center gap-3">
                     <x-theme-toggle />
-                    <div class="flex items-center gap-2 border-l border-gray-200 pl-3 dark:border-ink-600">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-brand text-sm font-semibold text-white">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                    <div class="relative border-l border-gray-200 pl-3 dark:border-ink-600" x-data="{ open: false }">
+                        <button @click="open = !open" type="button" class="flex items-center gap-2">
+                            @if (auth()->user()->avatar)
+                                <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" class="h-8 w-8 rounded-full object-cover">
+                            @else
+                                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-brand text-sm font-semibold text-white">
+                                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="hidden text-sm font-medium text-gray-700 dark:text-gray-200 sm:block">{{ auth()->user()->name }}</span>
+                            <svg class="hidden h-4 w-4 text-gray-400 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        <div x-show="open" x-cloak @click.outside="open = false" x-transition
+                             class="absolute right-4 mt-2 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-ink-600 dark:bg-ink-850">
+                            <a href="{{ route('admin.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-ink-700">My Profile</a>
+                            <form method="POST" action="{{ route('admin.logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-ink-700">Sign out</button>
+                            </form>
                         </div>
-                        <span class="hidden text-sm font-medium text-gray-700 dark:text-gray-200 sm:block">{{ auth()->user()->name }}</span>
                     </div>
                 </div>
             </header>

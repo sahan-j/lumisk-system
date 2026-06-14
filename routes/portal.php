@@ -4,6 +4,7 @@ use App\Http\Controllers\Portal\Auth\LoginController;
 use App\Http\Controllers\Portal\Auth\PortalPasswordResetController;
 use App\Http\Controllers\Portal\EstimatePdfController;
 use App\Http\Controllers\Portal\InvoicePdfController;
+use App\Http\Controllers\Portal\PortalProfileController;
 use App\Livewire\Portal\Dashboard;
 use App\Livewire\Portal\Estimates\EstimateShow;
 use App\Livewire\Portal\Estimates\EstimatesIndex;
@@ -40,6 +41,11 @@ Route::middleware('client.auth')->group(function () {
     Route::get('estimates', EstimatesIndex::class)->name('estimates.index');
     Route::get('estimates/{estimate}', EstimateShow::class)->name('estimates.show');
     Route::get('estimates/{estimate}/pdf', [EstimatePdfController::class, 'download'])->name('estimates.pdf');
+
+    // Profile
+    Route::get('profile', [PortalProfileController::class, 'show'])->name('profile');
+    Route::put('profile', [PortalProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [PortalProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
 Route::get('/', function () {
