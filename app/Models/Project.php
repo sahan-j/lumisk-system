@@ -59,6 +59,11 @@ class Project extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public function getCompletionPercentageAttribute(): int
     {
         $total = $this->tasks->count();

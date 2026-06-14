@@ -11,6 +11,8 @@ use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Estimates\EstimateForm;
 use App\Livewire\Admin\Estimates\EstimateShow;
 use App\Livewire\Admin\Estimates\EstimatesIndex;
+use App\Livewire\Admin\Expenses\ExpenseForm;
+use App\Livewire\Admin\Expenses\ExpensesIndex;
 use App\Livewire\Admin\Invoices\InvoiceForm;
 use App\Livewire\Admin\Invoices\InvoiceShow;
 use App\Livewire\Admin\Invoices\InvoicesIndex;
@@ -60,6 +62,11 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('projects/create', ProjectForm::class)->name('projects.create');
     Route::get('projects/{project}/edit', ProjectForm::class)->name('projects.edit');
     Route::get('projects/{project}', ProjectShow::class)->name('projects.show');
+
+    // Expenses
+    Route::get('expenses', ExpensesIndex::class)->name('expenses.index');
+    Route::get('expenses/create', ExpenseForm::class)->name('expenses.create');
+    Route::get('expenses/{expense}/edit', ExpenseForm::class)->name('expenses.edit');
 
     // Support tickets
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');

@@ -50,6 +50,8 @@
                 ['Pending Estimates', number_format($pendingEstimates), 'green', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2'],
                 ['Active Projects', number_format($activeProjects), 'blue', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
                 ['Open Tickets', number_format($openTickets), $openTickets > 0 ? 'red' : 'green', 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z'],
+                ['Expenses (YTD)', money($expensesThisYear), 'red', 'M9 7h6m-6 4h6m-6 4h4M5 3h14a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 011-1z'],
+                ['Net Profit (YTD)', money($netProfit), $netProfit >= 0 ? 'green' : 'red', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
             ];
         @endphp
         @foreach ($cards as [$label, $value, $color, $icon])
@@ -74,10 +76,10 @@
         @endforeach
     </div>
 
-    {{-- Revenue chart --}}
+    {{-- Revenue vs Expenses chart --}}
     <div class="mt-6 card p-5">
-        <h2 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue</h2>
-        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Paid invoices over the last 6 months</p>
+        <h2 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue vs Expenses</h2>
+        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Paid invoices and expenses over the last 6 months</p>
         <div class="h-72"
              x-data
              x-init="
@@ -87,18 +89,27 @@
                     type: 'bar',
                     data: {
                         labels: @js($chartLabels),
-                        datasets: [{
-                            label: 'Revenue',
-                            data: @js($chartValues),
-                            backgroundColor: '#D4AF37',
-                            borderRadius: 6,
-                            maxBarThickness: 48,
-                        }]
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: @js($chartValues),
+                                backgroundColor: '#D4AF37',
+                                borderRadius: 6,
+                                maxBarThickness: 36,
+                            },
+                            {
+                                label: 'Expenses',
+                                data: @js($expenseValues),
+                                backgroundColor: '#ef4444',
+                                borderRadius: 6,
+                                maxBarThickness: 36,
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: { legend: { display: true, labels: { color: dark ? '#9ca3af' : '#6b7280' } } },
                         scales: {
                             x: { grid: { display: false }, ticks: { color: dark ? '#9ca3af' : '#6b7280' } },
                             y: { beginAtZero: true, grid: { color: dark ? '#2a2a2a' : '#e5e7eb' }, ticks: { color: dark ? '#9ca3af' : '#6b7280' } }
@@ -107,6 +118,31 @@
                 });
              ">
             <canvas x-ref="revenueChart"></canvas>
+        </div>
+
+        {{-- Financial summary (year to date) --}}
+        <div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-ink-600 dark:bg-ink-800">
+            <p class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Financial Summary — {{ now()->format('Y') }}</p>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Total Revenue</p>
+                    <p class="mt-1 text-xl font-bold text-green-600 dark:text-green-400">{{ money($revenueThisYear) }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Total Expenses</p>
+                    <p class="mt-1 text-xl font-bold text-red-600 dark:text-red-400">{{ money($expensesThisYear) }}</p>
+                </div>
+                <div class="sm:border-l sm:border-gray-200 sm:pl-4 dark:sm:border-ink-600">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Net Profit</p>
+                    <p class="mt-1 text-xl font-bold {{ $netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                        {{ money($netProfit) }}
+                        <span class="text-sm">{{ $netProfit >= 0 ? '▲' : '▼' }}</span>
+                    </p>
+                    @if ($revenueThisYear > 0)
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ round(($netProfit / $revenueThisYear) * 100, 1) }}% margin</p>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 

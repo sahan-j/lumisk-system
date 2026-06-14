@@ -54,4 +54,9 @@ class Client extends Authenticatable
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
 }

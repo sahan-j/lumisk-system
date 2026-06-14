@@ -114,4 +114,46 @@
             @endforelse
         </div>
     </div>
+
+    {{-- Billable expenses --}}
+    <div class="card mt-6 overflow-hidden">
+        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+            <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white">Billable Expenses</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Unbilled expenses marked billable for this client.</p>
+            </div>
+            @if ($billableExpenses->count())
+                <button wire:click="createInvoiceFromExpenses"
+                        wire:confirm="Create a draft invoice from {{ $billableExpenses->count() }} billable expense(s)? They will be marked as billed."
+                        class="btn-primary !px-3 !py-1.5 text-xs">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                    Create Invoice from Expenses
+                </button>
+            @endif
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-ink-700">
+            @forelse ($billableExpenses as $expense)
+                <div class="flex items-center justify-between px-5 py-3">
+                    <div class="flex items-center gap-3">
+                        @if ($expense->category)
+                            <span class="h-2.5 w-2.5 flex-shrink-0 rounded-full" style="background-color: {{ $expense->category->color }}"></span>
+                        @endif
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $expense->title }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $expense->expense_date?->format('M d, Y') }}{{ $expense->category ? ' · ' . $expense->category->name : '' }}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($expense->amount) }}</p>
+                </div>
+            @empty
+                <p class="px-5 py-8 text-center text-sm text-gray-400">No unbilled billable expenses.</p>
+            @endforelse
+            @if ($billableExpenses->count())
+                <div class="flex items-center justify-between bg-gray-50 px-5 py-3 dark:bg-ink-800">
+                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Total billable</span>
+                    <span class="text-sm font-semibold text-cyan-600 dark:text-cyan-400">{{ money($billableExpenses->sum('amount')) }}</span>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>

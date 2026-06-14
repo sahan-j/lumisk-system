@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Client;
 use App\Models\Estimate;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
@@ -45,6 +46,20 @@ class Dashboard extends Component
             ]);
         }
 
+        // Last 6 months expenses (by expense_date) — aligned with the revenue series above.
+        $expenseSeries = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $month = Carbon::now()->startOfMonth()->subMonths($i);
+            $expenseSeries->push(round((float) Expense::whereYear('expense_date', $month->year)
+                ->whereMonth('expense_date', $month->month)
+                ->sum('amount'), 2));
+        }
+
+        // Year-to-date profit & loss (revenue collected vs expenses incurred this year).
+        $revenueThisYear = (float) Payment::whereYear('payment_date', now()->year)->sum('amount');
+        $expensesThisYear = (float) Expense::whereYear('expense_date', now()->year)->sum('amount');
+        $netProfit = round($revenueThisYear - $expensesThisYear, 2);
+
         $overdueInvoices = Invoice::where('status', 'overdue')->get();
 
         $activeProjects = Project::where('status', 'active')->count();
@@ -71,8 +86,12 @@ class Dashboard extends Component
             'recentProjects' => $recentProjects,
             'openTickets' => Ticket::where('status', 'open')->count(),
             'recentTickets' => Ticket::with('client')->whereNotIn('status', ['closed'])->latest()->take(3)->get(),
+            'expensesThisYear' => $expensesThisYear,
+            'revenueThisYear' => $revenueThisYear,
+            'netProfit' => $netProfit,
             'chartLabels' => $months->pluck('label'),
             'chartValues' => $months->pluck('value'),
+            'expenseValues' => $expenseSeries,
             'recentInvoices' => Invoice::with('client')->latest()->take(5)->get(),
             'recentEstimates' => Estimate::with('client')->latest()->take(5)->get(),
         ]);

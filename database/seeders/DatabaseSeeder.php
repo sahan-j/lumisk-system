@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             CompanySeeder::class,
             SavedItemsSeeder::class,
+            ExpenseCategorySeeder::class,
         ]);
     }
 }
