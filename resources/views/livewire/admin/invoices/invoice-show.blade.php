@@ -10,11 +10,18 @@
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $invoice->invoice_number }}</h2>
                 <x-status-badge :color="$invoice->statusColor()" :label="$invoice->status" />
             </div>
+            @if ($invoice->converted_from)
+                <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-purple">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2M3 10l4-4M3 10l4 4" /></svg>
+                    Converted from {{ $invoice->converted_from }}
+                </p>
+            @endif
         </div>
         <div class="flex flex-wrap items-start gap-2">
             <a href="{{ route('admin.invoices.edit', $invoice) }}" class="btn-secondary !py-1.5 text-sm">Edit</a>
             <a href="{{ route('admin.invoices.pdf', $invoice) }}" class="btn-secondary !py-1.5 text-sm">Download PDF</a>
-            <button wire:click="duplicate" class="btn-secondary !py-1.5 text-sm">Duplicate</button>
+            <button wire:click="$dispatch('open-duplicate', { type: 'invoice', id: {{ $invoice->id }} })" class="btn-secondary !py-1.5 text-sm">Duplicate</button>
+            <button wire:click="$dispatch('open-convert', { direction: 'invoice_to_estimate', id: {{ $invoice->id }} })" class="btn-secondary !py-1.5 text-sm">Convert to Estimate</button>
             @if (! in_array($invoice->status, ['cancelled']))
                 <button wire:click="$dispatch('open-record-payment', { invoiceId: {{ $invoice->id }} })" class="btn-primary !py-1.5 text-sm">
                     <svg class="mr-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

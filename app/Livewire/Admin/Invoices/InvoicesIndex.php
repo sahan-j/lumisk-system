@@ -32,11 +32,81 @@ class InvoicesIndex extends Component
     public bool $confirmingDelete = false;
     public ?int $deleteId = null;
 
+    public array $selected = [];
+    public bool $selectAll = false;
+    public array $pageIds = [];
+
     public function updating($name): void
     {
         if (in_array($name, ['search', 'status', 'from', 'to'])) {
             $this->resetPage();
+            $this->reset('selected', 'selectAll');
         }
+    }
+
+    public function updatedSelectAll($value): void
+    {
+        $this->selected = $value ? array_map('strval', $this->pageIds) : [];
+    }
+
+    public function bulkMarkSent(): void
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = Invoice::whereIn('id', $this->selected)->where('status', 'draft')->update(['status' => 'sent']);
+        $this->reset('selected', 'selectAll');
+        $this->dispatch('toast', type: 'success', message: "{$count} marked as sent");
+    }
+
+    public function bulkMarkPaid(): void
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = Invoice::whereIn('id', $this->selected)->update(['status' => 'paid']);
+        $this->reset('selected', 'selectAll');
+        $this->dispatch('toast', type: 'success', message: "{$count} marked as paid");
+    }
+
+    public function bulkDelete(): void
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = Invoice::whereIn('id', $this->selected)->count();
+        Invoice::whereIn('id', $this->selected)->delete();
+        $this->reset('selected', 'selectAll');
+        $this->dispatch('toast', type: 'success', message: "{$count} items deleted");
+    }
+
+    public function bulkExportCsv()
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $records = Invoice::with('client')->whereIn('id', $this->selected)->latest()->get();
+        $filename = 'invoices-export-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($records) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Number', 'Client', 'Issue Date', 'Due Date', 'Status', 'Total']);
+            foreach ($records as $r) {
+                fputcsv($out, [
+                    $r->invoice_number,
+                    $r->client?->name,
+                    $r->issue_date?->format('Y-m-d'),
+                    $r->due_date?->format('Y-m-d'),
+                    $r->status,
+                    number_format((float) $r->total, 2, '.', ''),
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
 
     public function duplicate(int $id): void
@@ -90,6 +160,8 @@ class InvoicesIndex extends Component
             ->when($this->to, fn ($q) => $q->whereDate('issue_date', '<=', $this->to))
             ->latest()
             ->paginate(15);
+
+        $this->pageIds = $invoices->pluck('id')->all();
 
         return view('livewire.admin.invoices.invoices-index', [
             'invoices' => $invoices,

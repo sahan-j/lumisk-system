@@ -105,6 +105,8 @@
     <x-toasts />
     <livewire:admin.send-email-modal />
     <livewire:admin.record-payment-modal />
+    <livewire:admin.duplicate-modal />
+    <livewire:admin.convert-modal />
     @livewireScripts
 </body>
 </html>

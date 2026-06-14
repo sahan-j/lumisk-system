@@ -32,11 +32,70 @@ class EstimatesIndex extends Component
     public bool $confirmingDelete = false;
     public ?int $deleteId = null;
 
+    public array $selected = [];
+    public bool $selectAll = false;
+    public array $pageIds = [];
+
     public function updating($name): void
     {
         if (in_array($name, ['search', 'status', 'from', 'to'])) {
             $this->resetPage();
+            $this->reset('selected', 'selectAll');
         }
+    }
+
+    public function updatedSelectAll($value): void
+    {
+        $this->selected = $value ? array_map('strval', $this->pageIds) : [];
+    }
+
+    public function bulkMarkSent(): void
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = Estimate::whereIn('id', $this->selected)->where('status', 'draft')->update(['status' => 'sent']);
+        $this->reset('selected', 'selectAll');
+        $this->dispatch('toast', type: 'success', message: "{$count} marked as sent");
+    }
+
+    public function bulkDelete(): void
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = Estimate::whereIn('id', $this->selected)->count();
+        Estimate::whereIn('id', $this->selected)->delete();
+        $this->reset('selected', 'selectAll');
+        $this->dispatch('toast', type: 'success', message: "{$count} items deleted");
+    }
+
+    public function bulkExportCsv()
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $records = Estimate::with('client')->whereIn('id', $this->selected)->latest()->get();
+        $filename = 'estimates-export-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($records) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Number', 'Client', 'Issue Date', 'Expiry Date', 'Status', 'Total']);
+            foreach ($records as $r) {
+                fputcsv($out, [
+                    $r->estimate_number,
+                    $r->client?->name,
+                    $r->issue_date?->format('Y-m-d'),
+                    $r->expiry_date?->format('Y-m-d'),
+                    $r->status,
+                    number_format((float) $r->total, 2, '.', ''),
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
 
     public function duplicate(int $id): void
@@ -91,6 +150,8 @@ class EstimatesIndex extends Component
             ->when($this->to, fn ($q) => $q->whereDate('issue_date', '<=', $this->to))
             ->latest()
             ->paginate(15);
+
+        $this->pageIds = $estimates->pluck('id')->all();
 
         return view('livewire.admin.estimates.estimates-index', [
             'estimates' => $estimates,

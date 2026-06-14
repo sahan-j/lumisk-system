@@ -18,6 +18,7 @@ class Invoice extends Model
         'invoice_number',
         'client_id',
         'status',
+        'converted_from',
         'issue_date',
         'due_date',
         'subtotal',

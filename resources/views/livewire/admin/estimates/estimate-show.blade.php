@@ -10,12 +10,18 @@
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $estimate->estimate_number }}</h2>
                 <x-status-badge :color="$estimate->statusColor()" :label="$estimate->status" />
             </div>
+            @if ($estimate->converted_from)
+                <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-purple">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2M3 10l4-4M3 10l4 4" /></svg>
+                    Converted from {{ $estimate->converted_from }}
+                </p>
+            @endif
         </div>
         <div class="flex flex-wrap items-start gap-2">
             <a href="{{ route('admin.estimates.edit', $estimate) }}" class="btn-secondary !py-1.5 text-sm">Edit</a>
             <a href="{{ route('admin.estimates.pdf', $estimate) }}" class="btn-secondary !py-1.5 text-sm">Download PDF</a>
-            <button wire:click="duplicate" class="btn-secondary !py-1.5 text-sm">Duplicate</button>
-            <button wire:click="convertToInvoice" wire:confirm="Create a new invoice from this estimate?" class="btn-gold !py-1.5 text-sm">Convert to Invoice</button>
+            <button wire:click="$dispatch('open-duplicate', { type: 'estimate', id: {{ $estimate->id }} })" class="btn-secondary !py-1.5 text-sm">Duplicate</button>
+            <button wire:click="$dispatch('open-convert', { direction: 'estimate_to_invoice', id: {{ $estimate->id }} })" class="btn-primary !py-1.5 text-sm">Convert to Invoice</button>
             <div>
                 <button wire:click="openSendEmail" class="btn-primary !py-1.5 text-sm">
                     <svg class="mr-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

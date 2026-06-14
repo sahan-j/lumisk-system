@@ -18,6 +18,7 @@ class Estimate extends Model
         'estimate_number',
         'client_id',
         'status',
+        'converted_from',
         'issue_date',
         'expiry_date',
         'subtotal',
