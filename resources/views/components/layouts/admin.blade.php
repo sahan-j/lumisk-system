@@ -112,6 +112,7 @@
     <livewire:admin.record-payment-modal />
     <livewire:admin.duplicate-modal />
     <livewire:admin.convert-modal />
+    <livewire:admin.whatsapp-modal />
     @livewireScripts
 </body>
 </html>

@@ -7,7 +7,7 @@
     {{-- Tabs --}}
     <div class="mb-6 border-b border-gray-200 dark:border-ink-600">
         <nav class="flex gap-1">
-            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates'] as $key => $label)
+            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp'] as $key => $label)
                 <button type="button" @click="tab = '{{ $key }}'"
                         :class="tab === '{{ $key }}' ? 'border-gold text-gold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                         class="border-b-2 px-4 py-2.5 text-sm font-medium transition">{{ $label }}</button>
@@ -208,6 +208,32 @@
                     <label class="form-label">Estimate Email Body <span class="text-red-500">*</span></label>
                     <textarea wire:model="estimate_email_body" rows="5" class="form-input-base text-sm"></textarea>
                     @error('estimate_email_body') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
+        {{-- Tab 5: WhatsApp Templates --}}
+        <div x-show="tab === 'whatsapp'" x-cloak class="card max-w-3xl p-6">
+            <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+                Default message pre-filled when sending invoices or estimates via WhatsApp.
+                Use <code class="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-ink-700">{placeholder}</code> variables — replaced with real values when the modal opens.
+                <code class="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-ink-700">{link}</code> inserts the secure public view link.
+            </p>
+            <div class="space-y-5">
+                <div>
+                    <label class="form-label">Invoice Message Template <span class="text-red-500">*</span></label>
+                    <textarea wire:model="whatsapp_message_invoice" rows="8" class="form-input-base font-mono text-xs"></textarea>
+                    <p class="mt-1 text-xs text-gray-400">{client_name}, {invoice_number}, {total}, {due_date}, {link}, {company_name}, {company_phone}</p>
+                    @error('whatsapp_message_invoice') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+
+                <hr class="border-gray-200 dark:border-ink-600">
+
+                <div>
+                    <label class="form-label">Estimate Message Template <span class="text-red-500">*</span></label>
+                    <textarea wire:model="whatsapp_message_estimate" rows="8" class="form-input-base font-mono text-xs"></textarea>
+                    <p class="mt-1 text-xs text-gray-400">{client_name}, {estimate_number}, {total}, {expiry_date}, {link}, {company_name}, {company_phone}</p>
+                    @error('whatsapp_message_estimate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
             </div>
         </div>

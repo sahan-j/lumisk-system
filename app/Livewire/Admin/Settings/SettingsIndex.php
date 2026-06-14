@@ -54,6 +54,10 @@ class SettingsIndex extends Component
     public string $estimate_email_subject = '';
     public string $estimate_email_body = '';
 
+    // WhatsApp templates
+    public string $whatsapp_message_invoice = '';
+    public string $whatsapp_message_estimate = '';
+
     public function mount(): void
     {
         $this->company = Company::settings();
@@ -76,6 +80,10 @@ class SettingsIndex extends Component
         $this->invoice_email_body     = $this->company->invoice_email_body     ?: "Dear {client_name},\n\nPlease find attached your invoice {invoice_number} for {total}.\n\nKind regards,\nLumisk Technology";
         $this->estimate_email_subject = $this->company->estimate_email_subject ?: 'Estimate {estimate_number} from Lumisk Technology';
         $this->estimate_email_body    = $this->company->estimate_email_body    ?: "Dear {client_name},\n\nPlease find attached your estimate {estimate_number} for {total}.\n\nKind regards,\nLumisk Technology";
+
+        // WhatsApp templates — fall back to the code defaults when null
+        $this->whatsapp_message_invoice  = $this->company->whatsapp_message_invoice  ?: Company::DEFAULT_WHATSAPP_INVOICE;
+        $this->whatsapp_message_estimate = $this->company->whatsapp_message_estimate ?: Company::DEFAULT_WHATSAPP_ESTIMATE;
     }
 
     public function save(): void
@@ -106,6 +114,8 @@ class SettingsIndex extends Component
             'invoice_email_body' => ['required', 'string'],
             'estimate_email_subject' => ['required', 'string', 'max:500'],
             'estimate_email_body' => ['required', 'string'],
+            'whatsapp_message_invoice' => ['required', 'string'],
+            'whatsapp_message_estimate' => ['required', 'string'],
         ]);
 
         if ($this->logo) {
