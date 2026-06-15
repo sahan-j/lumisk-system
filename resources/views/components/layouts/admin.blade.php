@@ -6,7 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ? $title . ' — ' : '' }}{{ config('app.name') }}</title>
     <script>
-        if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
+        (function () {
+            function applyTheme() {
+                if (localStorage.theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+            applyTheme();
+            document.addEventListener('livewire:navigated', applyTheme);
+        })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
