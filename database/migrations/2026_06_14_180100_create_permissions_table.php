@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name', 100)->unique();
             $table->string('label');
-            $table->string('group');
+            $table->string('group', 50);
             $table->timestamps();
         });
     }

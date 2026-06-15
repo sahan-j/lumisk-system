@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('role_permissions', function (Blueprint $table) {
-            $table->string('role');
-            $table->string('permission_name');
+            $table->string('role', 50);
+            $table->string('permission_name', 100);
             $table->primary(['role', 'permission_name']);
             $table->index('role');
         });

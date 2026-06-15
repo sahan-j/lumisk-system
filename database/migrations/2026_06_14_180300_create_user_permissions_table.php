@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('user_permissions', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('permission_name');
+            $table->string('permission_name', 100);
             $table->boolean('granted')->default(true);
             $table->primary(['user_id', 'permission_name']);
         });
