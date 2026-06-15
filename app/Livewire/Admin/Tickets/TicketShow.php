@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Tickets;
 
 use App\Mail\TicketReplyMail;
 use App\Mail\TicketStatusMail;
+use App\Models\ActivityLog;
 use App\Models\Company;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Mail;
@@ -63,6 +64,11 @@ class TicketShow extends Component
             }
             $this->ticket->update($updates);
 
+            ActivityLog::log('ticket_replied',
+                "Replied to ticket {$this->ticket->ticket_number}",
+                ['subject_type' => 'Ticket', 'subject_id' => $this->ticket->id,
+                 'subject_label' => $this->ticket->ticket_number, 'client_id' => $this->ticket->client_id]);
+
             if ($company->ticket_notifications_enabled && $this->ticket->client?->email) {
                 try {
                     Mail::to($this->ticket->client->email)
@@ -93,6 +99,13 @@ class TicketShow extends Component
         }
 
         $this->ticket->update($updates);
+
+        if ($status === 'resolved') {
+            ActivityLog::log('ticket_resolved',
+                "Ticket {$this->ticket->ticket_number} resolved",
+                ['subject_type' => 'Ticket', 'subject_id' => $this->ticket->id,
+                 'subject_label' => $this->ticket->ticket_number, 'client_id' => $this->ticket->client_id]);
+        }
 
         $company = Company::settings();
         if ($company->ticket_notifications_enabled && $this->ticket->client?->email) {

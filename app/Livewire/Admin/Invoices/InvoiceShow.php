@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Invoices;
 
+use App\Models\ActivityLog;
 use App\Models\Invoice;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -27,6 +28,14 @@ class InvoiceShow extends Component
 
         $this->invoice->update(['status' => $status]);
         $this->invoice->refresh();
+
+        if (in_array($status, ['sent', 'paid'], true)) {
+            ActivityLog::log("invoice_{$status}",
+                "Invoice {$this->invoice->invoice_number} marked as {$status}",
+                ['subject_type' => 'Invoice', 'subject_id' => $this->invoice->id,
+                 'subject_label' => $this->invoice->invoice_number, 'client_id' => $this->invoice->client_id]);
+        }
+
         $this->dispatch('toast', type: 'success', message: 'Status updated to ' . ucfirst($status) . '.');
     }
 

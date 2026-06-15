@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Invoices;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\SavedItem;
@@ -120,6 +121,8 @@ class InvoiceForm extends Component
 
     public function save(string $newStatus = null)
     {
+        $isNew = ! ($this->invoice && $this->invoice->exists);
+
         $validated = $this->validate([
             'client_id' => ['required', 'exists:clients,id'],
             'status' => ['required', 'in:' . implode(',', Invoice::STATUSES)],
@@ -174,6 +177,14 @@ class InvoiceForm extends Component
 
             return $invoice;
         });
+
+        if ($isNew) {
+            $invoice->loadMissing('client');
+            ActivityLog::log('invoice_created',
+                "Invoice {$invoice->invoice_number} created for " . ($invoice->client?->name ?? 'a client'),
+                ['subject_type' => 'Invoice', 'subject_id' => $invoice->id,
+                 'subject_label' => $invoice->invoice_number, 'client_id' => $invoice->client_id]);
+        }
 
         $this->dispatch('toast', type: 'success', message: 'Invoice saved.');
 

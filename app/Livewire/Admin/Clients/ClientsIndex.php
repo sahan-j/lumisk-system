@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Clients;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -97,10 +98,17 @@ class ClientsIndex extends Component
         }
 
         if ($this->editingId) {
-            Client::findOrFail($this->editingId)->update($data);
+            $client = Client::findOrFail($this->editingId);
+            $client->update($data);
+            ActivityLog::log('client_updated', "Client {$client->name} updated",
+                ['subject_type' => 'Client', 'subject_id' => $client->id,
+                 'subject_label' => $client->name, 'client_id' => $client->id]);
             $message = 'Client updated.';
         } else {
-            Client::create($data);
+            $client = Client::create($data);
+            ActivityLog::log('client_created', "Client {$client->name} added",
+                ['subject_type' => 'Client', 'subject_id' => $client->id,
+                 'subject_label' => $client->name, 'client_id' => $client->id]);
             $message = 'Client created.';
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\ActivityLog;
 use App\Models\Invoice;
 use App\Models\Payment;
 use Livewire\Attributes\On;
@@ -74,7 +75,7 @@ class RecordPaymentModal extends Component
         $this->isSaving = true;
 
         try {
-            $this->invoice->payments()->create([
+            $payment = $this->invoice->payments()->create([
                 'amount' => $validated['amount'],
                 'payment_method' => $validated['paymentMethod'],
                 'payment_date' => $validated['paymentDate'],
@@ -82,10 +83,20 @@ class RecordPaymentModal extends Component
                 'note' => $validated['note'] ?: null,
             ]);
 
+            ActivityLog::log('payment_recorded',
+                'Payment of ' . money($validated['amount']) . " recorded for {$this->invoice->invoice_number}",
+                ['subject_type' => 'Invoice', 'subject_id' => $this->invoice->id,
+                 'subject_label' => $this->invoice->invoice_number, 'client_id' => $this->invoice->client_id,
+                 'meta' => ['amount' => $validated['amount'], 'method' => $payment->payment_method_label]]);
+
             $this->loadInvoice();
 
             if ($this->invoice->is_fully_paid) {
                 $this->invoice->update(['status' => 'paid']);
+                ActivityLog::log('invoice_paid',
+                    "Invoice {$this->invoice->invoice_number} fully paid",
+                    ['subject_type' => 'Invoice', 'subject_id' => $this->invoice->id,
+                     'subject_label' => $this->invoice->invoice_number, 'client_id' => $this->invoice->client_id]);
             } elseif ($this->invoice->status === 'draft') {
                 $this->invoice->update(['status' => 'sent']);
             }

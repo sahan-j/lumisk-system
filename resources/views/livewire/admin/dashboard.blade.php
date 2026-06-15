@@ -81,6 +81,7 @@
         <h2 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue vs Expenses</h2>
         <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Paid invoices and expenses over the last 6 months</p>
         <div class="h-72"
+             wire:ignore
              x-data
              x-init="
                 const ctx = $refs.revenueChart.getContext('2d');
@@ -246,4 +247,76 @@
         </div>
     </div>
     @endif
+
+    {{-- Activity feed --}}
+    <div class="mt-6 card overflow-hidden" wire:poll.30s="loadActivities">
+        <div class="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 dark:border-ink-600 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
+                <svg class="h-5 w-5 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4" /></svg>
+                Recent Activity
+            </h2>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400">Auto-refreshes every 30s</span>
+                <button wire:click="loadActivities" class="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-medium text-brand-purple hover:bg-brand-purple/5">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        {{-- Filter chips --}}
+        <div class="flex flex-wrap gap-2 border-b border-gray-100 px-5 py-3 dark:border-ink-700">
+            @foreach (['all' => 'All', 'invoices' => 'Invoices', 'payments' => 'Payments', 'tickets' => 'Tickets', 'clients' => 'Clients', 'projects' => 'Projects'] as $key => $label)
+                <button wire:click="filterActivity('{{ $key }}')"
+                        @class([
+                            'rounded-full px-3 py-1 text-xs font-medium transition',
+                            'bg-gradient-brand text-white' => $activityFilter === $key,
+                            'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-ink-600 dark:text-gray-300 dark:hover:bg-ink-700' => $activityFilter !== $key,
+                        ])>
+                    {{ $label }}
+                </button>
+            @endforeach
+        </div>
+
+        {{-- Activity list --}}
+        <div class="max-h-[480px] divide-y divide-gray-100 overflow-y-auto dark:divide-ink-700">
+            @forelse ($activities as $activity)
+                <div wire:key="activity-{{ $activity->id }}" class="flex items-start gap-3 px-5 py-3">
+                    <div class="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg" style="background-color: {{ $activity->color }}1a; color: {{ $activity->color }}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $activity->icon_path }}" /></svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm text-gray-900 dark:text-white">{{ $activity->description }}</p>
+                        <div class="mt-1 flex flex-wrap items-center gap-2">
+                            <span @class([
+                                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
+                                'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300' => $activity->causer_type === 'client',
+                                'bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20' => $activity->causer_type !== 'client',
+                            ])>
+                                {{ $activity->causer_type === 'client' ? '👤' : '⚡' }} {{ $activity->causer_name ?? 'System' }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ $activity->created_at->diffForHumans() }}</span>
+                            @if ($activity->subject_label)
+                                <span class="rounded bg-brand-purple/8 px-1.5 py-0.5 font-mono text-[10px] text-brand-purple dark:bg-brand-purple/15">{{ $activity->subject_label }}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <span class="mt-0.5 flex-shrink-0 whitespace-nowrap text-[10px] text-gray-400">{{ $activity->created_at->format('M d, H:i') }}</span>
+                </div>
+            @empty
+                <div class="px-5 py-12 text-center">
+                    <svg class="mx-auto mb-2 h-8 w-8 text-gray-300 dark:text-ink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4" /></svg>
+                    <p class="text-sm text-gray-400">No activity yet</p>
+                    <p class="mt-1 text-xs text-gray-400">Actions will appear here as you use the system</p>
+                </div>
+            @endforelse
+        </div>
+
+        {{-- Load more --}}
+        @if ($hasMoreActivity)
+            <div class="border-t border-gray-100 px-5 py-3 text-center dark:border-ink-700">
+                <button wire:click="loadMore" class="text-xs font-medium text-brand-purple hover:underline">Load more activity →</button>
+            </div>
+        @endif
+    </div>
 </div>

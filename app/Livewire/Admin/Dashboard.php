@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Estimate;
 use App\Models\Expense;
@@ -18,6 +19,26 @@ use Livewire\Component;
 #[Title('Dashboard')]
 class Dashboard extends Component
 {
+    public string $activityFilter = 'all';
+    public int $activityLimit = 15;
+
+    /** Re-render hook for the Refresh button / wire:poll. */
+    public function loadActivities(): void
+    {
+        // Intentionally empty — invoking any action re-renders and re-queries.
+    }
+
+    public function filterActivity(string $filter): void
+    {
+        $this->activityFilter = $filter;
+        $this->activityLimit = 15;
+    }
+
+    public function loadMore(): void
+    {
+        $this->activityLimit += 15;
+    }
+
     public function render()
     {
         // Revenue = everything actually collected across all payments.
@@ -60,6 +81,15 @@ class Dashboard extends Component
         $expensesThisYear = (float) Expense::whereYear('expense_date', now()->year)->sum('amount');
         $netProfit = round($revenueThisYear - $expensesThisYear, 2);
 
+        // Activity feed — filtered by type group, limited (load-more grows the limit).
+        $activityQuery = ActivityLog::latest();
+        if (isset(ActivityLog::GROUPS[$this->activityFilter])) {
+            $activityQuery->whereIn('type', ActivityLog::GROUPS[$this->activityFilter]);
+        }
+        $activities = $activityQuery->limit($this->activityLimit + 1)->get();
+        $hasMoreActivity = $activities->count() > $this->activityLimit;
+        $activities = $activities->take($this->activityLimit);
+
         $overdueInvoices = Invoice::where('status', 'overdue')->get();
 
         $activeProjects = Project::where('status', 'active')->count();
@@ -89,6 +119,8 @@ class Dashboard extends Component
             'expensesThisYear' => $expensesThisYear,
             'revenueThisYear' => $revenueThisYear,
             'netProfit' => $netProfit,
+            'activities' => $activities,
+            'hasMoreActivity' => $hasMoreActivity,
             'chartLabels' => $months->pluck('label'),
             'chartValues' => $months->pluck('value'),
             'expenseValues' => $expenseSeries,

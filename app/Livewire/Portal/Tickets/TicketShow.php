@@ -3,6 +3,7 @@
 namespace App\Livewire\Portal\Tickets;
 
 use App\Mail\TicketReplyAdminMail;
+use App\Models\ActivityLog;
 use App\Models\Company;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,12 @@ class TicketShow extends Component
 
         // A client reply re-opens the conversation for the team.
         $this->ticket->update(['status' => 'open']);
+
+        ActivityLog::log('ticket_replied',
+            "{$client->name} replied to ticket {$this->ticket->ticket_number}",
+            ['subject_type' => 'Ticket', 'subject_id' => $this->ticket->id,
+             'subject_label' => $this->ticket->ticket_number,
+             'causer_type' => 'client', 'causer_name' => $client->name, 'client_id' => $client->id]);
 
         $company = Company::settings();
         if ($company->ticket_notifications_enabled && $company->email) {

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Expenses;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -115,7 +116,11 @@ class ExpenseForm extends Component
             $this->expense->update($data);
             $message = 'Expense updated!';
         } else {
-            Expense::create($data);
+            $expense = Expense::create($data);
+            ActivityLog::log('expense_recorded',
+                "Expense \"{$expense->title}\" recorded — " . money($expense->amount),
+                ['subject_type' => 'Expense', 'subject_id' => $expense->id,
+                 'subject_label' => money($expense->amount, false), 'client_id' => $expense->client_id]);
             $message = 'Expense recorded successfully!';
         }
 

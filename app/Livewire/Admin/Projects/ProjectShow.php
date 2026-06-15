@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Projects;
 
+use App\Models\ActivityLog;
 use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Task;
@@ -55,7 +56,15 @@ class ProjectShow extends Component
     public function toggleTask(int $taskId): void
     {
         $task = $this->project->tasks()->findOrFail($taskId);
-        $task->status === 'done' ? $task->markTodo() : $task->markDone();
+        if ($task->status === 'done') {
+            $task->markTodo();
+        } else {
+            $task->markDone();
+            ActivityLog::log('task_completed',
+                "Task \"{$task->title}\" completed in {$this->project->name}",
+                ['subject_type' => 'Project', 'subject_id' => $this->project->id,
+                 'subject_label' => $this->project->name, 'client_id' => $this->project->client_id]);
+        }
     }
 
     public function deleteTask(int $taskId): void
@@ -77,6 +86,12 @@ class ProjectShow extends Component
             $this->project->completed_at = null;
         }
         $this->project->save();
+
+        if ($status === 'completed') {
+            ActivityLog::log('project_completed', "Project \"{$this->project->name}\" completed",
+                ['subject_type' => 'Project', 'subject_id' => $this->project->id,
+                 'subject_label' => $this->project->name, 'client_id' => $this->project->client_id]);
+        }
 
         $this->dispatch('toast', type: 'success', message: 'Status updated.');
     }

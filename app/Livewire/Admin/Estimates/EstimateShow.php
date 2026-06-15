@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Estimates;
 
+use App\Models\ActivityLog;
 use App\Models\Estimate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -27,6 +28,14 @@ class EstimateShow extends Component
 
         $this->estimate->update(['status' => $status]);
         $this->estimate->refresh();
+
+        if ($status === 'sent') {
+            ActivityLog::log('estimate_sent',
+                "Estimate {$this->estimate->estimate_number} sent",
+                ['subject_type' => 'Estimate', 'subject_id' => $this->estimate->id,
+                 'subject_label' => $this->estimate->estimate_number, 'client_id' => $this->estimate->client_id]);
+        }
+
         $this->dispatch('toast', type: 'success', message: 'Status updated to ' . ucfirst($status) . '.');
     }
 

@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('invoices:mark-overdue')->dailyAt('08:00');
 Schedule::command('tickets:check-sla')->everyFifteenMinutes();
+Schedule::command('activity:clean')->monthly();

@@ -132,6 +132,13 @@ class ConvertModal extends Component
         $number = $target === 'invoice' ? $new->invoice_number : $new->estimate_number;
         $route = $target === 'invoice' ? 'admin.invoices.edit' : 'admin.estimates.edit';
 
+        if ($this->direction === 'estimate_to_invoice') {
+            \App\Models\ActivityLog::log('estimate_converted',
+                "Estimate {$this->sourceNumber} converted to invoice {$number}",
+                ['subject_type' => 'Invoice', 'subject_id' => $new->id,
+                 'subject_label' => $number, 'client_id' => $new->client_id]);
+        }
+
         $this->show = false;
         $this->dispatch('toast', type: 'success', message: "Converted to {$number}");
 

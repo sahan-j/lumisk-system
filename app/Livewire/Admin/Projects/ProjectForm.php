@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Projects;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Project;
@@ -64,6 +65,8 @@ class ProjectForm extends Component
         ]);
 
         $project = $this->project ?? new Project();
+        $isNew = ! $project->exists;
+        $wasCompleted = $project->getOriginal('status') === 'completed';
 
         $project->fill([
             'name' => $validated['name'],
@@ -86,6 +89,17 @@ class ProjectForm extends Component
 
         $project->save();
         $project->invoices()->sync($this->invoice_ids);
+
+        if ($isNew) {
+            ActivityLog::log('project_created', "Project \"{$project->name}\" created",
+                ['subject_type' => 'Project', 'subject_id' => $project->id,
+                 'subject_label' => $project->name, 'client_id' => $project->client_id]);
+        }
+        if ($project->status === 'completed' && ! $wasCompleted) {
+            ActivityLog::log('project_completed', "Project \"{$project->name}\" completed",
+                ['subject_type' => 'Project', 'subject_id' => $project->id,
+                 'subject_label' => $project->name, 'client_id' => $project->client_id]);
+        }
 
         $this->dispatch('toast', type: 'success', message: 'Project saved.');
 

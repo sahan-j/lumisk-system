@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Portal\Estimates;
 
+use App\Models\ActivityLog;
 use App\Models\Estimate;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -53,6 +54,13 @@ class EstimateShow extends Component
             'client_note' => $this->client_note ?: null,
         ]);
         $this->estimate->refresh();
+
+        $client = Auth::guard('client')->user();
+        ActivityLog::log("estimate_{$this->responseAction}",
+            "Estimate {$this->estimate->estimate_number} {$this->responseAction} by {$client->name}",
+            ['subject_type' => 'Estimate', 'subject_id' => $this->estimate->id,
+             'subject_label' => $this->estimate->estimate_number,
+             'causer_type' => 'client', 'causer_name' => $client->name, 'client_id' => $client->id]);
 
         $this->showResponse = false;
         $this->dispatch('toast', type: 'success', message: 'Estimate ' . $this->responseAction . '.');

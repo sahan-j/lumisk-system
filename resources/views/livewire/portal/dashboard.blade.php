@@ -73,4 +73,31 @@
             </div>
         </div>
     </div>
+
+    {{-- Your recent activity --}}
+    @if ($activities->count())
+    <div class="mt-6 card overflow-hidden">
+        <div class="border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Your Recent Activity</h2>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-ink-700">
+            @foreach ($activities as $activity)
+                <div class="flex items-start gap-3 px-5 py-3">
+                    <div class="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg" style="background-color: {{ $activity->color }}1a; color: {{ $activity->color }}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $activity->icon_path }}" /></svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm text-gray-900 dark:text-white">{{ $activity->description }}</p>
+                        <div class="mt-1 flex flex-wrap items-center gap-2">
+                            <span class="text-xs text-gray-400">{{ $activity->created_at->diffForHumans() }}</span>
+                            @if ($activity->subject_label)
+                                <span class="rounded bg-brand-purple/8 px-1.5 py-0.5 font-mono text-[10px] text-brand-purple dark:bg-brand-purple/15">{{ $activity->subject_label }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>

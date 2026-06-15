@@ -3,6 +3,7 @@
 namespace App\Livewire\Portal\Tickets;
 
 use App\Mail\TicketCreatedAdminMail;
+use App\Models\ActivityLog;
 use App\Models\Company;
 use App\Models\Project;
 use App\Models\Ticket;
@@ -77,6 +78,12 @@ class TicketCreate extends Component
                 'size' => $file->getSize(),
             ]);
         }
+
+        ActivityLog::log('ticket_created',
+            "Ticket {$ticket->ticket_number} opened by {$client->name}",
+            ['subject_type' => 'Ticket', 'subject_id' => $ticket->id,
+             'subject_label' => $ticket->ticket_number,
+             'causer_type' => 'client', 'causer_name' => $client->name, 'client_id' => $client->id]);
 
         $company = Company::settings();
         if ($company->ticket_notifications_enabled && $company->email) {

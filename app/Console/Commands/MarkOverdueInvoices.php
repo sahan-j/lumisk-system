@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Mail\OverdueReminderMail;
+use App\Models\ActivityLog;
 use App\Models\Company;
 use App\Models\Invoice;
 use Illuminate\Console\Command;
@@ -24,10 +25,22 @@ class MarkOverdueInvoices extends Command
             ->whereHas('client', fn ($q) => $q->whereNotNull('email'))
             ->get();
 
-        // Bulk-mark all sent+past-due as overdue (no client filter — mark regardless).
+        // Capture every invoice about to transition (for the activity log), then bulk-update.
+        $transitioning = Invoice::where('status', 'sent')
+            ->where('due_date', '<', today())
+            ->get(['id', 'invoice_number', 'client_id']);
+
         $updated = Invoice::where('status', 'sent')
             ->where('due_date', '<', today())
             ->update(['status' => 'overdue']);
+
+        foreach ($transitioning as $inv) {
+            ActivityLog::log('invoice_overdue',
+                "Invoice {$inv->invoice_number} is now overdue",
+                ['subject_type' => 'Invoice', 'subject_id' => $inv->id,
+                 'subject_label' => $inv->invoice_number, 'client_id' => $inv->client_id,
+                 'causer_name' => 'System']);
+        }
 
         $this->info("Marked {$updated} invoice(s) as overdue.");
 

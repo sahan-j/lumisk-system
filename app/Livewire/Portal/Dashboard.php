@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Portal;
 
+use App\Models\ActivityLog;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -27,6 +28,8 @@ class Dashboard extends Component
         $recentInvoices = $client->invoices()->latest()->take(5)->get();
         $recentEstimates = $client->estimates()->latest()->take(5)->get();
 
+        $activities = ActivityLog::where('client_id', $client->id)->latest()->take(10)->get();
+
         return view('livewire.portal.dashboard', [
             'client' => $client,
             'totalInvoices' => $totalInvoices,
@@ -35,6 +38,7 @@ class Dashboard extends Component
             'pendingEstimates' => $pendingEstimates,
             'recentInvoices' => $recentInvoices,
             'recentEstimates' => $recentEstimates,
+            'activities' => $activities,
         ]);
     }
 }

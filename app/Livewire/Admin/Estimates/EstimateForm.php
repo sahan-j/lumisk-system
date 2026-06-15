@@ -119,6 +119,8 @@ class EstimateForm extends Component
 
     public function save()
     {
+        $isNew = ! ($this->estimate && $this->estimate->exists);
+
         $validated = $this->validate([
             'client_id' => ['required', 'exists:clients,id'],
             'status' => ['required', 'in:' . implode(',', Estimate::STATUSES)],
@@ -172,6 +174,14 @@ class EstimateForm extends Component
 
             return $estimate;
         });
+
+        if ($isNew) {
+            $estimate->loadMissing('client');
+            \App\Models\ActivityLog::log('estimate_created',
+                "Estimate {$estimate->estimate_number} created for " . ($estimate->client?->name ?? 'a client'),
+                ['subject_type' => 'Estimate', 'subject_id' => $estimate->id,
+                 'subject_label' => $estimate->estimate_number, 'client_id' => $estimate->client_id]);
+        }
 
         $this->dispatch('toast', type: 'success', message: 'Estimate saved.');
 
