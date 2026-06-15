@@ -19,6 +19,14 @@ use App\Livewire\Admin\Invoices\InvoicesIndex;
 use App\Livewire\Admin\Projects\ProjectForm;
 use App\Livewire\Admin\Projects\ProjectShow;
 use App\Livewire\Admin\Projects\ProjectsIndex;
+use App\Livewire\Admin\Reports\ClientReport;
+use App\Livewire\Admin\Reports\ExpenseReport;
+use App\Livewire\Admin\Reports\InvoiceAgingReport;
+use App\Livewire\Admin\Reports\ProfitLossReport;
+use App\Livewire\Admin\Reports\ProjectReport;
+use App\Livewire\Admin\Reports\ReportsIndex;
+use App\Livewire\Admin\Reports\RevenueReport;
+use App\Livewire\Admin\Reports\TaxReport;
 use App\Livewire\Admin\SavedItems\SavedItemsIndex;
 use App\Livewire\Admin\Settings\SettingsIndex;
 use App\Livewire\Admin\Tickets\TicketShow;
@@ -67,6 +75,16 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('expenses', ExpensesIndex::class)->name('expenses.index');
     Route::get('expenses/create', ExpenseForm::class)->name('expenses.create');
     Route::get('expenses/{expense}/edit', ExpenseForm::class)->name('expenses.edit');
+
+    // Reports & analytics
+    Route::get('reports', ReportsIndex::class)->name('reports.index');
+    Route::get('reports/revenue', RevenueReport::class)->name('reports.revenue');
+    Route::get('reports/expenses', ExpenseReport::class)->name('reports.expenses');
+    Route::get('reports/profit-loss', ProfitLossReport::class)->name('reports.profit-loss');
+    Route::get('reports/clients', ClientReport::class)->name('reports.clients');
+    Route::get('reports/invoice-aging', InvoiceAgingReport::class)->name('reports.invoice-aging');
+    Route::get('reports/tax', TaxReport::class)->name('reports.tax');
+    Route::get('reports/projects', ProjectReport::class)->name('reports.projects');
 
     // Support tickets
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');

@@ -319,4 +319,14 @@
             </div>
         @endif
     </div>
+
+    {{-- Report quick links --}}
+    <div class="mt-4 flex flex-wrap gap-2">
+        @foreach (['revenue' => 'Revenue Report', 'profit-loss' => 'P&L', 'invoice-aging' => 'Invoice Aging', 'tax' => 'Tax Summary'] as $route => $label)
+            <a href="{{ route('admin.reports.' . $route) }}"
+               class="rounded-md border border-brand-purple/30 bg-brand-purple/5 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-brand-purple/10">
+                {{ $label }} →
+            </a>
+        @endforeach
+    </div>
 </div>
