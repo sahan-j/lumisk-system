@@ -70,6 +70,8 @@ class ClientsIndex extends Component
 
     public function save(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission($this->editingId ? 'clients.edit' : 'clients.create'), 403);
+
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('clients', 'email')->ignore($this->editingId)],
@@ -125,6 +127,8 @@ class ClientsIndex extends Component
 
     public function delete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('clients.delete'), 403);
+
         if ($this->deleteId) {
             Client::findOrFail($this->deleteId)->delete();
             $this->dispatch('toast', type: 'success', message: 'Client deleted.');

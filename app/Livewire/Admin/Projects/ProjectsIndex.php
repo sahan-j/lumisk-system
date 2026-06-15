@@ -51,6 +51,8 @@ class ProjectsIndex extends Component
 
     public function delete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('projects.delete'), 403);
+
         if ($this->deleteId) {
             Project::findOrFail($this->deleteId)->delete();
             $this->dispatch('toast', type: 'success', message: 'Project deleted.');

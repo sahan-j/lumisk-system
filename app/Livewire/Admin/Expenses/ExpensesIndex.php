@@ -58,6 +58,8 @@ class ExpensesIndex extends Component
 
     public function delete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('expenses.delete'), 403);
+
         if ($this->deleteId) {
             $expense = Expense::find($this->deleteId);
             if ($expense) {

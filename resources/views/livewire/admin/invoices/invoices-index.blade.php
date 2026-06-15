@@ -5,10 +5,12 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Invoices</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Create and manage invoices.</p>
         </div>
+        @permission('invoices.create')
         <a href="{{ route('admin.invoices.create') }}" class="btn-primary">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
             New Invoice
         </a>
+        @endpermission
     </div>
 
     {{-- Filters --}}

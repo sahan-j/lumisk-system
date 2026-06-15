@@ -110,6 +110,8 @@ class SettingsIndex extends Component
 
     public function save(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('settings.edit'), 403);
+
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],

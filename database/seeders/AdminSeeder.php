@@ -15,6 +15,8 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'Lumisk Admin',
                 'password' => Hash::make('admin123'),
+                'role' => 'super_admin',
+                'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );

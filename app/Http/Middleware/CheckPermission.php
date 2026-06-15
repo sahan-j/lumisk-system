@@ -7,25 +7,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminAuth
+class CheckPermission
 {
-    /**
-     * Ensure an admin (web guard) is authenticated.
-     */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $permission): Response
     {
-        if (! Auth::guard('web')->check()) {
+        $user = Auth::guard('web')->user();
+
+        if (! $user) {
             return redirect()->route('admin.login');
         }
 
-        // A deactivated account is signed out immediately, everywhere.
-        if (! Auth::guard('web')->user()->is_active) {
+        if (! $user->is_active) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             return redirect()->route('admin.login')
                 ->withErrors(['email' => 'Your account has been deactivated.']);
+        }
+
+        if (! $user->hasPermission($permission)) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+            abort(403, 'You do not have permission to access this page.');
         }
 
         return $next($request);

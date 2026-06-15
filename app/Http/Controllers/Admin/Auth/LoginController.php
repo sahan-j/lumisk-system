@@ -31,6 +31,17 @@ class LoginController extends Controller
             ]);
         }
 
+        // Block deactivated accounts.
+        if (! Auth::guard('web')->user()->is_active) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => __('Your account has been deactivated.'),
+            ]);
+        }
+
+        Auth::guard('web')->user()->forceFill(['last_login_at' => now()])->save();
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('admin.dashboard'));

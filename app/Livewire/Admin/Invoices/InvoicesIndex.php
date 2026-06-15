@@ -73,6 +73,8 @@ class InvoicesIndex extends Component
 
     public function bulkDelete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('invoices.delete'), 403);
+
         if (empty($this->selected)) {
             return;
         }
@@ -137,6 +139,8 @@ class InvoicesIndex extends Component
 
     public function delete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('invoices.delete'), 403);
+
         if ($this->deleteId) {
             Invoice::findOrFail($this->deleteId)->delete();
             $this->dispatch('toast', type: 'success', message: 'Invoice deleted.');

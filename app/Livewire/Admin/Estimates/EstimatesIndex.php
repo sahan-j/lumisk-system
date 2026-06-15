@@ -62,6 +62,8 @@ class EstimatesIndex extends Component
 
     public function bulkDelete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('estimates.delete'), 403);
+
         if (empty($this->selected)) {
             return;
         }
@@ -127,6 +129,8 @@ class EstimatesIndex extends Component
 
     public function delete(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('estimates.delete'), 403);
+
         if ($this->deleteId) {
             Estimate::findOrFail($this->deleteId)->delete();
             $this->dispatch('toast', type: 'success', message: 'Estimate deleted.');

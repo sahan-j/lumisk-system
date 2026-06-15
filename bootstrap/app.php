@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminAuth;
+use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\ClientAuth;
 use App\Http\Middleware\RedirectIfAdmin;
 use App\Http\Middleware\RedirectIfClient;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'client.auth' => ClientAuth::class,
             'admin.guest' => RedirectIfAdmin::class,
             'client.guest' => RedirectIfClient::class,
+            'permission' => CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

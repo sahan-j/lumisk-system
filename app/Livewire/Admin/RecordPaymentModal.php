@@ -69,6 +69,8 @@ class RecordPaymentModal extends Component
 
     public function save(): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('payments.record'), 403);
+
         $this->loadInvoice();
         $validated = $this->validate();
 
@@ -113,6 +115,8 @@ class RecordPaymentModal extends Component
 
     public function deletePayment(int $paymentId): void
     {
+        abort_unless((bool) auth()->user()?->hasPermission('payments.delete'), 403);
+
         $this->loadInvoice();
 
         $payment = $this->invoice->payments->firstWhere('id', $paymentId);
