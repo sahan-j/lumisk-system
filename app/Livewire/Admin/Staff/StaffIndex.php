@@ -51,14 +51,16 @@ class StaffIndex extends Component
 
     public function render()
     {
+        $currentUser = Auth::user();
         $staff = User::where('id', '!=', Auth::id())->orderBy('name')->get();
 
         return view('livewire.admin.staff.staff-index', [
+            'currentUser' => $currentUser,
             'staff' => $staff,
-            'totalStaff' => $staff->count(),
-            'activeCount' => $staff->where('is_active', true)->count(),
-            'adminCount' => $staff->whereIn('role', ['super_admin', 'admin'])->count(),
-            'staffCount' => $staff->where('role', 'staff')->count(),
+            'totalStaff' => User::count(),
+            'activeCount' => User::where('is_active', true)->count(),
+            'adminCount' => User::whereIn('role', ['super_admin', 'admin'])->count(),
+            'staffCount' => User::where('role', 'staff')->count(),
         ]);
     }
 }

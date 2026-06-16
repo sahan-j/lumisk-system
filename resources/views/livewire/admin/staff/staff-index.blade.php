@@ -32,13 +32,58 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-ink-700">
+                    {{-- Current logged-in user (always shown at top) --}}
+                    <tr class="bg-brand-purple/5 dark:bg-brand-purple/10">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-3">
+                                @if ($currentUser->avatar)
+                                    <img src="{{ asset('storage/' . $currentUser->avatar) }}" alt="Avatar" class="h-9 w-9 rounded-full object-cover">
+                                @else
+                                    <span class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white" style="background-color: {{ $currentUser->role_color }}">
+                                        {{ strtoupper(substr($currentUser->name, 0, 1)) }}
+                                    </span>
+                                @endif
+                                <div>
+                                    <p class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ $currentUser->name }}
+                                        <span class="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">You</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $currentUser->email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style="background-color: {{ $currentUser->role_color }}">{{ $currentUser->role_label }}</span>
+                        </td>
+                        <td class="px-5 py-3"><x-status-badge color="green" label="Active" /></td>
+                        <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $currentUser->last_login_at?->diffForHumans() ?? 'Now' }}</td>
+                        <td class="px-5 py-3">
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{{ route('admin.profile') }}" wire:navigate class="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-ink-700" title="Edit Profile">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {{-- Section label when other members exist --}}
+                    @if ($staff->isNotEmpty())
+                        <tr class="bg-gray-50 dark:bg-ink-800/50">
+                            <td colspan="5" class="px-5 py-1.5 text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">Other Team Members</td>
+                        </tr>
+                    @endif
+
                     @forelse ($staff as $member)
                         <tr wire:key="staff-{{ $member->id }}" class="hover:bg-gray-50 dark:hover:bg-ink-800">
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
-                                    <span class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white" style="background-color: {{ $member->role_color }}">
-                                        {{ strtoupper(substr($member->name, 0, 1)) }}
-                                    </span>
+                                    @if ($member->avatar)
+                                        <img src="{{ asset('storage/' . $member->avatar) }}" alt="Avatar" class="h-9 w-9 rounded-full object-cover">
+                                    @else
+                                        <span class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white" style="background-color: {{ $member->role_color }}">
+                                            {{ strtoupper(substr($member->name, 0, 1)) }}
+                                        </span>
+                                    @endif
                                     <div>
                                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $member->name }}</p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $member->email }}</p>
@@ -79,7 +124,12 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="px-5 py-12 text-center text-sm text-gray-400">No other staff members yet.</td></tr>
+                        <tr><td colspan="5" class="px-5 py-8 text-center text-sm text-gray-400">
+                            No other staff members yet.
+                            @permission('staff.create')
+                                <a href="{{ route('admin.staff.create') }}" wire:navigate class="ml-1 text-brand-purple hover:underline">Add your first team member →</a>
+                            @endpermission
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>

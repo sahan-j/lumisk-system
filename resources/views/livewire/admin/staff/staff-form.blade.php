@@ -61,7 +61,7 @@
             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Permissions</h3>
             <p class="mb-4 text-xs text-gray-500 dark:text-gray-400">Defaults follow the selected role. Tick to override per-user.</p>
             <div class="max-h-[520px] space-y-5 overflow-y-auto pr-1">
-                @foreach ($permissionGroups as $group => $permissions)
+                @forelse ($permissionGroups as $group => $permissions)
                     <div>
                         <p class="mb-2 text-[11px] font-bold uppercase tracking-wider text-brand-purple">{{ $group }}</p>
                         @foreach ($permissions as $permission)
@@ -75,7 +75,12 @@
                             </label>
                         @endforeach
                     </div>
-                @endforeach
+                @empty
+                    <div class="py-8 text-center text-sm text-gray-400 dark:text-gray-500">
+                        <p>No permissions found.</p>
+                        <p class="mt-1 text-xs">Run: <code class="rounded bg-gray-100 px-1 dark:bg-ink-700">php artisan db:seed --class=PermissionsSeeder</code></p>
+                    </div>
+                @endforelse
             </div>
         </div>
 
