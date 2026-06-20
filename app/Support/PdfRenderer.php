@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Company;
+use App\Models\CreditNote;
 use App\Models\Estimate;
 use App\Models\Invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -34,6 +35,14 @@ class PdfRenderer
     {
         return Pdf::loadView('pdf.estimate', [
             'estimate' => $estimate,
+            'company' => Company::settings(),
+        ])->setPaper('a4', 'portrait')->setOptions(self::options());
+    }
+
+    public static function creditNote(CreditNote $creditNote): PdfWrapper
+    {
+        return Pdf::loadView('pdf.credit-note', [
+            'creditNote' => $creditNote,
             'company' => Company::settings(),
         ])->setPaper('a4', 'portrait')->setOptions(self::options());
     }

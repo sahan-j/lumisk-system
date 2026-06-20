@@ -31,6 +31,11 @@ class PermissionsSeeder extends Seeder
             ['name' => 'estimates.delete', 'label' => 'Delete Estimates', 'group' => 'Estimates'],
             ['name' => 'estimates.send', 'label' => 'Send Estimates', 'group' => 'Estimates'],
 
+            ['name' => 'credit-notes.view', 'label' => 'View Credit Notes', 'group' => 'Credit Notes'],
+            ['name' => 'credit-notes.create', 'label' => 'Create Credit Notes', 'group' => 'Credit Notes'],
+            ['name' => 'credit-notes.edit', 'label' => 'Edit/Apply Credit Notes', 'group' => 'Credit Notes'],
+            ['name' => 'credit-notes.delete', 'label' => 'Delete Credit Notes', 'group' => 'Credit Notes'],
+
             ['name' => 'payments.view', 'label' => 'View Payments', 'group' => 'Payments'],
             ['name' => 'payments.record', 'label' => 'Record Payments', 'group' => 'Payments'],
             ['name' => 'payments.delete', 'label' => 'Delete Payments', 'group' => 'Payments'],
@@ -88,6 +93,7 @@ class PermissionsSeeder extends Seeder
             'clients.view',
             'invoices.view', 'invoices.create', 'invoices.edit',
             'estimates.view', 'estimates.create', 'estimates.edit',
+            'credit-notes.view', 'credit-notes.create',
             'payments.view', 'payments.record',
             'projects.view',
             'tickets.view', 'tickets.reply',

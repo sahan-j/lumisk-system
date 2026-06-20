@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\CreditNotePdfController;
 use App\Http\Controllers\Admin\EstimatePdfController;
 use App\Http\Controllers\Admin\InvoicePdfController;
 use App\Http\Controllers\Admin\TicketAttachmentController;
 use App\Livewire\Admin\Clients\ClientShow;
 use App\Livewire\Admin\Clients\ClientsIndex;
+use App\Livewire\Admin\CreditNotes\CreditNoteForm;
+use App\Livewire\Admin\CreditNotes\CreditNoteShow;
+use App\Livewire\Admin\CreditNotes\CreditNotesIndex;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Estimates\EstimateForm;
 use App\Livewire\Admin\Estimates\EstimateShow;
@@ -72,6 +76,16 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('invoices/{invoice}/edit', InvoiceForm::class)->name('invoices.edit')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}', InvoiceShow::class)->name('invoices.show')->middleware('permission:invoices.view');
     Route::get('invoices/{invoice}/pdf', [InvoicePdfController::class, 'download'])->name('invoices.pdf')->middleware('permission:invoices.view');
+
+    // Credit notes & refunds
+    Route::get('credit-notes', CreditNotesIndex::class)->name('credit-notes.index')->middleware('permission:credit-notes.view');
+    Route::get('credit-notes/create', CreditNoteForm::class)->name('credit-notes.create')->middleware('permission:credit-notes.create');
+    Route::get('credit-notes/{creditNote}/edit', CreditNoteForm::class)->name('credit-notes.edit')->middleware('permission:credit-notes.edit');
+    Route::get('credit-notes/{creditNote}', CreditNoteShow::class)->name('credit-notes.show')->middleware('permission:credit-notes.view');
+    Route::get('credit-notes/{creditNote}/pdf', [CreditNotePdfController::class, 'download'])->name('credit-notes.pdf')->middleware('permission:credit-notes.view');
+    // Shortcut: create a credit note pre-filled from an invoice.
+    Route::get('invoices/{invoice}/credit-note', fn (\App\Models\Invoice $invoice) => redirect()->route('admin.credit-notes.create', ['invoice' => $invoice->id]))
+        ->name('invoices.credit-note')->middleware('permission:credit-notes.create');
 
     // Estimates
     Route::get('estimates', EstimatesIndex::class)->name('estimates.index')->middleware('permission:estimates.view');

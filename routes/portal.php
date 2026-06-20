@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\Portal\Auth\LoginController;
 use App\Http\Controllers\Portal\Auth\PortalPasswordResetController;
+use App\Http\Controllers\Portal\CreditNotePdfController;
 use App\Http\Controllers\Portal\EstimatePdfController;
 use App\Http\Controllers\Portal\InvoicePdfController;
 use App\Http\Controllers\Portal\PortalProfileController;
 use App\Http\Controllers\Portal\TicketAttachmentController;
+use App\Livewire\Portal\CreditNotes\CreditNotesIndex as PortalCreditNotesIndex;
+use App\Livewire\Portal\CreditNotes\CreditNoteShow as PortalCreditNoteShow;
 use App\Livewire\Portal\Dashboard;
 use App\Livewire\Portal\Estimates\EstimateShow;
 use App\Livewire\Portal\Estimates\EstimatesIndex;
@@ -44,6 +47,11 @@ Route::middleware('client.auth')->group(function () {
     Route::get('invoices', InvoicesIndex::class)->name('invoices.index');
     Route::get('invoices/{invoice}', InvoiceShow::class)->name('invoices.show');
     Route::get('invoices/{invoice}/pdf', [InvoicePdfController::class, 'download'])->name('invoices.pdf');
+
+    // Credit notes (read-only)
+    Route::get('credit-notes', PortalCreditNotesIndex::class)->name('credit-notes.index');
+    Route::get('credit-notes/{creditNote}', PortalCreditNoteShow::class)->name('credit-notes.show');
+    Route::get('credit-notes/{creditNote}/pdf', [CreditNotePdfController::class, 'download'])->name('credit-notes.pdf');
 
     // Estimates (with accept/reject)
     Route::get('estimates', EstimatesIndex::class)->name('estimates.index');

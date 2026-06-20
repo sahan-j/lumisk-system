@@ -40,6 +40,14 @@ class DocumentNumberService
         return self::next('subscription_prefix', 'subscription_next_number');
     }
 
+    /**
+     * Reserve and return the next credit note number (e.g. CN-001).
+     */
+    public static function nextCreditNoteNumber(): string
+    {
+        return self::next('credit_note_prefix', 'credit_note_next_number');
+    }
+
     protected static function next(string $prefixColumn, string $counterColumn): string
     {
         return DB::transaction(function () use ($prefixColumn, $counterColumn) {

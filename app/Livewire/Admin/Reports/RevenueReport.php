@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Reports;
 
 use App\Livewire\Concerns\WithDateRange;
+use App\Models\CreditNote;
 use App\Models\Invoice;
 use App\Models\Payment;
 use Illuminate\Support\Carbon;
@@ -56,6 +57,12 @@ class RevenueReport extends Component
 
         $totalRevenue = Payment::whereBetween('payment_date', [$from, $to])->sum('amount');
 
+        // Credit notes issued in the period (a deduction); net revenue subtracts what was applied.
+        $creditNotesIssued = (float) CreditNote::where('status', '!=', 'void')
+            ->whereBetween('issue_date', [$from, $to])->sum('total');
+        $creditNotesApplied = (float) CreditNote::whereBetween('issue_date', [$from, $to])->sum('amount_applied');
+        $netRevenue = round((float) $totalRevenue - $creditNotesApplied, 2);
+
         // Rolling last-12-months revenue trend (period-independent).
         $monthly = collect();
         for ($i = 11; $i >= 0; $i--) {
@@ -91,6 +98,9 @@ class RevenueReport extends Component
             'from' => $from,
             'to' => $to,
             'totalRevenue' => $totalRevenue,
+            'creditNotesIssued' => $creditNotesIssued,
+            'creditNotesApplied' => $creditNotesApplied,
+            'netRevenue' => $netRevenue,
             'chartLabels' => $monthly->pluck('label'),
             'chartValues' => $monthly->pluck('value'),
             'revenueByClient' => $revenueByClient,

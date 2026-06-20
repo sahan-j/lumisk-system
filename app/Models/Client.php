@@ -66,4 +66,9 @@ class Client extends Authenticatable
     {
         return $this->hasMany(Subscription::class);
     }
+
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class);
+    }
 }
