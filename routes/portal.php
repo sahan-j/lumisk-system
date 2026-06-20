@@ -13,6 +13,8 @@ use App\Livewire\Portal\Invoices\InvoiceShow;
 use App\Livewire\Portal\Invoices\InvoicesIndex;
 use App\Livewire\Portal\Projects\ProjectShow;
 use App\Livewire\Portal\Projects\ProjectsIndex;
+use App\Livewire\Portal\Subscriptions\SubscriptionShow as PortalSubscriptionShow;
+use App\Livewire\Portal\Subscriptions\SubscriptionsIndex as PortalSubscriptionsIndex;
 use App\Livewire\Portal\Tickets\TicketCreate;
 use App\Livewire\Portal\Tickets\TicketShow;
 use App\Livewire\Portal\Tickets\TicketsIndex;
@@ -51,6 +53,10 @@ Route::middleware('client.auth')->group(function () {
     // Projects (read-only)
     Route::get('projects', ProjectsIndex::class)->name('projects.index');
     Route::get('projects/{project}', ProjectShow::class)->name('projects.show');
+
+    // Subscriptions (read-only + cancellation requests)
+    Route::get('subscriptions', PortalSubscriptionsIndex::class)->name('subscriptions.index');
+    Route::get('subscriptions/{subscription}', PortalSubscriptionShow::class)->name('subscriptions.show');
 
     // Support tickets
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');

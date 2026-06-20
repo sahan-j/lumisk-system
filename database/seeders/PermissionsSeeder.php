@@ -49,6 +49,12 @@ class PermissionsSeeder extends Seeder
             ['name' => 'expenses.edit', 'label' => 'Edit Expenses', 'group' => 'Expenses'],
             ['name' => 'expenses.delete', 'label' => 'Delete Expenses', 'group' => 'Expenses'],
 
+            ['name' => 'subscriptions.view', 'label' => 'View Subscriptions', 'group' => 'Subscriptions'],
+            ['name' => 'subscriptions.create', 'label' => 'Create Subscriptions', 'group' => 'Subscriptions'],
+            ['name' => 'subscriptions.edit', 'label' => 'Edit Subscriptions', 'group' => 'Subscriptions'],
+            ['name' => 'subscriptions.delete', 'label' => 'Delete Subscriptions', 'group' => 'Subscriptions'],
+            ['name' => 'subscriptions.manage_plans', 'label' => 'Manage Subscription Plans', 'group' => 'Subscriptions'],
+
             ['name' => 'reports.view', 'label' => 'View Reports', 'group' => 'Reports'],
             ['name' => 'reports.export', 'label' => 'Export Reports', 'group' => 'Reports'],
 
@@ -79,6 +85,7 @@ class PermissionsSeeder extends Seeder
             'projects.view',
             'tickets.view', 'tickets.reply',
             'expenses.view', 'expenses.create',
+            'subscriptions.view',
         ];
 
         $this->syncRole('super_admin', $all);

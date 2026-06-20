@@ -22,6 +22,7 @@
                         'portal.dashboard' => 'Dashboard',
                         'portal.invoices.index' => 'Invoices',
                         'portal.estimates.index' => 'Estimates',
+                        'portal.subscriptions.index' => 'Subscriptions',
                         'portal.projects.index' => 'Projects',
                         'portal.tickets.index' => 'Support',
                     ];

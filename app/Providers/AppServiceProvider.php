@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Subscription;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
@@ -24,12 +25,16 @@ class AppServiceProvider extends ServiceProvider
             return auth()->check() && auth()->user()->hasPermission($permission);
         });
 
-        // Open-ticket badge count for the admin sidebar.
+        // Open-ticket + past-due-subscription badge counts for the admin sidebar.
         View::composer('components.layouts.admin', function ($view) {
-            $count = Schema::hasTable('tickets')
+            $openTickets = Schema::hasTable('tickets')
                 ? Ticket::where('status', 'open')->count()
                 : 0;
-            $view->with('openTicketsCount', $count);
+            $pastDue = Schema::hasTable('subscriptions')
+                ? Subscription::where('status', 'past_due')->count()
+                : 0;
+            $view->with('openTicketsCount', $openTickets);
+            $view->with('pastDueCount', $pastDue);
         });
     }
 }

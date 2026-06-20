@@ -9,6 +9,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Subscription;
 use App\Models\Ticket;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Layout;
@@ -92,6 +93,16 @@ class Dashboard extends Component
 
         $overdueInvoices = Invoice::where('status', 'overdue')->get();
 
+        // Recurring revenue + upcoming renewals (next 7 days).
+        $activeSubscriptions = Subscription::where('status', 'active')->get();
+        $mrr = round($activeSubscriptions->sum('monthly_value'), 2);
+        $upcomingRenewals = Subscription::with('client')
+            ->where('status', 'active')
+            ->whereBetween('next_billing_date', [today(), today()->addDays(7)])
+            ->orderBy('next_billing_date')
+            ->take(6)
+            ->get();
+
         $activeProjects = Project::where('status', 'active')->count();
         $overdueProjects = Project::whereNotIn('status', ['completed', 'cancelled'])
             ->whereNotNull('due_date')
@@ -119,6 +130,8 @@ class Dashboard extends Component
             'expensesThisYear' => $expensesThisYear,
             'revenueThisYear' => $revenueThisYear,
             'netProfit' => $netProfit,
+            'mrr' => $mrr,
+            'upcomingRenewals' => $upcomingRenewals,
             'activities' => $activities,
             'hasMoreActivity' => $hasMoreActivity,
             'chartLabels' => $months->pluck('label'),

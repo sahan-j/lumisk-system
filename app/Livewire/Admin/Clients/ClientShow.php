@@ -85,6 +85,7 @@ class ClientShow extends Component
                 ->with('category')->latest('expense_date')->get(),
             'totalPaid' => $this->client->invoices()->where('status', 'paid')->sum('total'),
             'totalOutstanding' => $this->client->invoices()->whereIn('status', ['sent', 'overdue'])->sum('total'),
+            'subscriptions' => $this->client->subscriptions()->with('plan')->latest()->get(),
         ]);
     }
 }

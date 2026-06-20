@@ -31,6 +31,10 @@ use App\Livewire\Admin\SavedItems\SavedItemsIndex;
 use App\Livewire\Admin\Settings\SettingsIndex;
 use App\Livewire\Admin\Staff\StaffForm;
 use App\Livewire\Admin\Staff\StaffIndex;
+use App\Livewire\Admin\Subscriptions\PlansIndex as SubscriptionPlansIndex;
+use App\Livewire\Admin\Subscriptions\SubscriptionForm;
+use App\Livewire\Admin\Subscriptions\SubscriptionShow;
+use App\Livewire\Admin\Subscriptions\SubscriptionsIndex;
 use App\Livewire\Admin\Tickets\TicketShow;
 use App\Livewire\Admin\Tickets\TicketsIndex;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +81,13 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('expenses', ExpensesIndex::class)->name('expenses.index')->middleware('permission:expenses.view');
     Route::get('expenses/create', ExpenseForm::class)->name('expenses.create')->middleware('permission:expenses.create');
     Route::get('expenses/{expense}/edit', ExpenseForm::class)->name('expenses.edit')->middleware('permission:expenses.edit');
+
+    // Subscriptions & retainer billing
+    Route::get('subscription-plans', SubscriptionPlansIndex::class)->name('subscription-plans.index')->middleware('permission:subscriptions.manage_plans');
+    Route::get('subscriptions', SubscriptionsIndex::class)->name('subscriptions.index')->middleware('permission:subscriptions.view');
+    Route::get('subscriptions/create', SubscriptionForm::class)->name('subscriptions.create')->middleware('permission:subscriptions.create');
+    Route::get('subscriptions/{subscription}/edit', SubscriptionForm::class)->name('subscriptions.edit')->middleware('permission:subscriptions.edit');
+    Route::get('subscriptions/{subscription}', SubscriptionShow::class)->name('subscriptions.show')->middleware('permission:subscriptions.view');
 
     // Reports & analytics
     Route::middleware('permission:reports.view')->group(function () {

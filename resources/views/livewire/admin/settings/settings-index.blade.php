@@ -7,7 +7,7 @@
     {{-- Tabs --}}
     <div class="mb-6 border-b border-gray-200 dark:border-ink-600">
         <nav class="flex gap-1">
-            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'tickets' => 'Support Tickets', 'expenses' => 'Expenses'] as $key => $label)
+            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'subscriptions' => 'Subscriptions', 'tickets' => 'Support Tickets', 'expenses' => 'Expenses'] as $key => $label)
                 <button type="button" @click="tab = '{{ $key }}'"
                         :class="tab === '{{ $key }}' ? 'border-gold text-gold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                         class="border-b-2 px-4 py-2.5 text-sm font-medium transition">{{ $label }}</button>
@@ -250,6 +250,28 @@
                     <textarea wire:model="whatsapp_message_estimate" rows="8" class="form-input-base font-mono text-xs"></textarea>
                     <p class="mt-1 text-xs text-gray-400">{client_name}, {estimate_number}, {total}, {expiry_date}, {link}, {company_name}, {company_phone}</p>
                     @error('whatsapp_message_estimate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
+        {{-- Subscriptions --}}
+        <div x-show="tab === 'subscriptions'" x-cloak class="card max-w-3xl p-6">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="form-label">Subscription Prefix <span class="text-red-500">*</span></label>
+                    <input wire:model="subscription_prefix" type="text" class="form-input-base">
+                    @error('subscription_prefix') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="form-label">Next Number <span class="text-red-500">*</span></label>
+                    <input wire:model="subscription_next_number" type="number" min="1" class="form-input-base">
+                    @error('subscription_next_number') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="form-label">Invoice Due Days <span class="text-red-500">*</span></label>
+                    <input wire:model="subscription_invoice_due_days" type="number" min="0" class="form-input-base">
+                    <p class="mt-1 text-xs text-gray-400">Payment term applied to auto-generated subscription invoices.</p>
+                    @error('subscription_invoice_due_days') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
             </div>
         </div>

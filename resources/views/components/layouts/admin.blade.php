@@ -43,6 +43,7 @@
                         ['admin.projects.index', 'Projects', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', 'projects.view'],
                         ['admin.tickets.index', 'Support', 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z', 'tickets.view'],
                         ['admin.expenses.index', 'Expenses', 'M9 7h6m-6 4h6m-6 4h4M5 3h14a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 011-1z', 'expenses.view'],
+                        ['admin.subscriptions.index', 'Subscriptions', 'M7 7h10v10M17 7L7 17M4 20h16', 'subscriptions.view'],
                         ['admin.reports.index', 'Reports', 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', 'reports.view'],
                         ['admin.saved-items.index', 'Saved Items', 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4', 'invoices.view'],
                         ['admin.staff.index', 'Staff', 'M17 20h5v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z', 'staff.view'],
@@ -63,6 +64,9 @@
                         {{ $label }}
                         @if ($route === 'admin.tickets.index' && ($openTicketsCount ?? 0) > 0)
                             <span class="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">{{ $openTicketsCount }}</span>
+                        @endif
+                        @if ($route === 'admin.subscriptions.index' && ($pastDueCount ?? 0) > 0)
+                            <span class="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">{{ $pastDueCount }}</span>
                         @endif
                     </a>
                 @endforeach

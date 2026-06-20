@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('invoices:mark-overdue')->dailyAt('08:00');
 Schedule::command('tickets:check-sla')->everyFifteenMinutes();
 Schedule::command('activity:clean')->monthly();
+Schedule::command('subscriptions:process-billing')->dailyAt('07:00');
+Schedule::command('subscriptions:send-reminders')->dailyAt('08:30');

@@ -52,6 +52,7 @@
                 ['Open Tickets', number_format($openTickets), $openTickets > 0 ? 'red' : 'green', 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z'],
                 ['Expenses (YTD)', money($expensesThisYear), 'red', 'M9 7h6m-6 4h6m-6 4h4M5 3h14a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 011-1z'],
                 ['Net Profit (YTD)', money($netProfit), $netProfit >= 0 ? 'green' : 'red', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
+                ['MRR', money($mrr), 'blue', 'M7 7h10v10M17 7L7 17'],
             ];
         @endphp
         @foreach ($cards as [$label, $value, $color, $icon])
@@ -146,6 +147,35 @@
             </div>
         </div>
     </div>
+
+    {{-- Upcoming renewals (next 7 days) --}}
+    @if ($upcomingRenewals->isNotEmpty())
+        <div class="mt-6 card overflow-hidden">
+            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Upcoming Renewals</h2>
+                <a href="{{ route('admin.subscriptions.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-ink-700">
+                @foreach ($upcomingRenewals as $sub)
+                    <a href="{{ route('admin.subscriptions.show', $sub) }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-5 w-5 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10v10M17 7L7 17" /></svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $sub->subscription_number }} · {{ $sub->client?->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $sub->name }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($sub->amount) }}</p>
+                            <p class="text-xs {{ $sub->days_until_next_billing <= 0 ? 'text-amber-500' : 'text-green-500' }}">
+                                {{ $sub->days_until_next_billing <= 0 ? 'due today' : 'in ' . $sub->days_until_next_billing . 'd' }}
+                            </p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     {{-- Recent activity --}}
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">

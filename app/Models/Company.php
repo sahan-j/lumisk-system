@@ -17,6 +17,8 @@ class Company extends Model
         return [
             'invoice_next_number' => 'integer',
             'estimate_next_number' => 'integer',
+            'subscription_next_number' => 'integer',
+            'subscription_invoice_due_days' => 'integer',
             'estimate_expiry_days' => 'integer',
             'default_tax_rate' => 'decimal:2',
             'overdue_reminders_enabled' => 'boolean',

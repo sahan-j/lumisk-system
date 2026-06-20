@@ -61,6 +61,11 @@ class SettingsIndex extends Component
     // Automation
     public bool $overdue_reminders_enabled = true;
 
+    // Subscriptions
+    public string $subscription_prefix = 'SUB';
+    public int $subscription_next_number = 1;
+    public int $subscription_invoice_due_days = 14;
+
     // Support tickets
     public string $ticket_prefix = 'TKT';
     public bool $ticket_notifications_enabled = true;
@@ -98,6 +103,11 @@ class SettingsIndex extends Component
 
         // Automation
         $this->overdue_reminders_enabled = $this->company->overdue_reminders_enabled ?? true;
+
+        // Subscriptions
+        $this->subscription_prefix = $this->company->subscription_prefix ?: 'SUB';
+        $this->subscription_next_number = (int) ($this->company->subscription_next_number ?? 1);
+        $this->subscription_invoice_due_days = (int) ($this->company->subscription_invoice_due_days ?? 14);
 
         // Support tickets
         $this->ticket_prefix = $this->company->ticket_prefix ?: 'TKT';
@@ -141,6 +151,9 @@ class SettingsIndex extends Component
             'whatsapp_message_invoice' => ['required', 'string'],
             'whatsapp_message_estimate' => ['required', 'string'],
             'overdue_reminders_enabled' => ['boolean'],
+            'subscription_prefix' => ['required', 'string', 'max:10'],
+            'subscription_next_number' => ['required', 'integer', 'min:1'],
+            'subscription_invoice_due_days' => ['required', 'integer', 'min:0'],
             'ticket_prefix' => ['required', 'string', 'max:10'],
             'ticket_notifications_enabled' => ['boolean'],
             'sla_low_hours' => ['required', 'integer', 'min:1'],

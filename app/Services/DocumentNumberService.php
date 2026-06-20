@@ -32,6 +32,14 @@ class DocumentNumberService
         return self::next('ticket_prefix', 'ticket_next_number');
     }
 
+    /**
+     * Reserve and return the next subscription number (e.g. SUB-001).
+     */
+    public static function nextSubscriptionNumber(): string
+    {
+        return self::next('subscription_prefix', 'subscription_next_number');
+    }
+
     protected static function next(string $prefixColumn, string $counterColumn): string
     {
         return DB::transaction(function () use ($prefixColumn, $counterColumn) {

@@ -115,6 +115,38 @@
         </div>
     </div>
 
+    {{-- Subscriptions --}}
+    @permission('subscriptions.view')
+    <div class="card mt-6 overflow-hidden">
+        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+            <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white">Subscriptions</h3>
+                @php $clientMrr = $subscriptions->where('status', 'active')->sum('monthly_value'); @endphp
+                @if ($clientMrr > 0)<p class="text-xs text-gray-500 dark:text-gray-400">{{ money($clientMrr) }} MRR from this client</p>@endif
+            </div>
+            @permission('subscriptions.create')
+            <a href="{{ route('admin.subscriptions.create', ['client' => $client->id]) }}" class="text-sm font-medium text-gold hover:underline">Add subscription</a>
+            @endpermission
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-ink-700">
+            @forelse ($subscriptions as $sub)
+                <a href="{{ route('admin.subscriptions.show', $sub) }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $sub->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $sub->subscription_number }} · {{ $sub->billing_cycle_label }}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ money($sub->amount) }}</span>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style="background-color: {{ $sub->status_color }}">{{ $sub->status_label }}</span>
+                    </div>
+                </a>
+            @empty
+                <p class="px-5 py-8 text-center text-sm text-gray-400">No subscriptions.</p>
+            @endforelse
+        </div>
+    </div>
+    @endpermission
+
     {{-- Billable expenses --}}
     <div class="card mt-6 overflow-hidden">
         <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
