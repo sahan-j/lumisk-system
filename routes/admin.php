@@ -16,6 +16,9 @@ use App\Livewire\Admin\Expenses\ExpensesIndex;
 use App\Livewire\Admin\Invoices\InvoiceForm;
 use App\Livewire\Admin\Invoices\InvoiceShow;
 use App\Livewire\Admin\Invoices\InvoicesIndex;
+use App\Livewire\Admin\Leads\LeadForm;
+use App\Livewire\Admin\Leads\LeadShow;
+use App\Livewire\Admin\Pipeline\PipelineBoard;
 use App\Livewire\Admin\Projects\ProjectForm;
 use App\Livewire\Admin\Projects\ProjectShow;
 use App\Livewire\Admin\Projects\ProjectsIndex;
@@ -56,6 +59,12 @@ Route::middleware('admin.auth')->group(function () {
     // Clients
     Route::get('clients', ClientsIndex::class)->name('clients.index')->middleware('permission:clients.view');
     Route::get('clients/{client}', ClientShow::class)->name('clients.show')->middleware('permission:clients.view');
+
+    // CRM sales pipeline (kanban board + leads)
+    Route::get('pipeline', PipelineBoard::class)->name('pipeline.index')->middleware('permission:pipeline.view');
+    Route::get('leads/create', LeadForm::class)->name('leads.create')->middleware('permission:leads.create');
+    Route::get('leads/{lead}/edit', LeadForm::class)->name('leads.edit')->middleware('permission:leads.edit');
+    Route::get('leads/{lead}', LeadShow::class)->name('leads.show')->middleware('permission:pipeline.view');
 
     // Invoices
     Route::get('invoices', InvoicesIndex::class)->name('invoices.index')->middleware('permission:invoices.view');

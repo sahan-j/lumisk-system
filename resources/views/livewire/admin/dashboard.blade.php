@@ -177,6 +177,47 @@
         </div>
     @endif
 
+    {{-- Sales pipeline snapshot --}}
+    @if ($pipelineLeadCount > 0 || $pipelineFunnel->sum('leads_count') > 0)
+        <div class="mt-6 card overflow-hidden">
+            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Sales Pipeline</h2>
+                <a href="{{ route('admin.pipeline.index') }}" class="text-sm font-medium text-gold hover:underline">Open board</a>
+            </div>
+            <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-ink-700 sm:grid-cols-4">
+                <div class="bg-white p-4 dark:bg-ink-850">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Active Leads</p>
+                    <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{{ $pipelineLeadCount }}</p>
+                </div>
+                <div class="bg-white p-4 dark:bg-ink-850">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Pipeline Value</p>
+                    <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{{ money($pipelineValue) }}</p>
+                </div>
+                <div class="bg-white p-4 dark:bg-ink-850">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Weighted</p>
+                    <p class="mt-1 text-lg font-semibold text-brand-purple">{{ money($pipelineWeighted) }}</p>
+                </div>
+                <div class="bg-white p-4 dark:bg-ink-850">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Won This Month</p>
+                    <p class="mt-1 text-xl font-semibold text-green-600 dark:text-green-400">{{ $leadsWonThisMonth }}</p>
+                </div>
+            </div>
+            {{-- Mini funnel: leads per stage --}}
+            <div class="space-y-2 p-5">
+                @php $funnelMax = max(1, $pipelineFunnel->max('leads_count')); @endphp
+                @foreach ($pipelineFunnel as $stage)
+                    <div class="flex items-center gap-3">
+                        <span class="w-28 shrink-0 truncate text-xs text-gray-600 dark:text-gray-300">{{ $stage->name }}</span>
+                        <div class="h-4 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-800">
+                            <div class="h-4 rounded-full" style="width: {{ round($stage->leads_count / $funnelMax * 100) }}%; min-width: {{ $stage->leads_count > 0 ? '8px' : '0' }}; background-color: {{ $stage->color }};"></div>
+                        </div>
+                        <span class="w-6 shrink-0 text-right text-xs font-medium text-gray-700 dark:text-gray-200">{{ $stage->leads_count }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Recent activity --}}
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {{-- Recent invoices --}}

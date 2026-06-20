@@ -78,6 +78,10 @@ class ActivityLog extends Model
             'subscription_created' => '#6d5cff',
             'subscription_cancelled' => '#ef4444',
             'client_updated', 'estimate_converted' => '#6d5cff',
+            'lead_converted' => '#10b981',
+            'lead_created' => '#6d5cff',
+            'lead_stage_changed' => '#00d4ff',
+            'lead_lost' => '#ef4444',
             default => '#6d5cff',
         };
     }
@@ -101,6 +105,7 @@ class ActivityLog extends Model
             'ticket_replied' => 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
             'expense_recorded' => 'M9 7h6m-6 4h6m-6 4h4M5 3h14a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 011-1z',
             'subscription_billed', 'subscription_created', 'subscription_cancelled' => 'M7 7h10v10M7 17L17 7',
+            'lead_created', 'lead_stage_changed', 'lead_converted', 'lead_lost' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
             default => 'M3 12h4l3 8 4-16 3 8h4',
         };
     }

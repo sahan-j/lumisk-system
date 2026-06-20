@@ -7,7 +7,9 @@ use App\Models\Client;
 use App\Models\Estimate;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Lead;
 use App\Models\Payment;
+use App\Models\PipelineStage;
 use App\Models\Project;
 use App\Models\Subscription;
 use App\Models\Ticket;
@@ -103,6 +105,19 @@ class Dashboard extends Component
             ->take(6)
             ->get();
 
+        // Sales pipeline snapshot (active, non-lost, non-converted leads + per-stage funnel).
+        $activeLeads = Lead::whereNull('converted_to_client_id')
+            ->whereHas('stage', fn ($q) => $q->where('is_lost', false))
+            ->get();
+        $pipelineFunnel = PipelineStage::where('is_lost', false)
+            ->orderBy('sort_order')
+            ->withCount(['leads' => fn ($q) => $q->whereNull('converted_to_client_id')])
+            ->get();
+        $wonThisMonthCount = Lead::whereNotNull('converted_at')
+            ->whereMonth('converted_at', now()->month)
+            ->whereYear('converted_at', now()->year)
+            ->count();
+
         $activeProjects = Project::where('status', 'active')->count();
         $overdueProjects = Project::whereNotIn('status', ['completed', 'cancelled'])
             ->whereNotNull('due_date')
@@ -132,6 +147,11 @@ class Dashboard extends Component
             'netProfit' => $netProfit,
             'mrr' => $mrr,
             'upcomingRenewals' => $upcomingRenewals,
+            'pipelineLeadCount' => $activeLeads->count(),
+            'pipelineValue' => $activeLeads->sum('value'),
+            'pipelineWeighted' => $activeLeads->sum('weighted_value'),
+            'pipelineFunnel' => $pipelineFunnel,
+            'leadsWonThisMonth' => $wonThisMonthCount,
             'activities' => $activities,
             'hasMoreActivity' => $hasMoreActivity,
             'chartLabels' => $months->pluck('label'),
