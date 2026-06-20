@@ -38,6 +38,8 @@
     <x-document-preview :doc="$estimate" heading="ESTIMATE" :number="$estimate->estimate_number"
                         recipient-label="Prepared For" second-date-label="Expiry Date" :second-date="$estimate->expiry_date" />
 
+    <x-portal-notes-attachments :doc="$estimate" />
+
     {{-- Accept / reject modal --}}
     @if ($showResponse)
         <x-app-modal :title="$responseAction === 'accepted' ? 'Accept estimate' : 'Reject estimate'" close="$set('showResponse', false)">

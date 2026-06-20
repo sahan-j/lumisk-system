@@ -21,4 +21,6 @@
 
     <x-document-preview :doc="$invoice" heading="INVOICE" :number="$invoice->invoice_number"
                         recipient-label="Bill To" second-date-label="Due Date" :second-date="$invoice->due_date" />
+
+    <x-portal-notes-attachments :doc="$invoice" />
 </div>

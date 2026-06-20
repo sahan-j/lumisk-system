@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\HasAttachments;
+use App\Traits\HasNotes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasAttachments, HasNotes;
 
     public const STATUSES = ['planning', 'active', 'on_hold', 'completed', 'cancelled'];
     public const PRIORITIES = ['low', 'medium', 'high'];

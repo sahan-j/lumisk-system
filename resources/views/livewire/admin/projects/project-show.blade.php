@@ -215,4 +215,6 @@
             </form>
         </x-app-modal>
     @endif
+
+    <x-notes-attachments :record="$project" />
 </div>

@@ -148,4 +148,6 @@
             @endif
         </div>
     </div>
+
+    <x-notes-attachments :record="$estimate" />
 </div>

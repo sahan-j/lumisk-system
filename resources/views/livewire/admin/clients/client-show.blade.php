@@ -188,4 +188,6 @@
             @endif
         </div>
     </div>
+
+    <x-notes-attachments :record="$client" />
 </div>

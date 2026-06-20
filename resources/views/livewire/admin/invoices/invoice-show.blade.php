@@ -146,4 +146,6 @@
             @endif
         </div>
     </div>
+
+    <x-notes-attachments :record="$invoice" />
 </div>
