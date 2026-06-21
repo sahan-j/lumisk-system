@@ -27,7 +27,8 @@
         .ls-aside { background:#111118; border-right:1px solid #1f1f2e; display:flex; flex-direction:column; height:100%; overflow:hidden; flex-shrink:0; transition:width 0.22s cubic-bezier(.4,0,.2,1); }
 
         /* Logo bar */
-        .ls-logo-bar { display:flex; align-items:center; gap:10px; padding:0 14px; height:58px; border-bottom:1px solid #1f1f2e; flex-shrink:0; overflow:hidden; }
+        .ls-logo-bar { display:flex; align-items:center; height:58px; border-bottom:1px solid #1f1f2e; flex-shrink:0; overflow:hidden; padding:0 12px; gap:10px; }
+        .ls-logo-bar-collapsed { display:flex; align-items:center; justify-content:center; height:58px; border-bottom:1px solid #1f1f2e; flex-shrink:0; width:52px; }
         .ls-logo-icon { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#6d5cff,#00d4ff); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:#fff; flex-shrink:0; }
         .ls-logo-text { font-size:16px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; }
         .ls-logo-text span { color:#6d5cff; }
@@ -97,15 +98,21 @@
         <aside class="ls-aside"
                :style="'width:' + (collapsed ? '52px' : '220px')">
 
-            {{-- Logo bar --}}
-            <div class="ls-logo-bar">
+            {{-- Logo bar — EXPANDED --}}
+            <div class="ls-logo-bar" x-show="!collapsed">
                 <div class="ls-logo-icon">L</div>
-                <div class="ls-logo-text" x-show="!collapsed">Lumisk<span>.</span></div>
-                <button class="ls-toggle-btn"
-                        @click="toggleSidebar()"
-                        :style="collapsed ? 'margin-left:auto' : ''">
-                    <svg class="ls-toggle-icon"
-                         :style="collapsed ? 'transform:rotate(180deg)' : ''"
+                <div class="ls-logo-text">Lumisk<span>.</span></div>
+                <button class="ls-toggle-btn" @click="toggleSidebar()" style="margin-left:auto;">
+                    <svg class="ls-toggle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Logo bar — COLLAPSED: just a centred expand button, fits in 52px --}}
+            <div class="ls-logo-bar-collapsed" x-show="collapsed">
+                <button class="ls-toggle-btn" @click="toggleSidebar()" title="Expand sidebar">
+                    <svg class="ls-toggle-icon" style="transform:rotate(180deg);"
                          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
