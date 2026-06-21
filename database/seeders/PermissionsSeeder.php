@@ -67,6 +67,12 @@ class PermissionsSeeder extends Seeder
             ['name' => 'leads.convert', 'label' => 'Convert Leads to Clients', 'group' => 'Pipeline'],
             ['name' => 'pipeline.manage_stages', 'label' => 'Manage Pipeline Stages', 'group' => 'Pipeline'],
 
+            ['name' => 'products.view', 'label' => 'View Products', 'group' => 'Products'],
+            ['name' => 'products.create', 'label' => 'Create Products', 'group' => 'Products'],
+            ['name' => 'products.edit', 'label' => 'Edit Products', 'group' => 'Products'],
+            ['name' => 'products.delete', 'label' => 'Delete Products', 'group' => 'Products'],
+            ['name' => 'inventory.adjust', 'label' => 'Adjust Stock', 'group' => 'Products'],
+
             ['name' => 'reports.view', 'label' => 'View Reports', 'group' => 'Reports'],
             ['name' => 'reports.export', 'label' => 'Export Reports', 'group' => 'Reports'],
 
@@ -100,6 +106,7 @@ class PermissionsSeeder extends Seeder
             'expenses.view', 'expenses.create',
             'subscriptions.view',
             'pipeline.view', 'leads.create', 'leads.edit', 'leads.convert',
+            'products.view', 'products.create', 'products.edit', 'inventory.adjust',
         ];
 
         $this->syncRole('super_admin', $all);

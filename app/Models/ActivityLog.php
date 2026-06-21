@@ -85,6 +85,7 @@ class ActivityLog extends Model
             'credit_note_applied' => '#10b981',
             'credit_note_created', 'credit_note_issued' => '#ef4444',
             'credit_note_void' => '#94a3b8',
+            'low_stock_alert' => '#f59e0b',
             default => '#6d5cff',
         };
     }
@@ -110,6 +111,7 @@ class ActivityLog extends Model
             'subscription_billed', 'subscription_created', 'subscription_cancelled' => 'M7 7h10v10M7 17L17 7',
             'lead_created', 'lead_stage_changed', 'lead_converted', 'lead_lost' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
             'credit_note_created', 'credit_note_issued', 'credit_note_applied', 'credit_note_void' => 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z',
+            'low_stock_alert' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
             default => 'M3 12h4l3 8 4-16 3 8h4',
         };
     }

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Product;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Blade;
@@ -33,8 +34,15 @@ class AppServiceProvider extends ServiceProvider
             $pastDue = Schema::hasTable('subscriptions')
                 ? Subscription::where('status', 'past_due')->count()
                 : 0;
+            $lowStock = Schema::hasTable('products')
+                ? Product::where('track_inventory', true)
+                    ->whereNotNull('low_stock_threshold')
+                    ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')
+                    ->where('is_active', true)->count()
+                : 0;
             $view->with('openTicketsCount', $openTickets);
             $view->with('pastDueCount', $pastDue);
+            $view->with('lowStockCount', $lowStock);
         });
     }
 }

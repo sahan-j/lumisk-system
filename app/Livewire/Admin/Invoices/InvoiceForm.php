@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Currency;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Models\SavedItem;
 use App\Services\DocumentNumberService;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,8 @@ class InvoiceForm extends Component
     public array $items = [];
 
     public bool $showSavedItems = false;
+    public bool $showProducts = false;
+    public string $productSearch = '';
 
     public function mount(?Invoice $invoice = null): void
     {
@@ -56,6 +59,7 @@ class InvoiceForm extends Component
             $this->exchangeRate = (float) ($invoice->exchange_rate ?: 1);
             $this->currencySymbol = $invoice->currency_symbol;
             $this->items = $invoice->items->map(fn ($i) => [
+                'product_id' => $i->product_id,
                 'name' => $i->name,
                 'description' => $i->description,
                 'quantity' => (float) $i->quantity,
@@ -110,7 +114,33 @@ class InvoiceForm extends Component
 
     private function blankItem(): array
     {
-        return ['name' => '', 'description' => '', 'quantity' => 1, 'unit_price' => 0];
+        return ['product_id' => null, 'name' => '', 'description' => '', 'quantity' => 1, 'unit_price' => 0];
+    }
+
+    /** Add a catalog product as a line item (from the product picker). */
+    public function addProduct(int $productId): void
+    {
+        $product = Product::find($productId);
+        if (! $product) {
+            return;
+        }
+
+        $new = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'quantity' => 1,
+            'unit_price' => (float) $product->sale_price,
+        ];
+
+        if (count($this->items) === 1 && $this->items[0]['name'] === '') {
+            $this->items[0] = $new;
+        } else {
+            $this->items[] = $new;
+        }
+
+        $this->showProducts = false;
+        $this->productSearch = '';
     }
 
     public function addItem(): void
@@ -136,6 +166,7 @@ class InvoiceForm extends Component
 
         // Replace a leading empty row, otherwise append.
         $new = [
+            'product_id' => null,
             'name' => $item->name,
             'description' => $item->description,
             'quantity' => 1,
@@ -209,6 +240,7 @@ class InvoiceForm extends Component
             $invoice->items()->delete();
             foreach (array_values($this->items) as $order => $item) {
                 $invoice->items()->create([
+                    'product_id' => $item['product_id'] ?? null,
                     'name' => $item['name'],
                     'description' => $item['description'] ?? null,
                     'quantity' => $item['quantity'],
@@ -233,6 +265,11 @@ class InvoiceForm extends Component
                  'subject_label' => $invoice->invoice_number, 'client_id' => $invoice->client_id]);
         }
 
+        // Deduct stock if the invoice is saved directly as sent/paid.
+        if (in_array($invoice->status, ['sent', 'paid'], true)) {
+            $invoice->deductStock();
+        }
+
         $this->dispatch('toast', type: 'success', message: 'Invoice saved.');
 
         return $this->redirect(route('admin.invoices.show', $invoice), navigate: true);
@@ -243,6 +280,17 @@ class InvoiceForm extends Component
         return view('livewire.admin.invoices.invoice-form', [
             'clients' => Client::orderBy('name')->get(['id', 'name', 'company_name']),
             'savedItems' => $this->showSavedItems ? SavedItem::orderBy('name')->get() : collect(),
+            'products' => $this->showProducts
+                ? Product::where('is_active', true)
+                    ->when($this->productSearch, function ($q) {
+                        $q->where(function ($sub) {
+                            $sub->where('name', 'like', "%{$this->productSearch}%")
+                                ->orWhere('sku', 'like', "%{$this->productSearch}%")
+                                ->orWhere('description', 'like', "%{$this->productSearch}%");
+                        });
+                    })
+                    ->orderBy('name')->limit(25)->get()
+                : collect(),
         ]);
     }
 }

@@ -9,6 +9,7 @@ class EstimateItem extends Model
 {
     protected $fillable = [
         'estimate_id',
+        'product_id',
         'name',
         'description',
         'quantity',
@@ -29,5 +30,10 @@ class EstimateItem extends Model
     public function estimate(): BelongsTo
     {
         return $this->belongsTo(Estimate::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 }

@@ -23,6 +23,9 @@ use App\Livewire\Admin\Invoices\InvoicesIndex;
 use App\Livewire\Admin\Leads\LeadForm;
 use App\Livewire\Admin\Leads\LeadShow;
 use App\Livewire\Admin\Pipeline\PipelineBoard;
+use App\Livewire\Admin\Products\ProductForm;
+use App\Livewire\Admin\Products\ProductShow;
+use App\Livewire\Admin\Products\ProductsIndex;
 use App\Livewire\Admin\Projects\ProjectForm;
 use App\Livewire\Admin\Projects\ProjectShow;
 use App\Livewire\Admin\Projects\ProjectsIndex;
@@ -128,6 +131,12 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('tickets', TicketsIndex::class)->name('tickets.index')->middleware('permission:tickets.view');
     Route::get('tickets/{ticket}', TicketShow::class)->name('tickets.show')->middleware('permission:tickets.view');
     Route::get('tickets/{ticket}/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachment.download')->middleware('permission:tickets.view');
+
+    // Products & inventory
+    Route::get('products', ProductsIndex::class)->name('products.index')->middleware('permission:products.view');
+    Route::get('products/create', ProductForm::class)->name('products.create')->middleware('permission:products.create');
+    Route::get('products/{product}/edit', ProductForm::class)->name('products.edit')->middleware('permission:products.edit');
+    Route::get('products/{product}', ProductShow::class)->name('products.show')->middleware('permission:products.view');
 
     // Saved items
     Route::get('saved-items', SavedItemsIndex::class)->name('saved-items.index');

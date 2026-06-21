@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Payment;
 use App\Models\PipelineStage;
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\Subscription;
 use App\Models\Ticket;
@@ -118,6 +119,12 @@ class Dashboard extends Component
             ->whereYear('converted_at', now()->year)
             ->count();
 
+        // Low-stock products needing reorder.
+        $lowStockCount = Product::where('track_inventory', true)
+            ->whereNotNull('low_stock_threshold')
+            ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')
+            ->where('is_active', true)->count();
+
         // Foreign-currency invoices (shown in LKR equivalent).
         $foreignInvoices = Invoice::where('currency_code', '!=', 'LKR')->get(['id', 'total_lkr']);
         $foreignInvoiceCount = $foreignInvoices->count();
@@ -159,6 +166,7 @@ class Dashboard extends Component
             'leadsWonThisMonth' => $wonThisMonthCount,
             'foreignInvoiceCount' => $foreignInvoiceCount,
             'foreignRevenueLkr' => $foreignRevenueLkr,
+            'lowStockCount' => $lowStockCount,
             'activities' => $activities,
             'hasMoreActivity' => $hasMoreActivity,
             'chartLabels' => $months->pluck('label'),

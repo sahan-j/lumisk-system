@@ -27,6 +27,12 @@ class InvoiceShow extends Component
         }
 
         $this->invoice->update(['status' => $status]);
+
+        // Deduct stock the first time an invoice becomes sent or paid.
+        if (in_array($status, ['sent', 'paid'], true)) {
+            $this->invoice->deductStock();
+        }
+
         $this->invoice->refresh();
 
         if (in_array($status, ['sent', 'paid'], true)) {

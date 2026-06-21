@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Estimates;
 use App\Models\Client;
 use App\Models\Currency;
 use App\Models\Estimate;
+use App\Models\Product;
 use App\Models\SavedItem;
 use App\Services\DocumentNumberService;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,8 @@ class EstimateForm extends Component
     public array $items = [];
 
     public bool $showSavedItems = false;
+    public bool $showProducts = false;
+    public string $productSearch = '';
 
     public function mount(?Estimate $estimate = null): void
     {
@@ -55,6 +58,7 @@ class EstimateForm extends Component
             $this->exchangeRate = (float) ($estimate->exchange_rate ?: 1);
             $this->currencySymbol = $estimate->currency_symbol;
             $this->items = $estimate->items->map(fn ($i) => [
+                'product_id' => $i->product_id,
                 'name' => $i->name,
                 'description' => $i->description,
                 'quantity' => (float) $i->quantity,
@@ -109,7 +113,33 @@ class EstimateForm extends Component
 
     private function blankItem(): array
     {
-        return ['name' => '', 'description' => '', 'quantity' => 1, 'unit_price' => 0];
+        return ['product_id' => null, 'name' => '', 'description' => '', 'quantity' => 1, 'unit_price' => 0];
+    }
+
+    /** Add a catalog product as a line item (from the product picker). */
+    public function addProduct(int $productId): void
+    {
+        $product = Product::find($productId);
+        if (! $product) {
+            return;
+        }
+
+        $new = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'quantity' => 1,
+            'unit_price' => (float) $product->sale_price,
+        ];
+
+        if (count($this->items) === 1 && $this->items[0]['name'] === '') {
+            $this->items[0] = $new;
+        } else {
+            $this->items[] = $new;
+        }
+
+        $this->showProducts = false;
+        $this->productSearch = '';
     }
 
     public function addItem(): void
@@ -134,6 +164,7 @@ class EstimateForm extends Component
         }
 
         $new = [
+            'product_id' => null,
             'name' => $item->name,
             'description' => $item->description,
             'quantity' => 1,
@@ -206,6 +237,7 @@ class EstimateForm extends Component
             $estimate->items()->delete();
             foreach (array_values($this->items) as $order => $item) {
                 $estimate->items()->create([
+                    'product_id' => $item['product_id'] ?? null,
                     'name' => $item['name'],
                     'description' => $item['description'] ?? null,
                     'quantity' => $item['quantity'],
@@ -240,6 +272,17 @@ class EstimateForm extends Component
         return view('livewire.admin.estimates.estimate-form', [
             'clients' => Client::orderBy('name')->get(['id', 'name', 'company_name']),
             'savedItems' => $this->showSavedItems ? SavedItem::orderBy('name')->get() : collect(),
+            'products' => $this->showProducts
+                ? Product::where('is_active', true)
+                    ->when($this->productSearch, function ($q) {
+                        $q->where(function ($sub) {
+                            $sub->where('name', 'like', "%{$this->productSearch}%")
+                                ->orWhere('sku', 'like', "%{$this->productSearch}%")
+                                ->orWhere('description', 'like', "%{$this->productSearch}%");
+                        });
+                    })
+                    ->orderBy('name')->limit(25)->get()
+                : collect(),
         ]);
     }
 }

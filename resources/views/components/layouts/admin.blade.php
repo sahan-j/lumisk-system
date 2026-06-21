@@ -47,6 +47,7 @@
                         ['admin.expenses.index', 'Expenses', 'M9 7h6m-6 4h6m-6 4h4M5 3h14a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 011-1z', 'expenses.view'],
                         ['admin.subscriptions.index', 'Subscriptions', 'M7 7h10v10M17 7L7 17M4 20h16', 'subscriptions.view'],
                         ['admin.reports.index', 'Reports', 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', 'reports.view'],
+                        ['admin.products.index', 'Products', 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'products.view'],
                         ['admin.saved-items.index', 'Saved Items', 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4', 'invoices.view'],
                         ['admin.staff.index', 'Staff', 'M17 20h5v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z', 'staff.view'],
                         ['admin.settings.index', 'Settings', 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z', 'settings.view'],
@@ -69,6 +70,9 @@
                         @endif
                         @if ($route === 'admin.subscriptions.index' && ($pastDueCount ?? 0) > 0)
                             <span class="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">{{ $pastDueCount }}</span>
+                        @endif
+                        @if ($route === 'admin.products.index' && ($lowStockCount ?? 0) > 0)
+                            <span class="ml-auto rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold text-white">{{ $lowStockCount }}</span>
                         @endif
                     </a>
                 @endforeach

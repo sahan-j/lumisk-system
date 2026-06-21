@@ -21,6 +21,7 @@ class Invoice extends Model
         'invoice_number',
         'client_id',
         'status',
+        'stock_deducted',
         'converted_from',
         'currency_code',
         'exchange_rate',
@@ -48,7 +49,37 @@ class Invoice extends Model
             'total' => 'decimal:2',
             'exchange_rate' => 'decimal:4',
             'total_lkr' => 'decimal:2',
+            'stock_deducted' => 'boolean',
         ];
+    }
+
+    /**
+     * Deduct stock for tracked products on this invoice's line items, once.
+     * Safe to call repeatedly — the stock_deducted flag prevents double counting.
+     */
+    public function deductStock(): void
+    {
+        if ($this->stock_deducted) {
+            return;
+        }
+
+        $this->loadMissing('items.product');
+
+        foreach ($this->items as $item) {
+            $product = $item->product;
+            if ($product && $product->track_inventory) {
+                $product->adjustStock(
+                    quantity: -(float) $item->quantity,
+                    type: 'sale',
+                    notes: "Sold via invoice {$this->invoice_number}",
+                    refType: 'Invoice',
+                    refId: $this->id,
+                    refLabel: $this->invoice_number,
+                );
+            }
+        }
+
+        $this->update(['stock_deducted' => true]);
     }
 
     public function client(): BelongsTo

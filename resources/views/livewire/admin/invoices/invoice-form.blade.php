@@ -66,10 +66,16 @@
                 <div class="card p-5">
                     <div class="mb-4 flex items-center justify-between">
                         <h3 class="font-semibold text-gray-900 dark:text-white">Line Items</h3>
-                        <button type="button" wire:click="$set('showSavedItems', true)" class="btn-secondary !py-1.5 text-xs">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" /></svg>
-                            Add from Saved Items
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="button" wire:click="$set('showProducts', true)" class="btn-secondary !py-1.5 text-xs">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                Add from Products
+                            </button>
+                            <button type="button" wire:click="$set('showSavedItems', true)" class="btn-secondary !py-1.5 text-xs">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" /></svg>
+                                Add from Saved Items
+                            </button>
+                        </div>
                     </div>
 
                     @error('items') <p class="mb-2 text-xs text-red-500">{{ $message }}</p> @enderror
@@ -188,6 +194,37 @@
             </div>
             <div class="mt-4 flex justify-end">
                 <button type="button" wire:click="$set('showSavedItems', false)" class="btn-secondary">Done</button>
+            </div>
+        </x-app-modal>
+    @endif
+
+    {{-- Product picker --}}
+    @if ($showProducts)
+        <x-app-modal title="Add from Products" close="$set('showProducts', false)" max-width="sm:max-w-lg">
+            <div class="relative mb-3">
+                <svg class="pointer-events-none absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input wire:model.live.debounce.300ms="productSearch" type="text" placeholder="Search products by name or SKU…" class="form-input-base pl-10" autofocus>
+            </div>
+            <div class="max-h-96 divide-y divide-gray-100 overflow-y-auto dark:divide-ink-700">
+                @forelse ($products as $product)
+                    <button type="button" wire:click="addProduct({{ $product->id }})" @class(['flex w-full items-center justify-between gap-3 px-1 py-3 text-left hover:bg-gray-50 dark:hover:bg-ink-800', 'opacity-50' => $product->is_out_of_stock])>
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $product->name }}</p>
+                            <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $product->sku ? 'SKU: ' . $product->sku : $product->description }}</p>
+                        </div>
+                        <div class="shrink-0 text-right">
+                            <span class="text-sm font-medium text-gold">{{ \App\Helpers\CurrencyHelper::format($product->sale_price, $product->currency_code) }}</span>
+                            @if ($product->track_inventory)
+                                <span class="block text-[10px] font-medium" style="color: {{ $product->stock_status_color }}">{{ rtrim(rtrim(number_format($product->stock_quantity, 2), '0'), '.') }} in stock</span>
+                            @endif
+                        </div>
+                    </button>
+                @empty
+                    <p class="py-8 text-center text-sm text-gray-400">{{ $productSearch ? 'No products found.' : 'No products yet.' }}</p>
+                @endforelse
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button type="button" wire:click="$set('showProducts', false)" class="btn-secondary">Done</button>
             </div>
         </x-app-modal>
     @endif

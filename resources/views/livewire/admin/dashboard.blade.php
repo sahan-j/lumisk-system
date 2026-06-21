@@ -180,6 +180,20 @@
         </div>
     @endif
 
+    {{-- Low stock alert --}}
+    @if ($lowStockCount > 0)
+        <div class="mt-6 flex items-center justify-between gap-3 rounded-lg border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">
+            <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                <div>
+                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ $lowStockCount }} {{ Str::plural('item', $lowStockCount) }} running low</p>
+                    <p class="text-xs text-amber-700 dark:text-amber-400">Check inventory before accepting new orders.</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.products.index', ['stock' => 'low']) }}" class="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-50 dark:border-amber-900/40 dark:bg-ink-800 dark:text-amber-300">View items →</a>
+        </div>
+    @endif
+
     {{-- Sales pipeline snapshot --}}
     @if ($pipelineLeadCount > 0 || $pipelineFunnel->sum('leads_count') > 0)
         <div class="mt-6 card overflow-hidden">
