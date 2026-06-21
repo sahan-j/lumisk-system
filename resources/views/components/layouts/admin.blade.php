@@ -21,39 +21,34 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="h-full antialiased">
+<body class="h-full overflow-hidden antialiased">
     <div x-data="{
-        sidebarOpen: false,
-        collapsed: localStorage.getItem('lumisk_sidebar') === '1',
-        groups: {
-            overview: localStorage.getItem('lumisk_grp_overview') !== '0',
-            crm:      localStorage.getItem('lumisk_grp_crm')      !== '0',
-            ops:      localStorage.getItem('lumisk_grp_ops')       !== '0',
-            products: localStorage.getItem('lumisk_grp_products')  !== '0',
-            finance:  localStorage.getItem('lumisk_grp_finance')   !== '0',
-            admin:    localStorage.getItem('lumisk_grp_admin')     !== '0',
-        },
-        toggleSidebar() {
-            this.collapsed = !this.collapsed;
-            localStorage.setItem('lumisk_sidebar', this.collapsed ? '1' : '0');
-        },
-        toggleGroup(name) {
-            if (this.collapsed) return;
-            this.groups[name] = !this.groups[name];
-            localStorage.setItem('lumisk_grp_' + name, this.groups[name] ? '1' : '0');
-        }
-    }" class="min-h-full">
+            collapsed: localStorage.getItem('lumisk_sidebar') === '1',
+            groups: {
+                overview: localStorage.getItem('lumisk_grp_overview') !== '0',
+                crm:      localStorage.getItem('lumisk_grp_crm')      !== '0',
+                ops:      localStorage.getItem('lumisk_grp_ops')       !== '0',
+                products: localStorage.getItem('lumisk_grp_products')  !== '0',
+                finance:  localStorage.getItem('lumisk_grp_finance')   !== '0',
+                admin:    localStorage.getItem('lumisk_grp_admin')     !== '0',
+            },
+            toggleSidebar() {
+                this.collapsed = !this.collapsed;
+                localStorage.setItem('lumisk_sidebar', this.collapsed ? '1' : '0');
+            },
+            toggleGroup(name) {
+                if (this.collapsed) return;
+                this.groups[name] = !this.groups[name];
+                localStorage.setItem('lumisk_grp_' + name, this.groups[name] ? '1' : '0');
+            }
+         }"
+         class="flex h-full">
 
-        {{-- Mobile overlay --}}
-        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
-             x-transition.opacity class="fixed inset-0 z-30 bg-black/50 lg:hidden"></div>
-
-        {{-- Sidebar --}}
-        <aside class="fixed inset-y-0 left-0 z-40 flex flex-col bg-[#0f0f0f] border-r border-[#1e1e1e] transition-all duration-200 overflow-hidden w-[220px] lg:translate-x-0"
-               :class="[
-                   sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-                   collapsed ? 'lg:w-[52px]' : 'lg:w-[220px]'
-               ]">
+        {{-- ===== SIDEBAR ===== --}}
+        {{-- Width is set via :style so inline styles always override; no JIT-class generation needed --}}
+        <aside :style="'width:' + (collapsed ? '52px' : '220px')"
+               style="flex-shrink:0; transition:width 0.2s ease; overflow:hidden;"
+               class="flex flex-col h-full bg-[#0f0f0f] border-r border-[#1e1e1e]">
 
             {{-- Logo + collapse toggle --}}
             <div class="flex h-14 items-center border-b border-[#1e1e1e] px-3 flex-shrink-0">
@@ -64,9 +59,10 @@
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand text-white font-bold text-base">L</span>
                 </div>
                 <button @click="toggleSidebar()"
-                        class="flex-shrink-0 text-gray-500 hover:text-white transition-colors p-1 rounded ml-1">
-                    <svg :class="{ 'rotate-180': collapsed }"
-                         class="h-[18px] w-[18px] transition-transform duration-200"
+                        class="flex-shrink-0 text-gray-600 hover:text-white transition-colors p-1 rounded"
+                        :class="collapsed ? 'mx-auto' : 'ml-1'">
+                    <svg :style="collapsed ? 'transform:rotate(180deg)' : ''"
+                         style="transition:transform 0.2s ease; width:18px; height:18px;"
                          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -113,24 +109,22 @@
                     @endphp
                     @if (count($visibleItems) > 0)
                         <div class="mb-1">
-                            {{-- Group header (hidden in icon-only mode) --}}
+                            {{-- Group label — hidden in icon-only mode --}}
                             <div x-show="!collapsed"
                                  @click="toggleGroup('{{ $groupKey }}')"
-                                 class="flex items-center cursor-pointer px-2 py-1 select-none">
-                                <span style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px; color: #4a4a4a;">{{ $groupLabel }}</span>
-                                <svg :class="groups.{{ $groupKey }} ? 'rotate-0' : '-rotate-90'"
-                                     class="ml-auto h-3 w-3 flex-shrink-0 text-gray-600 transition-transform duration-200"
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                </svg>
+                                 class="flex items-center cursor-pointer select-none px-2 py-1">
+                                <span style="font-size:9.5px; text-transform:uppercase; letter-spacing:1.2px; color:#4a4a4a;">{{ $groupLabel }}</span>
+                                {{-- ▾ rotates −90° when group is closed --}}
+                                <span :style="groups.{{ $groupKey }} ? 'display:inline-block' : 'display:inline-block; transform:rotate(-90deg)'"
+                                      style="transition:transform 0.2s ease; font-size:11px; color:#4a4a4a; margin-left:auto; flex-shrink:0; line-height:1;">&#9662;</span>
                             </div>
 
-                            {{-- Group items: always show in icon-only mode; respect group state otherwise --}}
+                            {{-- Items: always visible in icon-only mode; toggled by group state otherwise --}}
                             <div x-show="collapsed || groups.{{ $groupKey }}"
-                                 x-transition:enter="transition-[opacity,max-height] duration-200 ease-out overflow-hidden"
+                                 x-transition:enter="transition-opacity duration-150 ease-out"
                                  x-transition:enter-start="opacity-0"
                                  x-transition:enter-end="opacity-100"
-                                 x-transition:leave="transition-[opacity] duration-150 ease-in"
+                                 x-transition:leave="transition-opacity duration-100 ease-in"
                                  x-transition:leave-start="opacity-100"
                                  x-transition:leave-end="opacity-0">
                                 @foreach ($visibleItems as [$route, $label, $icon, $perm])
@@ -139,26 +133,26 @@
                                        x-data="{ tip: false }"
                                        @mouseenter="if(collapsed) tip = true"
                                        @mouseleave="tip = false"
-                                       class="relative flex items-center gap-2.5 rounded-lg px-2 py-[7px] text-sm font-medium transition-colors mb-0.5
-                                              {{ $active
-                                                  ? 'bg-[#1e1e1e] text-white'
-                                                  : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-gray-100' }}">
-                                        <svg class="h-[18px] w-[18px] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                       style="position:relative; display:flex; align-items:center; gap:9px; padding:7px 8px; border-radius:7px; font-size:12.5px; text-decoration:none; margin-bottom:1px; transition:background 0.15s, color 0.15s;"
+                                       :style="'background:{{ $active ? "rgba(255,255,255,0.06)" : "transparent" }}; color:{{ $active ? "#fff" : "#9ca3af" }};'"
+                                       onmouseenter="if(this.style.background === 'transparent') this.style.background='rgba(255,255,255,0.04)'"
+                                       onmouseleave="if('{{ $active }}' !== '1') this.style.background='transparent'">
+                                        <svg style="width:17px; height:17px; flex-shrink:0; {{ $active ? 'color:#a5b4fc' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}" />
                                         </svg>
-                                        <span x-show="!collapsed" class="truncate leading-none">{{ $label }}</span>
+                                        <span x-show="!collapsed" style="white-space:nowrap; overflow:hidden; line-height:1.2;">{{ $label }}</span>
                                         @if ($route === 'admin.tickets.index' && ($openTicketsCount ?? 0) > 0)
-                                            <span x-show="!collapsed" class="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-semibold text-white flex-shrink-0">{{ $openTicketsCount }}</span>
+                                            <span x-show="!collapsed" style="margin-left:auto; flex-shrink:0; background:#ef4444; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:10px;">{{ $openTicketsCount }}</span>
                                         @endif
                                         @if ($route === 'admin.subscriptions.index' && ($pastDueCount ?? 0) > 0)
-                                            <span x-show="!collapsed" class="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-semibold text-white flex-shrink-0">{{ $pastDueCount }}</span>
+                                            <span x-show="!collapsed" style="margin-left:auto; flex-shrink:0; background:#ef4444; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:10px;">{{ $pastDueCount }}</span>
                                         @endif
                                         @if ($route === 'admin.products.index' && ($lowStockCount ?? 0) > 0)
-                                            <span x-show="!collapsed" class="ml-auto rounded-full bg-amber-500 px-1.5 py-0.5 text-[9px] font-semibold text-white flex-shrink-0">{{ $lowStockCount }}</span>
+                                            <span x-show="!collapsed" style="margin-left:auto; flex-shrink:0; background:#f59e0b; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:10px;">{{ $lowStockCount }}</span>
                                         @endif
-                                        {{-- Tooltip: only visible in icon-only mode on hover --}}
+                                        {{-- Text tooltip: visible only in icon-only mode on hover --}}
                                         <span x-show="tip" x-cloak
-                                              class="pointer-events-none absolute left-[44px] top-1/2 -translate-y-1/2 z-50 whitespace-nowrap rounded-md bg-[#1e1e1e] border border-[#2a2a2a] px-2.5 py-1.5 text-xs font-medium text-white shadow-lg">
+                                              style="position:absolute; left:48px; top:50%; transform:translateY(-50%); z-index:9999; background:#1e1e1e; border:1px solid #2a2a2a; color:#fff; font-size:12px; font-weight:500; padding:5px 10px; border-radius:6px; white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
                                             {{ $label }}
                                         </span>
                                     </a>
@@ -170,20 +164,22 @@
             </nav>
 
             {{-- Sign out --}}
-            <div class="border-t border-[#1e1e1e] p-2 flex-shrink-0">
+            <div style="border-top:1px solid #1e1e1e; padding:8px 6px; flex-shrink:0;">
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit"
                             x-data="{ tip: false }"
                             @mouseenter="if(collapsed) tip = true"
                             @mouseleave="tip = false"
-                            class="relative flex w-full items-center gap-2.5 rounded-lg px-2 py-[7px] text-sm font-medium text-gray-400 hover:bg-[#1a1a1a] hover:text-gray-100 transition-colors">
-                        <svg class="h-[18px] w-[18px] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            style="position:relative; display:flex; width:100%; align-items:center; gap:9px; padding:7px 8px; border-radius:7px; background:none; border:none; cursor:pointer; font-size:12.5px; color:#9ca3af; transition:background 0.15s, color 0.15s; text-align:left;"
+                            onmouseenter="this.style.background='rgba(255,255,255,0.04)'; this.style.color='#e5e7eb';"
+                            onmouseleave="this.style.background='transparent'; this.style.color='#9ca3af';">
+                        <svg style="width:17px; height:17px; flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        <span x-show="!collapsed" class="leading-none">Sign out</span>
+                        <span x-show="!collapsed" style="white-space:nowrap; line-height:1.2;">Sign out</span>
                         <span x-show="tip" x-cloak
-                              class="pointer-events-none absolute left-[44px] top-1/2 -translate-y-1/2 z-50 whitespace-nowrap rounded-md bg-[#1e1e1e] border border-[#2a2a2a] px-2.5 py-1.5 text-xs font-medium text-white shadow-lg">
+                              style="position:absolute; left:48px; top:50%; transform:translateY(-50%); z-index:9999; background:#1e1e1e; border:1px solid #2a2a2a; color:#fff; font-size:12px; font-weight:500; padding:5px 10px; border-radius:6px; white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
                             Sign out
                         </span>
                     </button>
@@ -191,11 +187,12 @@
             </div>
         </aside>
 
-        {{-- Main column --}}
-        <div class="transition-all duration-200"
-             :class="collapsed ? 'lg:pl-[52px]' : 'lg:pl-[220px]'">
-            <header class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-gray-200 bg-white/80 px-4 backdrop-blur dark:border-ink-600 dark:bg-ink-850/80 sm:px-6">
-                <button @click="sidebarOpen = true" class="text-gray-500 lg:hidden">
+        {{-- ===== MAIN COLUMN — takes all remaining width via flex-1 ===== --}}
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+            <header class="flex-shrink-0 flex h-16 items-center gap-4 border-b border-gray-200 bg-white/90 px-4 backdrop-blur dark:border-ink-600 dark:bg-ink-850/90 sm:px-6 sticky top-0 z-20">
+                {{-- Mobile toggle: collapses/expands the sidebar --}}
+                <button @click="toggleSidebar()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white lg:hidden">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
@@ -218,7 +215,9 @@
                                 </div>
                             @endif
                             <span class="hidden text-sm font-medium text-gray-700 dark:text-gray-200 sm:block">{{ auth()->user()->name }}</span>
-                            <svg class="hidden h-4 w-4 text-gray-400 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                            <svg class="hidden h-4 w-4 text-gray-400 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </button>
                         <div x-show="open" x-cloak @click.outside="open = false" x-transition
                              class="absolute right-4 mt-2 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-ink-600 dark:bg-ink-850">
@@ -232,10 +231,11 @@
                 </div>
             </header>
 
-            <main class="p-4 sm:p-6 lg:p-8">
+            <main class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
                 {{ $slot }}
             </main>
         </div>
+
     </div>
 
     <x-toasts />
