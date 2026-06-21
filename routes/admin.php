@@ -2,10 +2,14 @@
 
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\CreditNotePdfController;
 use App\Http\Controllers\Admin\EstimatePdfController;
 use App\Http\Controllers\Admin\InvoicePdfController;
 use App\Http\Controllers\Admin\TicketAttachmentController;
+use App\Livewire\Admin\AuditLog\AuditLogIndex;
+use App\Livewire\Admin\AuditLog\AuditLogShow;
+use App\Livewire\Admin\Backups\BackupsIndex;
 use App\Livewire\Admin\Clients\ClientShow;
 use App\Livewire\Admin\Clients\ClientsIndex;
 use App\Livewire\Admin\CreditNotes\CreditNoteForm;
@@ -148,6 +152,14 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('staff', StaffIndex::class)->name('staff.index')->middleware('permission:staff.view');
     Route::get('staff/create', StaffForm::class)->name('staff.create')->middleware('permission:staff.create');
     Route::get('staff/{user}/edit', StaffForm::class)->name('staff.edit')->middleware('permission:staff.edit');
+
+    // Audit log (data-change history)
+    Route::get('audit-log', AuditLogIndex::class)->name('audit-log.index')->middleware('permission:settings.view');
+    Route::get('audit-log/{auditLog}', AuditLogShow::class)->name('audit-log.show')->middleware('permission:settings.view');
+
+    // Database backups
+    Route::get('backups', BackupsIndex::class)->name('backups.index')->middleware('permission:settings.view');
+    Route::get('backups/{filename}/download', [BackupController::class, 'download'])->name('backups.download')->middleware('permission:settings.view');
 
     // Profile
     Route::get('profile', [AdminProfileController::class, 'show'])->name('profile');

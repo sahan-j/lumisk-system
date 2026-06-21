@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\DocumentNumberService;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Support\Carbon;
 
 class Subscription extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
 
     public const STATUSES = ['trial', 'active', 'past_due', 'cancelled', 'expired', 'paused'];
 

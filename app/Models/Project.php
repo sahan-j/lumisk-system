@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasAttachments;
 use App\Traits\HasNotes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes, HasAttachments, HasNotes;
+    use HasFactory, SoftDeletes, HasAttachments, HasNotes, Auditable;
 
     public const STATUSES = ['planning', 'active', 'on_hold', 'completed', 'cancelled'];
     public const PRIORITIES = ['low', 'medium', 'high'];

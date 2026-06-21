@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\DocumentNumberService;
+use App\Traits\Auditable;
 use App\Traits\HasCurrency;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class CreditNote extends Model
 {
-    use SoftDeletes, HasCurrency;
+    use SoftDeletes, HasCurrency, Auditable;
 
     public const STATUSES = ['draft', 'issued', 'applied', 'void'];
 

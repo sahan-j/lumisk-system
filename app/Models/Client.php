@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasAttachments;
 use App\Traits\HasNotes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Client extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasAttachments, HasNotes;
+    use HasFactory, Notifiable, SoftDeletes, HasAttachments, HasNotes, Auditable;
 
     protected $fillable = [
         'name',

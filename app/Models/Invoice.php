@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasAttachments;
 use App\Traits\HasCurrency;
 use App\Traits\HasNotes;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    use HasFactory, SoftDeletes, HasAttachments, HasNotes, HasCurrency;
+    use HasFactory, SoftDeletes, HasAttachments, HasNotes, HasCurrency, Auditable;
 
     public const STATUSES = ['draft', 'sent', 'paid', 'overdue', 'cancelled'];
 
