@@ -42,9 +42,9 @@
 
         /* Group */
         .ls-group { margin-bottom:4px; }
-        .ls-group-header { display:flex; align-items:center; padding:7px 8px 3px; cursor:pointer; user-select:none; }
-        .ls-group-label { font-size:9.5px; text-transform:uppercase; letter-spacing:1.4px; font-weight:600; color:#3a3a52; white-space:nowrap; }
-        .ls-group-arrow { margin-left:auto; font-size:9px; color:#3a3a52; transition:transform 0.2s ease; flex-shrink:0; line-height:1; }
+        .ls-group-header { display:flex; align-items:center; padding:9px 8px 4px; cursor:pointer; user-select:none; gap:6px; }
+        .ls-group-label { font-size:9px; text-transform:uppercase; letter-spacing:1.6px; font-weight:700; color:#7868e8; white-space:nowrap; }
+        .ls-group-arrow { margin-left:auto; font-size:9px; color:#7868e8; transition:transform 0.2s ease; flex-shrink:0; line-height:1; opacity:0.7; }
         .ls-divider { border:none; border-top:1px solid #1f1f2e; margin:5px 0; }
 
         /* Nav item */
