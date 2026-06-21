@@ -65,6 +65,11 @@
                             </td>
                             <td class="px-5 py-3">
                                 <a href="{{ route('admin.invoices.show', $invoice) }}" class="font-medium text-gray-900 hover:text-brand-purple dark:text-white">{{ $invoice->invoice_number }}</a>
+                                @if($invoice->is_recurring)
+                                    <span class="ml-1 inline-block rounded-full px-1.5 py-0.5 text-[9px] font-medium" style="background:rgba(109,92,255,0.1);color:#6d5cff;">↻ recurring</span>
+                                @elseif($invoice->recurring_parent_id)
+                                    <span class="ml-1 inline-block rounded-full border border-gray-200 px-1.5 py-0.5 text-[9px] font-medium text-gray-400 dark:border-ink-600">auto-generated</span>
+                                @endif
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $invoice->client?->name ?? '—' }}</td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $invoice->issue_date?->format('M d, Y') }}</td>

@@ -142,6 +142,11 @@ class Dashboard extends Component
             ->take(3)
             ->get();
 
+        $recurringCount = Invoice::where('is_recurring', true)->count();
+        $recurringMonthlyValue = Invoice::where('is_recurring', true)
+            ->where('recurring_cycle', 'monthly')
+            ->sum('total');
+
         return view('livewire.admin.dashboard', [
             'totalRevenue' => $totalRevenue,
             'outstanding' => $outstanding,
@@ -172,6 +177,8 @@ class Dashboard extends Component
             'chartLabels' => $months->pluck('label'),
             'chartValues' => $months->pluck('value'),
             'expenseValues' => $expenseSeries,
+            'recurringCount' => $recurringCount,
+            'recurringMonthlyValue' => $recurringMonthlyValue,
             'recentInvoices' => Invoice::with('client')->latest()->take(5)->get(),
             'recentEstimates' => Estimate::with('client')->latest()->take(5)->get(),
         ]);

@@ -156,5 +156,57 @@
         </div>
     </div>
 
+    {{-- Recurring info panel --}}
+    @if($invoice->is_recurring)
+    <div class="mt-6 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4" style="border-left:3px solid #6d5cff;">
+        <div class="mb-3 flex items-center gap-2 text-sm font-semibold text-brand-purple">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Recurring Invoice
+        </div>
+        <div class="space-y-1 text-sm text-gray-500 dark:text-gray-400">
+            <div>Cycle: <strong class="text-gray-900 dark:text-white">{{ $invoice->recurring_cycle_label }}</strong></div>
+            <div>Next invoice: <strong class="text-gray-900 dark:text-white">{{ $invoice->recurring_next_date?->format('M d, Y') ?? '—' }}</strong></div>
+            @if($invoice->recurring_end_date)
+                <div>Ends: <strong class="text-gray-900 dark:text-white">{{ $invoice->recurring_end_date->format('M d, Y') }}</strong></div>
+            @else
+                <div>Ends: <strong class="text-gray-900 dark:text-white">Never</strong></div>
+            @endif
+            <div>Generated so far: <strong class="text-gray-900 dark:text-white">{{ $invoice->recurring_count }} invoice(s)</strong></div>
+        </div>
+        <button wire:click="stopRecurring"
+                wire:confirm="Stop recurring invoices for this template?"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Stop Recurring
+        </button>
+    </div>
+    @endif
+
+    {{-- Generated copies list --}}
+    @if($invoice->recurringChildren->count() > 0)
+    <div class="mt-4">
+        <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            Auto-generated invoices ({{ $invoice->recurringChildren->count() }})
+        </p>
+        <div class="space-y-1">
+            @foreach($invoice->recurringChildren->take(5) as $child)
+            <a href="{{ route('admin.invoices.show', $child) }}"
+               class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:bg-gray-100 dark:border-ink-600 dark:bg-ink-800 dark:hover:bg-ink-700">
+                <span class="font-mono font-medium text-brand-purple">{{ $child->invoice_number }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $child->issue_date->format('M d, Y') }}</span>
+                <x-status-badge :color="$child->statusColor()" :label="$child->status" />
+            </a>
+            @endforeach
+            @if($invoice->recurringChildren->count() > 5)
+            <p class="pt-1 text-center text-xs text-gray-400">+ {{ $invoice->recurringChildren->count() - 5 }} more</p>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <x-notes-attachments :record="$invoice" />
 </div>

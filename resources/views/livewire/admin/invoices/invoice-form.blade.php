@@ -128,6 +128,53 @@
                         <textarea wire:model="terms" rows="3" class="form-input-base text-sm"></textarea>
                     </div>
                 </div>
+
+                {{-- Recurring Settings --}}
+                <div class="card p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" wire:model.live="isRecurring"
+                                   class="rounded border-gray-300 text-brand-purple focus:ring-brand-purple dark:border-ink-600 dark:bg-ink-800"
+                                   style="width:16px;height:16px;">
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                <svg class="h-4 w-4 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Recurring Invoice
+                            </span>
+                        </label>
+                        @if($isRecurring)
+                            <span class="text-xs bg-brand-purple/10 text-brand-purple px-2 py-0.5 rounded-full font-medium">
+                                Auto-generates new invoices on schedule
+                            </span>
+                        @endif
+                    </div>
+
+                    @if($isRecurring)
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div>
+                                <label class="form-label">Billing Cycle</label>
+                                <select wire:model="recurringCycle" class="form-input-base">
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly (3 months)</option>
+                                    <option value="semi_annual">Semi-Annual (6 months)</option>
+                                    <option value="annual">Annual</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">First / Next Invoice Date</label>
+                                <input wire:model="recurringNextDate" type="date" class="form-input-base">
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">New invoice auto-generates on this date</p>
+                            </div>
+                            <div>
+                                <label class="form-label">End Date <span class="font-normal text-gray-400">(optional)</span></label>
+                                <input wire:model="recurringEndDate" type="date" class="form-input-base">
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Leave blank to repeat forever</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
 
             {{-- Right: totals & status --}}

@@ -14,3 +14,4 @@ Schedule::command('activity:clean')->monthly();
 Schedule::command('subscriptions:process-billing')->dailyAt('07:00');
 Schedule::command('subscriptions:send-reminders')->dailyAt('08:30');
 Schedule::command('inventory:check-low-stock')->dailyAt('09:00');
+Schedule::command('invoices:generate-recurring')->dailyAt('07:30');

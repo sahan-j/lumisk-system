@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasAttachments;
 use App\Traits\HasCurrency;
 use App\Traits\HasNotes;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,6 +36,12 @@ class Invoice extends Model
         'total_lkr',
         'notes',
         'terms',
+        'is_recurring',
+        'recurring_cycle',
+        'recurring_next_date',
+        'recurring_end_date',
+        'recurring_parent_id',
+        'recurring_count',
     ];
 
     protected function casts(): array
@@ -50,6 +57,9 @@ class Invoice extends Model
             'exchange_rate' => 'decimal:4',
             'total_lkr' => 'decimal:2',
             'stock_deducted' => 'boolean',
+            'is_recurring' => 'boolean',
+            'recurring_next_date' => 'date',
+            'recurring_end_date' => 'date',
         ];
     }
 
@@ -97,6 +107,16 @@ class Invoice extends Model
         return $this->hasMany(Payment::class)->orderBy('payment_date', 'desc');
     }
 
+    public function recurringParent(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class, 'recurring_parent_id');
+    }
+
+    public function recurringChildren(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'recurring_parent_id')->latest();
+    }
+
     public function getTotalPaidAttribute(): float
     {
         return round((float) $this->payments->sum('amount'), 2);
@@ -110,6 +130,32 @@ class Invoice extends Model
     public function getIsFullyPaidAttribute(): bool
     {
         return $this->total > 0 && $this->outstanding_balance <= 0;
+    }
+
+    public function getRecurringCycleLabelAttribute(): string
+    {
+        return match ($this->recurring_cycle) {
+            'weekly' => 'Weekly',
+            'monthly' => 'Monthly',
+            'quarterly' => 'Every 3 months',
+            'semi_annual' => 'Every 6 months',
+            'annual' => 'Annual',
+            default => '—',
+        };
+    }
+
+    public function calculateNextRecurringDate(): Carbon
+    {
+        $base = $this->recurring_next_date ?? today();
+
+        return match ($this->recurring_cycle) {
+            'weekly' => $base->copy()->addWeek(),
+            'monthly' => $base->copy()->addMonth(),
+            'quarterly' => $base->copy()->addMonths(3),
+            'semi_annual' => $base->copy()->addMonths(6),
+            'annual' => $base->copy()->addYear(),
+            default => $base->copy()->addMonth(),
+        };
     }
 
     /**

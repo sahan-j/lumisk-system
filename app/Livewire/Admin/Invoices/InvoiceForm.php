@@ -37,6 +37,11 @@ class InvoiceForm extends Component
     /** @var array<int, array{name:string, description:?string, quantity:float, unit_price:float}> */
     public array $items = [];
 
+    public bool $isRecurring = false;
+    public string $recurringCycle = 'monthly';
+    public ?string $recurringNextDate = null;
+    public ?string $recurringEndDate = null;
+
     public bool $showSavedItems = false;
     public bool $showProducts = false;
     public string $productSearch = '';
@@ -58,6 +63,10 @@ class InvoiceForm extends Component
             $this->currencyCode = $invoice->currency_code ?: 'LKR';
             $this->exchangeRate = (float) ($invoice->exchange_rate ?: 1);
             $this->currencySymbol = $invoice->currency_symbol;
+            $this->isRecurring = (bool) $invoice->is_recurring;
+            $this->recurringCycle = $invoice->recurring_cycle ?: 'monthly';
+            $this->recurringNextDate = $invoice->recurring_next_date?->format('Y-m-d');
+            $this->recurringEndDate = $invoice->recurring_end_date?->format('Y-m-d');
             $this->items = $invoice->items->map(fn ($i) => [
                 'product_id' => $i->product_id,
                 'name' => $i->name,
@@ -233,6 +242,12 @@ class InvoiceForm extends Component
                 'discount_amount' => $validated['discount_amount'] ?? 0,
                 'notes' => $this->notes,
                 'terms' => $this->terms,
+                'is_recurring' => $this->isRecurring,
+                'recurring_cycle' => $this->isRecurring ? $this->recurringCycle : null,
+                'recurring_next_date' => $this->isRecurring
+                    ? ($this->recurringNextDate ?: today()->addMonth()->format('Y-m-d'))
+                    : null,
+                'recurring_end_date' => $this->isRecurring ? ($this->recurringEndDate ?: null) : null,
             ]);
             $invoice->save();
 

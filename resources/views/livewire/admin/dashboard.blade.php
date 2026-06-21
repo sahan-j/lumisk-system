@@ -80,6 +80,27 @@
         @endforeach
     </div>
 
+    {{-- Recurring invoices widget --}}
+    @if($recurringCount > 0)
+    <div class="mt-4 flex items-center justify-between rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-4 py-3 dark:border-brand-purple/30 dark:bg-brand-purple/10">
+        <div class="flex items-center gap-3">
+            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </span>
+            <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Recurring Invoices</p>
+                <p class="text-lg font-semibold text-brand-purple">{{ $recurringCount }} active</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Monthly value</p>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ money($recurringMonthlyValue) }}</p>
+        </div>
+    </div>
+    @endif
+
     {{-- Revenue vs Expenses chart --}}
     <div class="mt-6 card p-5">
         <h2 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue vs Expenses</h2>
