@@ -67,7 +67,10 @@
                             <td class="px-5 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $estimate->client?->name ?? '—' }}</td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $estimate->issue_date?->format('M d, Y') }}</td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $estimate->expiry_date?->format('M d, Y') ?? '—' }}</td>
-                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ money($estimate->total) }}</td>
+                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">
+                                {{ currency_amount($estimate, $estimate->total) }}
+                                @if ($estimate->currency_code !== 'LKR')<div class="text-[10px] font-normal text-gray-400">≈ {{ money($estimate->total_lkr) }}</div>@endif
+                            </td>
                             <td class="px-5 py-3"><x-status-badge :color="$estimate->statusColor()" :label="$estimate->status" /></td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center justify-end gap-1">

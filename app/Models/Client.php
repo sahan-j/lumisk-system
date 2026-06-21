@@ -21,6 +21,7 @@ class Client extends Authenticatable
         'phone',
         'address',
         'company_name',
+        'default_currency',
         'portal_enabled',
     ];
 

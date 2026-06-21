@@ -44,6 +44,21 @@
                             <label class="form-label">Due Date</label>
                             <input wire:model="due_date" type="date" class="form-input-base">
                         </div>
+                        <div>
+                            <label class="form-label">Currency</label>
+                            <select wire:model.live="currencyCode" class="form-input-base">
+                                @foreach (\App\Helpers\CurrencyHelper::getActiveCurrencies() as $currency)
+                                    <option value="{{ $currency->code }}">{{ $currency->symbol }} {{ $currency->code }} — {{ $currency->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if ($currencyCode !== 'LKR')
+                            <div>
+                                <label class="form-label">Exchange Rate <span class="text-xs font-normal text-gray-400">(1 {{ $currencyCode }} = ? LKR)</span></label>
+                                <input wire:model.live.debounce.400ms="exchangeRate" type="number" step="0.0001" min="0" class="form-input-base">
+                                <p class="mt-1 text-xs text-gray-400">≈ {{ money($this->totalLkr) }} total</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -125,7 +140,7 @@
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
-                            <span class="font-medium text-gray-900 dark:text-white">{{ money($this->subtotal) }}</span>
+                            <span class="font-medium text-gray-900 dark:text-white">{{ $currencySymbol }} {{ number_format($this->subtotal, 2) }}</span>
                         </div>
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-gray-500 dark:text-gray-400">Tax %</span>
@@ -133,7 +148,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Tax amount</span>
-                            <span class="font-medium text-gray-900 dark:text-white">{{ money($this->taxAmount) }}</span>
+                            <span class="font-medium text-gray-900 dark:text-white">{{ $currencySymbol }} {{ number_format($this->taxAmount, 2) }}</span>
                         </div>
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-gray-500 dark:text-gray-400">Discount</span>
@@ -141,8 +156,14 @@
                         </div>
                         <div class="flex justify-between border-t border-gray-200 pt-3 dark:border-ink-600">
                             <span class="font-semibold text-gray-900 dark:text-white">Total</span>
-                            <span class="text-lg font-semibold text-gold">{{ money($this->total) }}</span>
+                            <span class="text-lg font-semibold text-gold">{{ $currencySymbol }} {{ number_format($this->total, 2) }}</span>
                         </div>
+                        @if ($currencyCode !== 'LKR')
+                            <div class="flex justify-between text-xs text-gray-400">
+                                <span>LKR equivalent</span>
+                                <span>≈ {{ money($this->totalLkr) }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

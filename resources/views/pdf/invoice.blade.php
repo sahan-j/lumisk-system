@@ -202,7 +202,9 @@ body {
 <body>
 
 @php
-    $currency = $company->currency ?: 'LKR';
+    $currCode = $invoice->currency_code ?: ($company->currency ?: 'LKR');
+    $currency = $invoice->currency_symbol;
+    $isForeign = $currCode !== 'LKR';
     $hasBank  = $company->bank_name || $company->bank_account_name || $company->bank_account_number || $company->bank_branch;
     $hasNotes = (bool) $invoice->notes;
     $logoSrc = null;
@@ -317,11 +319,16 @@ body {
         <div class="grand">
             <table class="grand-tbl">
                 <tr>
-                    <td class="gl">Total ({{ $currency }})</td>
+                    <td class="gl">Total ({{ $currCode }})</td>
                     <td class="gv mono">{{ number_format((float)$invoice->total, 2) }}</td>
                 </tr>
             </table>
         </div>
+        @if($isForeign)
+        <div style="text-align:right; font-size:0.8em; color:#94a3b8; margin-top:5px;">
+            &asymp; Rs {{ number_format((float)$invoice->total_lkr, 2) }} at 1 {{ $currCode }} = Rs {{ number_format((float)$invoice->exchange_rate, 2) }}
+        </div>
+        @endif
     </div>
 </div>
 

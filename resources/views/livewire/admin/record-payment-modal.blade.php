@@ -9,7 +9,7 @@
                 </div>
                 <div class="mt-2 flex items-center justify-between">
                     <span class="text-sm text-gray-500 dark:text-gray-400">Total</span>
-                    <span class="font-mono text-sm text-gray-900 dark:text-white">{{ money($invoice->total) }}</span>
+                    <span class="font-mono text-sm text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</span>
                 </div>
                 <div class="mt-1 flex items-center justify-between">
                     <span class="text-sm text-gray-500 dark:text-gray-400">Paid</span>

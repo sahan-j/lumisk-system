@@ -7,7 +7,7 @@
     {{-- Tabs --}}
     <div class="mb-6 border-b border-gray-200 dark:border-ink-600">
         <nav class="flex gap-1">
-            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'subscriptions' => 'Subscriptions', 'tickets' => 'Support Tickets', 'expenses' => 'Expenses'] as $key => $label)
+            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'currencies' => 'Currencies', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'subscriptions' => 'Subscriptions', 'tickets' => 'Support Tickets', 'expenses' => 'Expenses'] as $key => $label)
                 <button type="button" @click="tab = '{{ $key }}'"
                         :class="tab === '{{ $key }}' ? 'border-gold text-gold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                         class="border-b-2 px-4 py-2.5 text-sm font-medium transition">{{ $label }}</button>
@@ -334,7 +334,13 @@
             <livewire:admin.settings.expense-categories-manager />
         </div>
 
-        <div x-show="tab !== 'expenses'" class="mt-6 flex max-w-3xl justify-end">
+        <div x-show="tab === 'currencies'" x-cloak class="card max-w-3xl p-6">
+            <h3 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Currencies &amp; Exchange Rates</h3>
+            <p class="mb-4 text-xs text-gray-500 dark:text-gray-400">LKR is the base currency. Set manual rates for the currencies you invoice in.</p>
+            <livewire:admin.settings.currency-manager />
+        </div>
+
+        <div x-show="tab !== 'expenses' && tab !== 'currencies'" class="mt-6 flex max-w-3xl justify-end">
             <button type="submit" class="btn-primary">
                 <span wire:loading.remove wire:target="save">Save Settings</span>
                 <span wire:loading wire:target="save">Saving…</span>

@@ -29,7 +29,7 @@
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $invoice->issue_date?->format('M d, Y') }}</td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $invoice->due_date?->format('M d, Y') ?? '—' }}</td>
-                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ money($invoice->total) }}</td>
+                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</td>
                             <td class="px-5 py-3 text-right text-sm">
                                 @if (in_array($invoice->status, ['sent', 'overdue', 'paid']))
                                     <span class="font-medium {{ $invoice->total_paid > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-400' }}">{{ money($invoice->total_paid, false) }}</span>

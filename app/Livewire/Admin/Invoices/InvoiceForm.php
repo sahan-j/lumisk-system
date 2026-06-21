@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Invoices;
 
 use App\Models\ActivityLog;
 use App\Models\Client;
+use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\SavedItem;
 use App\Services\DocumentNumberService;
@@ -27,6 +28,11 @@ class InvoiceForm extends Component
     public ?string $notes = null;
     public ?string $terms = null;
 
+    // Multi-currency
+    public string $currencyCode = 'LKR';
+    public ?float $exchangeRate = 1.0;
+    public string $currencySymbol = 'Rs';
+
     /** @var array<int, array{name:string, description:?string, quantity:float, unit_price:float}> */
     public array $items = [];
 
@@ -46,6 +52,9 @@ class InvoiceForm extends Component
             $this->discount_amount = (float) $invoice->discount_amount;
             $this->notes = $invoice->notes;
             $this->terms = $invoice->terms;
+            $this->currencyCode = $invoice->currency_code ?: 'LKR';
+            $this->exchangeRate = (float) ($invoice->exchange_rate ?: 1);
+            $this->currencySymbol = $invoice->currency_symbol;
             $this->items = $invoice->items->map(fn ($i) => [
                 'name' => $i->name,
                 'description' => $i->description,
@@ -60,7 +69,43 @@ class InvoiceForm extends Component
             $this->terms = $company->default_terms;
             $this->client_id = (int) request('client') ?: null;
             $this->items = [$this->blankItem()];
+            if ($this->client_id) {
+                $this->applyClientCurrency($this->client_id);
+            }
         }
+    }
+
+    /** Sync exchange rate + symbol from the chosen currency. */
+    public function updatedCurrencyCode(string $value): void
+    {
+        $currency = Currency::getByCode($value);
+        if ($currency) {
+            $this->exchangeRate = (float) $currency->exchange_rate;
+            $this->currencySymbol = $currency->symbol;
+        }
+    }
+
+    /** On a new invoice, default the currency to the client's preference. */
+    public function updatedClientId($value): void
+    {
+        if (! ($this->invoice && $this->invoice->exists) && $value) {
+            $this->applyClientCurrency((int) $value);
+        }
+    }
+
+    private function applyClientCurrency(int $clientId): void
+    {
+        $client = Client::find($clientId);
+        $code = $client?->default_currency ?: 'LKR';
+        $currency = Currency::getByCode($code);
+        $this->currencyCode = $code;
+        $this->exchangeRate = (float) ($currency?->exchange_rate ?? 1);
+        $this->currencySymbol = $currency?->symbol ?? 'Rs';
+    }
+
+    public function getTotalLkrProperty(): float
+    {
+        return round($this->total * (float) ($this->exchangeRate ?: 1), 2);
     }
 
     private function blankItem(): array
@@ -149,6 +194,8 @@ class InvoiceForm extends Component
             $invoice->fill([
                 'client_id' => $validated['client_id'],
                 'status' => $validated['status'],
+                'currency_code' => $this->currencyCode,
+                'exchange_rate' => $this->currencyCode === 'LKR' ? 1 : ($this->exchangeRate ?: 1),
                 'issue_date' => $validated['issue_date'],
                 'due_date' => $validated['due_date'] ?? null,
                 'tax_rate' => $validated['tax_rate'] ?? 0,

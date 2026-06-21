@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             SavedItemsSeeder::class,
             ExpenseCategorySeeder::class,
             PipelineStagesSeeder::class,
+            CurrencySeeder::class,
         ]);
     }
 }

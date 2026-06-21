@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\DocumentNumberService;
+use App\Traits\HasCurrency;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class CreditNote extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasCurrency;
 
     public const STATUSES = ['draft', 'issued', 'applied', 'void'];
 
@@ -31,6 +32,8 @@ class CreditNote extends Model
         'invoice_id',
         'client_id',
         'status',
+        'currency_code',
+        'exchange_rate',
         'issue_date',
         'reason',
         'subtotal',
@@ -52,6 +55,7 @@ class CreditNote extends Model
             'tax_amount' => 'decimal:2',
             'total' => 'decimal:2',
             'amount_applied' => 'decimal:2',
+            'exchange_rate' => 'decimal:4',
         ];
     }
 

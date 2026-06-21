@@ -101,6 +101,15 @@
                         <input wire:model="company_name" type="text" class="form-input-base">
                     </div>
                     <div>
+                        <label class="form-label">Default Invoice Currency</label>
+                        <select wire:model="default_currency" class="form-input-base">
+                            @foreach (\App\Helpers\CurrencyHelper::getActiveCurrencies() as $currency)
+                                <option value="{{ $currency->code }}">{{ $currency->symbol }} {{ $currency->code }} — {{ $currency->name }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-400">Auto-selected when creating an invoice for this client.</p>
+                    </div>
+                    <div>
                         <label class="form-label">Email <span class="text-red-500">*</span></label>
                         <input wire:model="email" type="email" class="form-input-base">
                         @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror

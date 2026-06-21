@@ -29,6 +29,24 @@
         <div class="card p-5"><span class="text-sm text-gray-500 dark:text-gray-400">Net Revenue</span><p class="mt-2 text-xl font-semibold text-green-600 dark:text-green-400">{{ money($netRevenue) }}</p></div>
     </div>
 
+    {{-- Per-currency invoice breakdown --}}
+    @if ($currencyBreakdown->count() > 1)
+        <div class="card mb-6 p-5">
+            <h3 class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Invoices by Currency</h3>
+            <div class="space-y-2">
+                @foreach ($currencyBreakdown as $row)
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-2 text-sm last:border-0 dark:border-ink-700">
+                        <span class="font-mono font-semibold text-brand-purple">{{ $row['code'] }} <span class="ml-1 text-xs font-normal text-gray-400">· {{ $row['count'] }} invoice{{ $row['count'] === 1 ? '' : 's' }}</span></span>
+                        <span class="text-right text-gray-900 dark:text-white">
+                            {{ \App\Helpers\CurrencyHelper::format($row['total'], $row['code']) }}
+                            @if ($row['code'] !== 'LKR')<span class="text-xs text-gray-400">≈ {{ money($row['lkr']) }}</span>@endif
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Chart --}}
     <div class="card mb-6 p-5">
         <h3 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue Trend</h3>
@@ -84,7 +102,7 @@
                             <td class="px-5 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $invoice->client?->name ?? '—' }}</td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $invoice->issue_date?->format('M d, Y') }}</td>
                             <td class="px-5 py-3"><x-status-badge :color="$invoice->statusColor()" :label="$invoice->status" /></td>
-                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ money($invoice->total) }}</td>
+                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</td>
                             <td class="px-5 py-3 text-right text-sm text-green-600 dark:text-green-400">{{ money($invoice->total_paid, false) }}</td>
                             <td class="px-5 py-3 text-right text-sm text-amber-600 dark:text-amber-400">{{ money($invoice->outstanding_balance, false) }}</td>
                         </tr>

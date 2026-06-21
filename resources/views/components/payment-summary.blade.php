@@ -9,16 +9,16 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
                 <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Invoice Total</p>
-                <p class="mt-1 font-mono text-lg font-semibold text-gray-900 dark:text-white">{{ money($invoice->total) }}</p>
+                <p class="mt-1 font-mono text-lg font-semibold text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</p>
             </div>
             <div>
                 <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Total Paid</p>
-                <p class="mt-1 font-mono text-lg font-semibold {{ $invoice->total_paid > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white' }}">{{ money($invoice->total_paid) }}</p>
+                <p class="mt-1 font-mono text-lg font-semibold {{ $invoice->total_paid > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white' }}">{{ currency_amount($invoice, $invoice->total_paid) }}</p>
             </div>
             <div>
                 <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Outstanding</p>
                 @if ($invoice->outstanding_balance > 0)
-                    <p class="mt-1 font-mono text-lg font-semibold text-brand-purple">{{ money($invoice->outstanding_balance) }}</p>
+                    <p class="mt-1 font-mono text-lg font-semibold text-brand-purple">{{ currency_amount($invoice, $invoice->outstanding_balance) }}</p>
                 @else
                     <p class="mt-1 text-lg font-semibold text-green-600 dark:text-green-400">Fully Paid</p>
                 @endif
@@ -50,7 +50,7 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $payment->payment_date->format('M d, Y') }}</p>
                                 </div>
                             </div>
-                            <span class="font-mono text-sm font-medium text-green-600 dark:text-green-400">{{ money($payment->amount) }}</span>
+                            <span class="font-mono text-sm font-medium text-green-600 dark:text-green-400">{{ currency_amount($invoice, $payment->amount) }}</span>
                         </div>
                     @endforeach
                 </div>

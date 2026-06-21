@@ -40,7 +40,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $invoice->issue_date?->format('M d, Y') }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($invoice->total) }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</p>
                             <x-status-badge :color="$invoice->statusColor()" :label="$invoice->status" class="mt-1" />
                         </div>
                     </a>
@@ -63,7 +63,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $estimate->issue_date?->format('M d, Y') }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($estimate->total) }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($estimate, $estimate->total) }}</p>
                             <x-status-badge :color="$estimate->statusColor()" :label="$estimate->status" class="mt-1" />
                         </div>
                     </a>

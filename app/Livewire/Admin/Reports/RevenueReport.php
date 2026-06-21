@@ -89,6 +89,19 @@ class RevenueReport extends Component
             'overdue' => Invoice::where('status', 'overdue')->count(),
         ];
 
+        // Per-currency breakdown of invoices issued in the period (original + LKR equivalent).
+        $currencyBreakdown = Invoice::whereBetween('issue_date', [$from, $to])
+            ->get(['currency_code', 'total', 'total_lkr'])
+            ->groupBy('currency_code')
+            ->map(fn ($group, $code) => [
+                'code' => $code,
+                'count' => $group->count(),
+                'total' => (float) $group->sum('total'),
+                'lkr' => (float) $group->sum('total_lkr'),
+            ])
+            ->sortByDesc('lkr')
+            ->values();
+
         $invoices = Invoice::with(['client', 'payments'])
             ->whereBetween('issue_date', [$from, $to])
             ->orderByDesc('issue_date')
@@ -106,6 +119,7 @@ class RevenueReport extends Component
             'revenueByClient' => $revenueByClient,
             'clientRevenueMax' => $revenueByClient->max() ?: 1,
             'invoiceStats' => $invoiceStats,
+            'currencyBreakdown' => $currencyBreakdown,
             'invoices' => $invoices,
         ]);
     }

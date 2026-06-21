@@ -118,6 +118,11 @@ class Dashboard extends Component
             ->whereYear('converted_at', now()->year)
             ->count();
 
+        // Foreign-currency invoices (shown in LKR equivalent).
+        $foreignInvoices = Invoice::where('currency_code', '!=', 'LKR')->get(['id', 'total_lkr']);
+        $foreignInvoiceCount = $foreignInvoices->count();
+        $foreignRevenueLkr = round((float) $foreignInvoices->sum('total_lkr'), 2);
+
         $activeProjects = Project::where('status', 'active')->count();
         $overdueProjects = Project::whereNotIn('status', ['completed', 'cancelled'])
             ->whereNotNull('due_date')
@@ -152,6 +157,8 @@ class Dashboard extends Component
             'pipelineWeighted' => $activeLeads->sum('weighted_value'),
             'pipelineFunnel' => $pipelineFunnel,
             'leadsWonThisMonth' => $wonThisMonthCount,
+            'foreignInvoiceCount' => $foreignInvoiceCount,
+            'foreignRevenueLkr' => $foreignRevenueLkr,
             'activities' => $activities,
             'hasMoreActivity' => $hasMoreActivity,
             'chartLabels' => $months->pluck('label'),

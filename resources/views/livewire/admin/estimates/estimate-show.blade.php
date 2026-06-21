@@ -131,12 +131,15 @@
 
             <div class="mt-6 flex justify-end">
                 <div class="w-64 space-y-2 text-sm">
-                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Subtotal</span><span class="text-gray-900 dark:text-white">{{ money($estimate->subtotal) }}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Tax ({{ rtrim(rtrim(number_format($estimate->tax_rate, 2), '0'), '.') }}%)</span><span class="text-gray-900 dark:text-white">{{ money($estimate->tax_amount) }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Subtotal</span><span class="text-gray-900 dark:text-white">{{ currency_amount($estimate, $estimate->subtotal) }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Tax ({{ rtrim(rtrim(number_format($estimate->tax_rate, 2), '0'), '.') }}%)</span><span class="text-gray-900 dark:text-white">{{ currency_amount($estimate, $estimate->tax_amount) }}</span></div>
                     @if ($estimate->discount_amount > 0)
-                        <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Discount</span><span class="text-gray-900 dark:text-white">− {{ money($estimate->discount_amount) }}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Discount</span><span class="text-gray-900 dark:text-white">− {{ currency_amount($estimate, $estimate->discount_amount) }}</span></div>
                     @endif
-                    <div class="flex justify-between border-t border-gray-200 pt-2 dark:border-ink-600"><span class="font-semibold text-gray-900 dark:text-white">Total</span><span class="text-lg font-semibold text-gold">{{ money($estimate->total) }}</span></div>
+                    <div class="flex justify-between border-t border-gray-200 pt-2 dark:border-ink-600"><span class="font-semibold text-gray-900 dark:text-white">Total</span><span class="text-lg font-semibold text-gold">{{ currency_amount($estimate, $estimate->total) }}</span></div>
+                    @if ($estimate->currency_code !== 'LKR')
+                        <div class="flex justify-between text-xs text-gray-400"><span>LKR equivalent</span><span>≈ {{ money($estimate->total_lkr) }} @ {{ number_format($estimate->exchange_rate, 2) }}</span></div>
+                    @endif
                 </div>
             </div>
 

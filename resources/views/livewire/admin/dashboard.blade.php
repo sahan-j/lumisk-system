@@ -54,6 +54,9 @@
                 ['Net Profit (YTD)', money($netProfit), $netProfit >= 0 ? 'green' : 'red', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
                 ['MRR', money($mrr), 'blue', 'M7 7h10v10M17 7L7 17'],
             ];
+            if ($foreignInvoiceCount > 0) {
+                $cards[] = ['Foreign Revenue', money($foreignRevenueLkr), 'gold', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13h-1v6l5.25 3.15.5-.82-4.75-2.83z'];
+            }
         @endphp
         @foreach ($cards as [$label, $value, $color, $icon])
             <div class="card p-5">
@@ -234,7 +237,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $invoice->client?->name ?? '—' }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($invoice->total) }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</p>
                             <x-status-badge :color="$invoice->statusColor()" :label="$invoice->status" class="mt-1" />
                         </div>
                     </a>
@@ -258,7 +261,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $estimate->client?->name ?? '—' }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($estimate->total) }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($estimate, $estimate->total) }}</p>
                             <x-status-badge :color="$estimate->statusColor()" :label="$estimate->status" class="mt-1" />
                         </div>
                     </a>

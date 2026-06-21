@@ -27,7 +27,7 @@
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $estimate->issue_date?->format('M d, Y') }}</td>
                             <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $estimate->expiry_date?->format('M d, Y') ?? '—' }}</td>
-                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ money($estimate->total) }}</td>
+                            <td class="px-5 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($estimate, $estimate->total) }}</td>
                             <td class="px-5 py-3"><x-status-badge :color="$estimate->statusColor()" :label="$estimate->status" /></td>
                             <td class="px-5 py-3 text-right">
                                 <a href="{{ route('portal.estimates.show', $estimate) }}" class="text-sm font-medium text-brand-purple hover:underline">View</a>
