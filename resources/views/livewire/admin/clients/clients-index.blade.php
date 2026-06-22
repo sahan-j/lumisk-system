@@ -110,6 +110,12 @@
                         <p class="mt-1 text-xs text-gray-400">Auto-selected when creating an invoice for this client.</p>
                     </div>
                     <div>
+                        <label class="form-label">Default Hourly Rate</label>
+                        <input wire:model="default_hourly_rate" type="number" step="0.01" min="0" placeholder="e.g. 5000" class="form-input-base">
+                        <p class="mt-1 text-xs text-gray-400">Used when logging billable time for this client.</p>
+                        @error('default_hourly_rate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
                         <label class="form-label">Email <span class="text-red-500">*</span></label>
                         <input wire:model="email" type="email" class="form-input-base">
                         @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror

@@ -33,6 +33,7 @@ class ClientsIndex extends Component
     public string $address = '';
     public string $company_name = '';
     public string $default_currency = 'LKR';
+    public ?float $default_hourly_rate = null;
     public bool $portal_enabled = false;
     public string $password = '';
 
@@ -65,6 +66,7 @@ class ClientsIndex extends Component
         $this->address = (string) $client->address;
         $this->company_name = (string) $client->company_name;
         $this->default_currency = $client->default_currency ?: 'LKR';
+        $this->default_hourly_rate = $client->default_hourly_rate !== null ? (float) $client->default_hourly_rate : null;
         $this->portal_enabled = (bool) $client->portal_enabled;
         $this->password = '';
         $this->showForm = true;
@@ -81,6 +83,7 @@ class ClientsIndex extends Component
             'address' => ['nullable', 'string', 'max:1000'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'default_currency' => ['required', 'string', 'max:3'],
+            'default_hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'portal_enabled' => ['boolean'],
             'password' => [
                 $this->portal_enabled && ! $this->editingId ? 'required' : 'nullable',
@@ -96,6 +99,7 @@ class ClientsIndex extends Component
             'address' => $validated['address'] ?? null,
             'company_name' => $validated['company_name'] ?? null,
             'default_currency' => $validated['default_currency'] ?: 'LKR',
+            'default_hourly_rate' => $this->default_hourly_rate,
             'portal_enabled' => $this->portal_enabled,
         ];
 
@@ -143,7 +147,7 @@ class ClientsIndex extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['editingId', 'name', 'email', 'phone', 'address', 'company_name', 'default_currency', 'portal_enabled', 'password']);
+        $this->reset(['editingId', 'name', 'email', 'phone', 'address', 'company_name', 'default_currency', 'default_hourly_rate', 'portal_enabled', 'password']);
         $this->resetValidation();
     }
 

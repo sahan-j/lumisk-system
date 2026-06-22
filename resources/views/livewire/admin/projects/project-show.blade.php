@@ -146,6 +146,31 @@
                 </div>
             </div>
 
+            {{-- Time tracked --}}
+            @php
+                $projectTime = $project->timeEntries()->whereNotNull('duration_minutes')->get();
+                $projectMins = (int) $projectTime->sum('duration_minutes');
+                $projectBillable = (float) $projectTime->where('is_billable', true)->sum('billable_amount');
+            @endphp
+            @if ($projectMins > 0)
+                <div class="card p-5">
+                    <h3 class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Time Tracked</h3>
+                    <div class="flex gap-6">
+                        <div>
+                            <p class="font-mono text-2xl font-bold text-gray-900 dark:text-white">{{ sprintf('%dh %02dm', intdiv($projectMins, 60), $projectMins % 60) }}</p>
+                            <p class="text-xs text-gray-400">total hours</p>
+                        </div>
+                        @if ($projectBillable > 0)
+                            <div>
+                                <p class="text-2xl font-bold text-brand-purple">{{ money($projectBillable) }}</p>
+                                <p class="text-xs text-gray-400">billable value</p>
+                            </div>
+                        @endif
+                    </div>
+                    <a href="{{ route('admin.time.report', ['projectId' => $project->id]) }}" wire:navigate class="mt-3 inline-block text-xs font-medium text-brand-purple hover:underline">View time report →</a>
+                </div>
+            @endif
+
             {{-- Linked invoices --}}
             <div class="card p-5">
                 <div class="mb-4 flex items-center justify-between">

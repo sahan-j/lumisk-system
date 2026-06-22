@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'job_title',
+        'hourly_rate',
         'avatar',
         'role',
         'is_active',
@@ -69,6 +70,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'hourly_rate' => 'decimal:2',
         ];
     }
 

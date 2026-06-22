@@ -23,6 +23,7 @@ class Client extends Authenticatable
         'address',
         'company_name',
         'default_currency',
+        'default_hourly_rate',
         'portal_enabled',
     ];
 
@@ -36,6 +37,7 @@ class Client extends Authenticatable
         return [
             'password' => 'hashed',
             'portal_enabled' => 'boolean',
+            'default_hourly_rate' => 'decimal:2',
         ];
     }
 

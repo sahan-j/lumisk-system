@@ -51,6 +51,8 @@ use App\Livewire\Admin\Subscriptions\SubscriptionShow;
 use App\Livewire\Admin\Subscriptions\SubscriptionsIndex;
 use App\Livewire\Admin\Templates\TemplateForm;
 use App\Livewire\Admin\Templates\TemplatesIndex;
+use App\Livewire\Admin\TimeTracking\TimeReport;
+use App\Livewire\Admin\TimeTracking\TimeTrackingIndex;
 use App\Livewire\Admin\Tickets\TicketShow;
 use App\Livewire\Admin\Tickets\TicketsIndex;
 use Illuminate\Support\Facades\Route;
@@ -108,6 +110,10 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('projects/create', ProjectForm::class)->name('projects.create')->middleware('permission:projects.create');
     Route::get('projects/{project}/edit', ProjectForm::class)->name('projects.edit')->middleware('permission:projects.edit');
     Route::get('projects/{project}', ProjectShow::class)->name('projects.show')->middleware('permission:projects.view');
+
+    // Time tracking & timesheets
+    Route::get('time', TimeTrackingIndex::class)->name('time.index')->middleware('permission:projects.view');
+    Route::get('time/report', TimeReport::class)->name('time.report')->middleware('permission:reports.view');
 
     // Expenses
     Route::get('expenses', ExpensesIndex::class)->name('expenses.index')->middleware('permission:expenses.view');

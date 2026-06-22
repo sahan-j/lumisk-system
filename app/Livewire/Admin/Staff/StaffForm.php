@@ -24,6 +24,7 @@ class StaffForm extends Component
     public string $password_confirmation = '';
     public ?string $phone = null;
     public ?string $job_title = null;
+    public ?float $hourly_rate = null;
     public string $role = 'staff';
     public bool $is_active = true;
 
@@ -40,6 +41,7 @@ class StaffForm extends Component
             $this->email = $user->email;
             $this->phone = $user->phone;
             $this->job_title = $user->job_title;
+            $this->hourly_rate = $user->hourly_rate !== null ? (float) $user->hourly_rate : null;
             $this->role = $user->role === 'super_admin' ? 'super_admin' : $user->role;
             $this->is_active = (bool) $user->is_active;
             $this->permState = $this->stateFromPermissions($user->effectivePermissions());
@@ -86,6 +88,7 @@ class StaffForm extends Component
             'password' => [$this->user ? 'nullable' : 'required', 'nullable', 'string', 'min:8', 'confirmed'],
             'phone' => ['nullable', 'string', 'max:50'],
             'job_title' => ['nullable', 'string', 'max:255'],
+            'hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'role' => ['required', 'in:admin,staff'],
             'is_active' => ['boolean'],
         ]);
@@ -95,6 +98,7 @@ class StaffForm extends Component
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
             'job_title' => $validated['job_title'] ?? null,
+            'hourly_rate' => $this->hourly_rate,
             'role' => $validated['role'],
             'is_active' => $this->is_active,
         ];

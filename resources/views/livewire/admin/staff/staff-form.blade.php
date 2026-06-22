@@ -39,6 +39,12 @@
                         <input wire:model="job_title" type="text" class="form-input-base">
                     </div>
                     <div>
+                        <label class="form-label">Hourly Rate</label>
+                        <input wire:model="hourly_rate" type="number" step="0.01" min="0" placeholder="e.g. 3500" class="form-input-base">
+                        <p class="mt-1 text-xs text-gray-400">Default billing rate for this staff member's time.</p>
+                        @error('hourly_rate') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
                         <label class="form-label">Role <span class="text-red-500">*</span></label>
                         <select wire:model.live="role" class="form-input-base" @if($user && $user->isSuperAdmin()) disabled @endif>
                             <option value="admin">Admin</option>

@@ -52,6 +52,11 @@ class Project extends Model
         return $this->hasMany(Task::class)->orderBy('sort_order');
     }
 
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
     public function invoices(): BelongsToMany
     {
         return $this->belongsToMany(Invoice::class, 'project_invoice');
