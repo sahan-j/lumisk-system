@@ -22,6 +22,10 @@
             <a href="{{ route('admin.invoices.pdf', $invoice) }}" class="btn-secondary !py-1.5 text-sm">Download PDF</a>
             <button wire:click="$dispatch('open-duplicate', { type: 'invoice', id: {{ $invoice->id }} })" class="btn-secondary !py-1.5 text-sm">Duplicate</button>
             <button wire:click="$dispatch('open-convert', { direction: 'invoice_to_estimate', id: {{ $invoice->id }} })" class="btn-secondary !py-1.5 text-sm">Convert to Estimate</button>
+            <button wire:click="$set('showTemplateModal', true)" class="btn-secondary !py-1.5 text-sm">
+                <svg class="mr-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                Save as Template
+            </button>
             @permission('credit-notes.create')
             <a href="{{ route('admin.invoices.credit-note', $invoice) }}" class="btn !py-1.5 text-sm font-medium" style="border:1px solid #ef4444; color:#ef4444; background:transparent;">
                 <svg class="mr-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
@@ -209,4 +213,27 @@
     @endif
 
     <x-notes-attachments :record="$invoice" />
+
+    {{-- Save as Template modal --}}
+    @if ($showTemplateModal)
+        <x-app-modal title="Save as Template" close="$set('showTemplateModal', false)">
+            <form wire:submit="saveAsTemplate" class="space-y-4">
+                <div>
+                    <label class="form-label">Template Name <span class="text-red-500">*</span></label>
+                    <input wire:model="templateName" type="text" placeholder="e.g. Website Basic Package" class="form-input-base" autofocus>
+                    @error('templateName') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Saves {{ $invoice->items->count() }} item(s), tax rate ({{ rtrim(rtrim(number_format($invoice->tax_rate, 2), '0'), '.') }}%), notes and terms.
+                </p>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" wire:click="$set('showTemplateModal', false)" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <span wire:loading.remove wire:target="saveAsTemplate">Save Template</span>
+                        <span wire:loading wire:target="saveAsTemplate">Saving…</span>
+                    </button>
+                </div>
+            </form>
+        </x-app-modal>
+    @endif
 </div>

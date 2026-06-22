@@ -22,6 +22,10 @@
             <a href="{{ route('admin.estimates.pdf', $estimate) }}" class="btn-secondary !py-1.5 text-sm">Download PDF</a>
             <button wire:click="$dispatch('open-duplicate', { type: 'estimate', id: {{ $estimate->id }} })" class="btn-secondary !py-1.5 text-sm">Duplicate</button>
             <button wire:click="$dispatch('open-convert', { direction: 'estimate_to_invoice', id: {{ $estimate->id }} })" class="btn-primary !py-1.5 text-sm">Convert to Invoice</button>
+            <button wire:click="$set('showTemplateModal', true)" class="btn-secondary !py-1.5 text-sm">
+                <svg class="mr-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                Save as Template
+            </button>
             <button wire:click="$dispatch('open-whatsapp', { type: 'estimate', id: {{ $estimate->id }} })"
                     class="btn !py-1.5 text-sm font-medium text-white" style="background:#25d366;">
                 <svg class="mr-1 inline h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.892c0 2.096.549 4.142 1.595 5.945L0 24l6.305-1.654a11.962 11.962 0 005.71 1.447h.005c6.582 0 11.946-5.334 11.949-11.893a11.821 11.821 0 00-3.45-8.351"/></svg>
@@ -153,4 +157,27 @@
     </div>
 
     <x-notes-attachments :record="$estimate" />
+
+    {{-- Save as Template modal --}}
+    @if ($showTemplateModal)
+        <x-app-modal title="Save as Template" close="$set('showTemplateModal', false)">
+            <form wire:submit="saveAsTemplate" class="space-y-4">
+                <div>
+                    <label class="form-label">Template Name <span class="text-red-500">*</span></label>
+                    <input wire:model="templateName" type="text" placeholder="e.g. Website Basic Package" class="form-input-base" autofocus>
+                    @error('templateName') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Saves {{ $estimate->items->count() }} item(s), tax rate ({{ rtrim(rtrim(number_format($estimate->tax_rate, 2), '0'), '.') }}%), notes and terms.
+                </p>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" wire:click="$set('showTemplateModal', false)" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <span wire:loading.remove wire:target="saveAsTemplate">Save Template</span>
+                        <span wire:loading wire:target="saveAsTemplate">Saving…</span>
+                    </button>
+                </div>
+            </form>
+        </x-app-modal>
+    @endif
 </div>

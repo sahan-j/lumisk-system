@@ -49,6 +49,8 @@ use App\Livewire\Admin\Subscriptions\PlansIndex as SubscriptionPlansIndex;
 use App\Livewire\Admin\Subscriptions\SubscriptionForm;
 use App\Livewire\Admin\Subscriptions\SubscriptionShow;
 use App\Livewire\Admin\Subscriptions\SubscriptionsIndex;
+use App\Livewire\Admin\Templates\TemplateForm;
+use App\Livewire\Admin\Templates\TemplatesIndex;
 use App\Livewire\Admin\Tickets\TicketShow;
 use App\Livewire\Admin\Tickets\TicketsIndex;
 use Illuminate\Support\Facades\Route;
@@ -144,6 +146,11 @@ Route::middleware('admin.auth')->group(function () {
 
     // Saved items
     Route::get('saved-items', SavedItemsIndex::class)->name('saved-items.index');
+
+    // Invoice templates (reusable presets)
+    Route::get('invoice-templates', TemplatesIndex::class)->name('invoice-templates.index')->middleware('permission:invoices.view');
+    Route::get('invoice-templates/create', TemplateForm::class)->name('invoice-templates.create')->middleware('permission:invoices.create');
+    Route::get('invoice-templates/{template}/edit', TemplateForm::class)->name('invoice-templates.edit')->middleware('permission:invoices.edit');
 
     // Settings
     Route::get('settings', SettingsIndex::class)->name('settings.index')->middleware('permission:settings.view');

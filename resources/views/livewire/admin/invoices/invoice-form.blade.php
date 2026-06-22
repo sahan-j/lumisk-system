@@ -20,6 +20,27 @@
             </div>
         </div>
 
+        {{-- Load from template (new invoices only) --}}
+        @if ($templates->isNotEmpty())
+            <div class="card mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
+                <div class="flex-1">
+                    <label class="form-label flex items-center gap-1.5">
+                        <svg class="h-4 w-4 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        Start from a template
+                    </label>
+                    <select wire:model="selectedTemplate" class="form-input-base">
+                        <option value="">Select a template…</option>
+                        @foreach ($templates as $tpl)
+                            <option value="{{ $tpl->id }}">{{ $tpl->name }} ({{ $tpl->items->count() }} items · {{ $tpl->currency_code }} {{ number_format($tpl->total, 0) }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="button" wire:click="loadTemplate" wire:confirm="Load this template? Current line items will be replaced." class="btn-primary">
+                    Load Template
+                </button>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {{-- Left: details --}}
             <div class="space-y-6 lg:col-span-2">

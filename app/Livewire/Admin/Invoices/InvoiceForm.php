@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Currency;
 use App\Models\Invoice;
+use App\Models\InvoiceTemplate;
 use App\Models\Product;
 use App\Models\SavedItem;
 use App\Services\DocumentNumberService;
@@ -45,6 +46,8 @@ class InvoiceForm extends Component
     public bool $showSavedItems = false;
     public bool $showProducts = false;
     public string $productSearch = '';
+
+    public ?int $selectedTemplate = null;
 
     public function mount(?Invoice $invoice = null): void
     {
@@ -150,6 +153,46 @@ class InvoiceForm extends Component
 
         $this->showProducts = false;
         $this->productSearch = '';
+    }
+
+    /** Replace the line items + presets from a saved template. */
+    public function loadTemplate(): void
+    {
+        if (! $this->selectedTemplate) {
+            return;
+        }
+
+        $template = InvoiceTemplate::with('items')->find($this->selectedTemplate);
+        if (! $template) {
+            return;
+        }
+
+        $this->items = $template->items->map(fn ($i) => [
+            'product_id' => null,
+            'name' => $i->name,
+            'description' => $i->description,
+            'quantity' => (float) $i->quantity,
+            'unit_price' => (float) $i->unit_price,
+        ])->toArray();
+
+        if (empty($this->items)) {
+            $this->items = [$this->blankItem()];
+        }
+
+        $this->tax_rate = (float) $template->tax_rate;
+        $this->discount_amount = (float) $template->discount_amount;
+        if ($template->notes) {
+            $this->notes = $template->notes;
+        }
+        if ($template->terms) {
+            $this->terms = $template->terms;
+        }
+        $this->currencyCode = $template->currency_code ?: $this->currencyCode;
+        $this->updatedCurrencyCode($this->currencyCode);
+
+        $template->increment('usage_count');
+
+        $this->dispatch('toast', type: 'success', message: "Template “{$template->name}” loaded.");
     }
 
     public function addItem(): void
@@ -294,6 +337,9 @@ class InvoiceForm extends Component
     {
         return view('livewire.admin.invoices.invoice-form', [
             'clients' => Client::orderBy('name')->get(['id', 'name', 'company_name']),
+            'templates' => ($this->invoice && $this->invoice->exists)
+                ? collect()
+                : InvoiceTemplate::with('items')->where('is_active', true)->whereIn('type', ['invoice', 'both'])->orderBy('name')->get(),
             'savedItems' => $this->showSavedItems ? SavedItem::orderBy('name')->get() : collect(),
             'products' => $this->showProducts
                 ? Product::where('is_active', true)

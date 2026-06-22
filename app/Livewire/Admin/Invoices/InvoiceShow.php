@@ -4,6 +4,8 @@ namespace App\Livewire\Admin\Invoices;
 
 use App\Models\ActivityLog;
 use App\Models\Invoice;
+use App\Models\InvoiceTemplate;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -14,6 +16,9 @@ use Livewire\Component;
 class InvoiceShow extends Component
 {
     public Invoice $invoice;
+
+    public bool $showTemplateModal = false;
+    public string $templateName = '';
 
     public function mount(Invoice $invoice): void
     {
@@ -48,6 +53,43 @@ class InvoiceShow extends Component
     public function openSendEmail(): void
     {
         $this->dispatch('open-send-email', type: 'invoice', id: $this->invoice->id);
+    }
+
+    public function saveAsTemplate(): void
+    {
+        $this->validate(['templateName' => ['required', 'string', 'max:255']]);
+
+        $this->invoice->loadMissing('items');
+
+        DB::transaction(function () {
+            $template = InvoiceTemplate::create([
+                'name' => $this->templateName,
+                'description' => "Saved from invoice {$this->invoice->invoice_number}",
+                'type' => 'invoice',
+                'tax_rate' => $this->invoice->tax_rate,
+                'discount_amount' => $this->invoice->discount_amount,
+                'notes' => $this->invoice->notes,
+                'terms' => $this->invoice->terms,
+                'currency_code' => $this->invoice->currency_code ?: 'LKR',
+                'created_by' => auth()->user()?->name,
+            ]);
+
+            foreach ($this->invoice->items as $item) {
+                $template->items()->create([
+                    'name' => $item->name,
+                    'description' => $item->description,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'total' => $item->total,
+                    'sort_order' => $item->order,
+                ]);
+            }
+        });
+
+        $this->showTemplateModal = false;
+        $name = $this->templateName;
+        $this->templateName = '';
+        $this->dispatch('toast', type: 'success', message: "Saved as template “{$name}”.");
     }
 
     #[On('email-sent')]
