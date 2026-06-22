@@ -14,6 +14,9 @@ use App\Livewire\Portal\Estimates\EstimateShow;
 use App\Livewire\Portal\Estimates\EstimatesIndex;
 use App\Livewire\Portal\Invoices\InvoiceShow;
 use App\Livewire\Portal\Invoices\InvoicesIndex;
+use App\Livewire\Portal\KnowledgeBase\HelpArticle;
+use App\Livewire\Portal\KnowledgeBase\HelpCategory;
+use App\Livewire\Portal\KnowledgeBase\HelpCenter;
 use App\Livewire\Portal\Projects\ProjectShow;
 use App\Livewire\Portal\Projects\ProjectsIndex;
 use App\Livewire\Portal\Subscriptions\SubscriptionShow as PortalSubscriptionShow;
@@ -71,6 +74,11 @@ Route::middleware('client.auth')->group(function () {
     Route::get('tickets/create', TicketCreate::class)->name('tickets.create');
     Route::get('tickets/{ticket}', TicketShow::class)->name('tickets.show');
     Route::get('tickets/{ticket}/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachment.download');
+
+    // Help center / knowledge base
+    Route::get('help', HelpCenter::class)->name('kb.index');
+    Route::get('help/category/{category:slug}', HelpCategory::class)->name('kb.category');
+    Route::get('help/article/{article:slug}', HelpArticle::class)->name('kb.article');
 
     // Profile
     Route::get('profile', [PortalProfileController::class, 'show'])->name('profile');

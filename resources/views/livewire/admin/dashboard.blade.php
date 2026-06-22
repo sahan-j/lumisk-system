@@ -101,6 +101,20 @@
     </div>
     @endif
 
+    {{-- Knowledge base widget --}}
+    <a href="{{ route('admin.kb.index') }}" wire:navigate class="mt-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 hover:border-brand-purple/40 dark:border-ink-600 dark:bg-ink-850">
+        <div class="flex items-center gap-3">
+            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.247m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.247" /></svg>
+            </span>
+            <div>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Knowledge Base</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ \App\Models\KbArticle::where('status', 'published')->count() }} published · {{ number_format((int) \App\Models\KbArticle::sum('view_count')) }} total views</p>
+            </div>
+        </div>
+        <span class="text-xs font-medium text-brand-purple">Manage →</span>
+    </a>
+
     {{-- Revenue vs Expenses chart --}}
     <div class="mt-6 card p-5">
         <h2 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue vs Expenses</h2>

@@ -31,6 +31,7 @@
                         'portal.subscriptions.index' => 'Subscriptions',
                         'portal.projects.index' => 'Projects',
                         'portal.tickets.index' => 'Support',
+                        'portal.kb.index' => 'Help',
                     ];
                 @endphp
                 <nav class="hidden items-center gap-1 md:flex">

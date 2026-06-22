@@ -21,6 +21,9 @@ use App\Livewire\Admin\Estimates\EstimateShow;
 use App\Livewire\Admin\Estimates\EstimatesIndex;
 use App\Livewire\Admin\Expenses\ExpenseForm;
 use App\Livewire\Admin\Expenses\ExpensesIndex;
+use App\Livewire\Admin\KnowledgeBase\KbArticleForm;
+use App\Livewire\Admin\KnowledgeBase\KbArticles;
+use App\Livewire\Admin\KnowledgeBase\KbIndex;
 use App\Livewire\Admin\Invoices\InvoiceForm;
 use App\Livewire\Admin\Invoices\InvoiceShow;
 use App\Livewire\Admin\Invoices\InvoicesIndex;
@@ -173,6 +176,14 @@ Route::middleware('admin.auth')->group(function () {
     // Database backups
     Route::get('backups', BackupsIndex::class)->name('backups.index')->middleware('permission:settings.view');
     Route::get('backups/{filename}/download', [BackupController::class, 'download'])->name('backups.download')->middleware('permission:settings.view');
+
+    // Knowledge base (help articles)
+    Route::middleware('permission:settings.view')->group(function () {
+        Route::get('knowledge-base', KbIndex::class)->name('kb.index');
+        Route::get('knowledge-base/articles', KbArticles::class)->name('kb.articles.index');
+        Route::get('knowledge-base/articles/create', KbArticleForm::class)->name('kb.articles.create');
+        Route::get('knowledge-base/articles/{article}/edit', KbArticleForm::class)->name('kb.articles.edit');
+    });
 
     // Profile
     Route::get('profile', [AdminProfileController::class, 'show'])->name('profile');
