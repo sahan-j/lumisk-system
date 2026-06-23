@@ -7,7 +7,7 @@
     {{-- Tabs --}}
     <div class="mb-6 border-b border-gray-200 dark:border-ink-600">
         <nav class="flex gap-1">
-            @foreach (['company' => 'Company Info', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'currencies' => 'Currencies', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'subscriptions' => 'Subscriptions', 'tickets' => 'Support Tickets', 'expenses' => 'Expenses'] as $key => $label)
+            @foreach (['company' => 'Company Info', 'theme' => 'Theme', 'invoice' => 'Invoice Defaults', 'estimate' => 'Estimate Defaults', 'currencies' => 'Currencies', 'email' => 'Email Templates', 'whatsapp' => 'WhatsApp', 'subscriptions' => 'Subscriptions', 'tickets' => 'Support Tickets', 'expenses' => 'Expenses'] as $key => $label)
                 <button type="button" @click="tab = '{{ $key }}'"
                         :class="tab === '{{ $key }}' ? 'border-gold text-gold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                         class="border-b-2 px-4 py-2.5 text-sm font-medium transition">{{ $label }}</button>
@@ -340,7 +340,106 @@
             <livewire:admin.settings.currency-manager />
         </div>
 
-        <div x-show="tab !== 'expenses' && tab !== 'currencies'" class="mt-6 flex max-w-3xl justify-end">
+        {{-- Tab: Theme --}}
+        <div x-show="tab === 'theme'" x-cloak class="card max-w-3xl p-6">
+            <h3 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Theme</h3>
+            <p class="mb-5 text-xs text-gray-500 dark:text-gray-400">Pick a preset or define a custom colour scheme. Applies to all users after saving.</p>
+
+            {{-- Presets --}}
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Pre-defined Themes</p>
+            <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                @foreach (config('themes.presets') as $key => $theme)
+                    <button type="button" wire:click="selectPreset('{{ $key }}')"
+                            class="rounded-xl border-2 p-3 text-left transition"
+                            style="border-color: {{ $themePreset === $key ? $theme['color_2'] : 'transparent' }}; {{ $themePreset === $key ? 'box-shadow:0 0 0 3px '.$theme['color_2'].'22;' : '' }}"
+                            @class(['bg-white dark:bg-ink-800', 'border-gray-200 dark:border-ink-600' => $themePreset !== $key])>
+                        {{-- mini preview --}}
+                        <div class="relative mb-2 h-12 overflow-hidden rounded-md">
+                            <div class="absolute inset-y-0 left-0 w-[28%]" style="background: {{ $theme['sidebar_bg'] }};"></div>
+                            <div class="absolute inset-y-0 right-0 w-[72%] bg-white p-1.5">
+                                <div class="mb-1 h-1.5 w-2/3 rounded" style="background: linear-gradient(90deg, {{ $theme['color_1'] }}, {{ $theme['color_2'] }});"></div>
+                                <div class="mb-1 h-1.5 w-5/6 rounded bg-gray-100"></div>
+                                <div class="h-1.5 w-1/3 rounded-full" style="background: linear-gradient(90deg, {{ $theme['color_1'] }}, {{ $theme['color_2'] }});"></div>
+                            </div>
+                        </div>
+                        <div class="mb-1.5 flex gap-1">
+                            <span class="h-3 w-3 rounded-full" style="background: {{ $theme['color_1'] }};"></span>
+                            <span class="h-3 w-3 rounded-full" style="background: {{ $theme['color_2'] }};"></span>
+                            <span class="h-3 w-3 rounded-full ring-1 ring-gray-200 dark:ring-ink-600" style="background: {{ $theme['sidebar_bg'] }};"></span>
+                        </div>
+                        <p class="text-xs font-medium text-gray-900 dark:text-white">
+                            {{ $theme['name'] }}
+                            @if ($themePreset === $key)<span class="ml-1 rounded-full px-1.5 py-0.5 text-[9px]" style="background: {{ $theme['color_2'] }}1a; color: {{ $theme['color_2'] }};">active</span>@endif
+                        </p>
+                        <p class="text-[10px] text-gray-400">{{ $theme['description'] }}</p>
+                    </button>
+                @endforeach
+            </div>
+
+            {{-- Custom --}}
+            <div class="border-t border-gray-200 pt-5 dark:border-ink-600">
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Custom Theme</p>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    @foreach ([['themeColor1', 'Primary Color', 'Gradient start, icons, links'], ['themeColor2', 'Secondary Color', 'Gradient end, badges, accents'], ['themeSidebarBg', 'Sidebar Background', 'Navigation sidebar colour']] as [$prop, $label, $hint])
+                        <div>
+                            <label class="form-label">{{ $label }}</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" wire:model.live="{{ $prop }}" class="h-9 w-10 shrink-0 cursor-pointer rounded-md border border-gray-200 p-0.5 dark:border-ink-600">
+                                <input type="text" wire:model.live="{{ $prop }}" class="form-input-base font-mono text-xs">
+                            </div>
+                            <p class="mt-1 text-[10px] text-gray-400">{{ $hint }}</p>
+                            @error($prop) <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Live preview --}}
+                <div class="mt-5 overflow-hidden rounded-xl border border-gray-200 dark:border-ink-600">
+                    <div class="border-b border-gray-100 px-4 py-2 text-[11px] text-gray-400 dark:border-ink-700">Live Preview</div>
+                    <div class="flex h-28">
+                        <div class="w-24 p-2" style="background: {{ $themeSidebarBg }};">
+                            <div class="mb-2 flex items-center gap-1.5">
+                                <span class="flex h-4 w-4 items-center justify-center rounded text-[8px] font-bold text-white" style="background: linear-gradient(135deg, {{ $themeColor1 }}, {{ $themeColor2 }});">L</span>
+                                <span class="text-[10px] font-bold text-white">Lumisk</span>
+                            </div>
+                            <div class="mb-1 rounded px-1.5 py-1 text-[9px] text-white" style="background: linear-gradient(135deg, {{ $themeColor1 }}26, {{ $themeColor2 }}26);">Dashboard</div>
+                            <div class="px-1.5 py-1 text-[9px] text-gray-400">Clients</div>
+                            <div class="px-1.5 py-1 text-[9px] text-gray-400">Invoices</div>
+                        </div>
+                        <div class="flex-1 bg-white p-3">
+                            <div class="mb-2 h-1.5 w-2/5 rounded-full" style="background: linear-gradient(90deg, {{ $themeColor1 }}, {{ $themeColor2 }});"></div>
+                            <div class="flex gap-2">
+                                <div class="flex-1 rounded-md p-2" style="background: linear-gradient(135deg, {{ $themeColor1 }}18, {{ $themeColor2 }}18);">
+                                    <p class="text-[9px] text-gray-500">Revenue</p>
+                                    <p class="text-xs font-semibold" style="color: {{ $themeColor2 }};">LKR 188k</p>
+                                </div>
+                                <div class="flex-1 rounded-md bg-gray-50 p-2">
+                                    <p class="text-[9px] text-gray-500">Clients</p>
+                                    <p class="text-xs font-semibold text-gray-900">12</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                    <button type="button" wire:click="saveTheme" class="btn-primary" style="background: linear-gradient(135deg, {{ $themeColor1 }}, {{ $themeColor2 }});">
+                        <span wire:loading.remove wire:target="saveTheme">Save Theme</span>
+                        <span wire:loading wire:target="saveTheme">Saving…</span>
+                    </button>
+                    <button type="button" wire:click="selectPreset('default')" class="btn-secondary">Reset to Default</button>
+                    <span class="text-xs text-gray-400">The page reloads after saving to apply the new theme.</span>
+                </div>
+            </div>
+        </div>
+
+        @script
+        <script>
+            $wire.on('theme-updated', () => setTimeout(() => window.location.reload(), 600));
+        </script>
+        @endscript
+
+        <div x-show="tab !== 'expenses' && tab !== 'currencies' && tab !== 'theme'" class="mt-6 flex max-w-3xl justify-end">
             <button type="submit" class="btn-primary">
                 <span wire:loading.remove wire:target="save">Save Settings</span>
                 <span wire:loading wire:target="save">Saving…</span>

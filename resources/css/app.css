@@ -21,11 +21,11 @@
     }
     .btn-primary {
         @apply btn text-white;
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
     }
     .btn-primary:hover {
         opacity: 0.88;
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
     }
     .btn-gold {
         @apply btn bg-gold text-ink-900 hover:bg-gold-400;
@@ -37,7 +37,7 @@
         @apply btn bg-red-600 text-white hover:bg-red-700;
     }
     .status-btn-sent {
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
         color: #ffffff;
     }
     .status-btn-sent:hover {
@@ -45,7 +45,7 @@
     }
     .nav-active {
         color: #ffffff;
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
     }
     .card {
         @apply rounded-xl border border-gray-200 bg-white shadow-sm dark:border-ink-600 dark:bg-ink-850;
@@ -58,7 +58,7 @@
     }
     .table-head {
         @apply text-left text-xs font-semibold uppercase tracking-wider text-white;
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
     }
 }
 
@@ -70,15 +70,15 @@
 
 @layer utilities {
     .bg-gradient-brand {
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
     }
     .text-gradient-brand {
-        background: linear-gradient(135deg, #00d4ff, #6d5cff);
+        background: var(--brand-gradient, linear-gradient(135deg, #00d4ff, #6d5cff));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
     .bg-gradient-brand-soft {
-        background: linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(109, 92, 255, 0.12));
+        background: var(--brand-gradient-soft, linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(109, 92, 255, 0.12)));
     }
 }

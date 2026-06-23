@@ -74,6 +74,12 @@ class SettingsIndex extends Component
     public int $sla_high_hours = 4;
     public int $sla_critical_hours = 1;
 
+    // Theme
+    public string $themePreset = 'default';
+    public string $themeColor1 = '#00d4ff';
+    public string $themeColor2 = '#6d5cff';
+    public string $themeSidebarBg = '#0f0f0f';
+
     public function mount(): void
     {
         $this->company = Company::settings();
@@ -116,6 +122,68 @@ class SettingsIndex extends Component
         $this->sla_medium_hours = (int) ($this->company->sla_medium_hours ?? 24);
         $this->sla_high_hours = (int) ($this->company->sla_high_hours ?? 4);
         $this->sla_critical_hours = (int) ($this->company->sla_critical_hours ?? 1);
+
+        // Theme
+        $this->themePreset = $this->company->theme_preset ?: 'default';
+        $this->themeColor1 = $this->company->theme_color_1 ?: '#00d4ff';
+        $this->themeColor2 = $this->company->theme_color_2 ?: '#6d5cff';
+        $this->themeSidebarBg = $this->company->theme_sidebar_bg ?: '#0f0f0f';
+    }
+
+    /** Apply a named preset's colours to the live form (not yet persisted). */
+    public function selectPreset(string $preset): void
+    {
+        $presets = config('themes.presets');
+        if (isset($presets[$preset])) {
+            $this->themePreset = $preset;
+            $this->themeColor1 = $presets[$preset]['color_1'];
+            $this->themeColor2 = $presets[$preset]['color_2'];
+            $this->themeSidebarBg = $presets[$preset]['sidebar_bg'];
+        }
+    }
+
+    public function updatedThemeColor1(): void
+    {
+        $this->themePreset = 'custom';
+    }
+
+    public function updatedThemeColor2(): void
+    {
+        $this->themePreset = 'custom';
+    }
+
+    public function updatedThemeSidebarBg(): void
+    {
+        $this->themePreset = 'custom';
+    }
+
+    public function saveTheme(): void
+    {
+        abort_unless((bool) auth()->user()?->hasPermission('settings.edit'), 403);
+
+        $this->validate([
+            'themePreset' => ['required', 'string', 'max:50'],
+            'themeColor1' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'themeColor2' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'themeSidebarBg' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+        ], [
+            'themeColor1.regex' => 'Primary colour must be a 6-digit hex value.',
+            'themeColor2.regex' => 'Secondary colour must be a 6-digit hex value.',
+            'themeSidebarBg.regex' => 'Sidebar colour must be a 6-digit hex value.',
+        ]);
+
+        $this->company->update([
+            'theme_preset' => $this->themePreset,
+            'theme_color_1' => $this->themeColor1,
+            'theme_color_2' => $this->themeColor2,
+            'theme_sidebar_bg' => $this->themeSidebarBg,
+        ]);
+        $this->company->refresh();
+
+        \App\Helpers\ThemeHelper::clearCache();
+
+        $this->dispatch('toast', type: 'success', message: 'Theme updated.');
+        $this->dispatch('theme-updated');
     }
 
     public function save(): void

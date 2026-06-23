@@ -10,6 +10,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <style>{!! \App\Helpers\ThemeHelper::getCss() !!}</style>
 </head>
 <body class="h-full antialiased">
     <div class="min-h-full" x-data="{ mobileNav: false }">

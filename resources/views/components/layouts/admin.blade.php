@@ -21,15 +21,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
+    {{-- Theme variables (admin-selected; resolved at runtime so brand surfaces re-theme without a rebuild) --}}
+    <style>{!! \App\Helpers\ThemeHelper::getCss() !!}</style>
+
     {{-- Sidebar styles — plain CSS so they're always applied, no Tailwind JIT dependency --}}
     <style>
         /* Sidebar shell */
-        .ls-aside { background:#111118; border-right:1px solid #1f1f2e; display:flex; flex-direction:column; height:100%; overflow:hidden; flex-shrink:0; transition:width 0.22s cubic-bezier(.4,0,.2,1); }
+        .ls-aside { background:var(--sidebar-bg, #111118); border-right:1px solid #1f1f2e; display:flex; flex-direction:column; height:100%; overflow:hidden; flex-shrink:0; transition:width 0.22s cubic-bezier(.4,0,.2,1); }
 
         /* Logo bar */
         .ls-logo-bar { display:flex; align-items:center; height:58px; border-bottom:1px solid #1f1f2e; flex-shrink:0; overflow:hidden; padding:0 12px; gap:10px; }
         .ls-logo-bar-collapsed { display:flex; align-items:center; justify-content:center; height:58px; border-bottom:1px solid #1f1f2e; flex-shrink:0; width:52px; }
-        .ls-logo-icon { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#6d5cff,#00d4ff); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:#fff; flex-shrink:0; }
+        .ls-logo-icon { width:30px; height:30px; border-radius:8px; background:var(--brand-gradient, linear-gradient(135deg,#6d5cff,#00d4ff)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:#fff; flex-shrink:0; }
         .ls-logo-text { font-size:16px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; }
         .ls-logo-text span { color:#6d5cff; }
         .ls-toggle-btn { margin-left:auto; flex-shrink:0; background:none; border:none; cursor:pointer; color:#4a4a6a; padding:5px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:color 0.15s, background 0.15s; }
@@ -51,10 +54,10 @@
         /* Nav item */
         .ls-item { display:flex; align-items:center; gap:10px; padding:8px 9px; border-radius:8px; font-size:13px; font-weight:500; text-decoration:none; color:#7c7c9a; position:relative; transition:background 0.15s, color 0.15s; margin-bottom:1px; border-left:2px solid transparent; }
         .ls-item:hover { background:rgba(255,255,255,0.05); color:#c8c8e0; }
-        .ls-item.ls-active { background:linear-gradient(135deg,rgba(109,92,255,0.18),rgba(0,212,255,0.08)); color:#fff; border-left-color:#6d5cff; }
+        .ls-item.ls-active { background:var(--brand-gradient-soft, linear-gradient(135deg,rgba(109,92,255,0.18),rgba(0,212,255,0.08))); color:#fff; border-left-color:var(--brand-2, #6d5cff); }
         .ls-item-icon { width:18px; height:18px; flex-shrink:0; color:#5a5a7a; transition:color 0.15s; }
         .ls-item:hover .ls-item-icon { color:#a5b4fc; }
-        .ls-active .ls-item-icon { color:#a5b4fc; }
+        .ls-active .ls-item-icon { color:var(--brand-1, #a5b4fc); }
         .ls-item-label { white-space:nowrap; overflow:hidden; line-height:1.2; }
         .ls-badge { margin-left:auto; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:17px; padding:0 5px; border-radius:10px; font-size:9px; font-weight:700; color:#fff; }
 

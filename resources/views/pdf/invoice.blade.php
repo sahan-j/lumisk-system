@@ -1,4 +1,9 @@
-@php $fs = (int) ($company->pdf_font_size ?: 10); @endphp
+@php
+    $fs = (int) ($company->pdf_font_size ?: 10);
+    $theme = \App\Helpers\ThemeHelper::getColors();
+    $b2 = $theme['color_2'];
+    $b2soft = $theme['color_2_soft'];
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +30,7 @@ body {
 .badge {
     display: inline-block;
     width: 3.6em; height: 3.6em;
-    background: #6d5cff;
+    background: {{ $b2 }};
     border-radius: 0.8em;
     color: #ffffff;
     font-size: 1.9em; font-weight: bold;
@@ -60,14 +65,14 @@ body {
 .doc-num {
     margin-top: 5px;
     font-size: 1.3em; font-weight: bold;
-    color: #6d5cff;
+    color: {{ $b2 }};
 }
 .pill {
     display: inline-block;
     margin-top: 9px;
-    background: rgba(109,92,255,0.1);
-    border: 1px solid rgba(109,92,255,0.2);
-    color: #6d5cff;
+    background: {{ $b2soft }};
+    border: 1px solid {{ $b2 }};
+    color: {{ $b2 }};
     border-radius: 10px;
     font-size: 0.75em; letter-spacing: 1px;
     text-transform: uppercase;
@@ -151,7 +156,7 @@ body {
 .tt .tv { text-align: right; color: #0f172a; }
 .grand {
     margin-top: 10px;
-    background: rgba(109,92,255,0.08);
+    background: {{ $b2soft }};
     border-radius: 8px;
     padding: 12px 14px;
 }
@@ -160,7 +165,7 @@ body {
 .gl {
     font-size: 1em; letter-spacing: 1px;
     text-transform: uppercase;
-    color: #6d5cff; font-weight: bold;
+    color: {{ $b2 }}; font-weight: bold;
 }
 .gv {
     font-size: 1.8em; font-weight: bold;
@@ -174,7 +179,7 @@ body {
 .slabel {
     font-size: 0.8em; letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #6d5cff; font-weight: bold;
+    color: {{ $b2 }}; font-weight: bold;
     margin-bottom: 9px;
 }
 .col-left  { float: left;  width: 48%; }
@@ -196,7 +201,7 @@ body {
 }
 .fl { float: left; font-style: italic; font-size: 0.9em; color: #9ca3af; }
 .fr { float: right; text-align: right; font-size: 0.85em; color: #9ca3af; line-height: 1.5; }
-.fr b { color: #6d5cff; }
+.fr b { color: {{ $b2 }}; }
 </style>
 </head>
 <body>
