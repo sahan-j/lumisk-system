@@ -2,19 +2,8 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\ActivityLog;
-use App\Models\Client;
-use App\Models\Estimate;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Lead;
-use App\Models\Payment;
-use App\Models\PipelineStage;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\Subscription;
-use App\Models\Ticket;
-use Illuminate\Support\Carbon;
+use App\Models\DashboardPreference;
+use App\Services\DashboardWidgetService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -23,164 +12,127 @@ use Livewire\Component;
 #[Title('Dashboard')]
 class Dashboard extends Component
 {
-    public string $activityFilter = 'all';
-    public int $activityLimit = 15;
+    public array $layout = [];
+    public array $widgetData = [];
+    public bool $editMode = false;
+    public array $availableWidgets = [];
 
-    /** Re-render hook for the Refresh button / wire:poll. */
-    public function loadActivities(): void
+    public function mount(): void
     {
-        // Intentionally empty — invoking any action re-renders and re-queries.
+        $this->availableWidgets = DashboardWidgetService::getAvailableWidgets();
+        $this->loadLayout();
+        $this->loadWidgetData();
     }
 
-    public function filterActivity(string $filter): void
+    private function loadLayout(): void
     {
-        $this->activityFilter = $filter;
-        $this->activityLimit = 15;
+        $pref = DashboardPreference::where('user_id', auth()->id())->first();
+
+        $layout = $pref?->widget_layout ?: DashboardWidgetService::getDefaultLayout();
+
+        // Drop any widgets that no longer exist in the catalogue.
+        $layout = array_values(array_filter($layout, fn ($w) => isset($this->availableWidgets[$w['id']])));
+
+        usort($layout, fn ($a, $b) => ($a['position'] ?? 0) <=> ($b['position'] ?? 0));
+
+        $this->layout = $layout;
     }
 
-    public function loadMore(): void
+    private function loadWidgetData(): void
     {
-        $this->activityLimit += 15;
+        $this->widgetData = [];
+        foreach ($this->layout as $widget) {
+            if ($widget['visible'] ?? false) {
+                $this->widgetData[$widget['id']] = DashboardWidgetService::getWidgetData($widget['id']);
+            }
+        }
+    }
+
+    public function toggleEditMode(): void
+    {
+        $this->editMode = ! $this->editMode;
+    }
+
+    public function toggleWidget(string $widgetId): void
+    {
+        foreach ($this->layout as &$widget) {
+            if ($widget['id'] === $widgetId) {
+                $widget['visible'] = ! $widget['visible'];
+                if ($widget['visible']) {
+                    $this->widgetData[$widgetId] = DashboardWidgetService::getWidgetData($widgetId);
+                }
+                break;
+            }
+        }
+        unset($widget);
+
+        $this->saveLayout();
+    }
+
+    public function addWidget(string $widgetId): void
+    {
+        if (! isset($this->availableWidgets[$widgetId])) {
+            return;
+        }
+
+        $existing = collect($this->layout)->firstWhere('id', $widgetId);
+        if ($existing) {
+            $this->toggleWidget($widgetId);
+
+            return;
+        }
+
+        $this->layout[] = [
+            'id' => $widgetId,
+            'visible' => true,
+            'position' => (int) (collect($this->layout)->max('position') ?? 0) + 1,
+            'size' => $this->availableWidgets[$widgetId]['size'] ?? 'medium',
+        ];
+
+        $this->widgetData[$widgetId] = DashboardWidgetService::getWidgetData($widgetId);
+        $this->saveLayout();
+    }
+
+    public function reorderWidgets(array $order): void
+    {
+        foreach ($order as $position => $widgetId) {
+            foreach ($this->layout as &$widget) {
+                if ($widget['id'] === $widgetId) {
+                    $widget['position'] = $position;
+                    break;
+                }
+            }
+            unset($widget);
+        }
+
+        usort($this->layout, fn ($a, $b) => $a['position'] <=> $b['position']);
+        $this->saveLayout();
+    }
+
+    public function resetLayout(): void
+    {
+        $this->layout = DashboardWidgetService::getDefaultLayout();
+        $this->saveLayout();
+        $this->loadWidgetData();
+        $this->editMode = false;
+        $this->dispatch('toast', type: 'success', message: 'Dashboard reset to default.');
+    }
+
+    private function saveLayout(): void
+    {
+        DashboardPreference::updateOrCreate(
+            ['user_id' => auth()->id()],
+            ['widget_layout' => array_values($this->layout)],
+        );
+    }
+
+    public function refreshWidgets(): void
+    {
+        $this->loadWidgetData();
     }
 
     public function render()
     {
-        // Revenue = everything actually collected across all payments.
-        $totalRevenue = Payment::sum('amount');
-
-        // Outstanding = unpaid remainder of open invoices.
-        $outstanding = Invoice::whereIn('status', ['sent', 'overdue'])
-            ->with('payments')
-            ->get()
-            ->sum('outstanding_balance');
-
-        $totalClients = Client::count();
-        $pendingEstimates = Estimate::whereIn('status', ['draft', 'sent'])->count();
-
-        // Last 6 months revenue (paid invoices by issue month).
-        $months = collect();
-        for ($i = 5; $i >= 0; $i--) {
-            $month = Carbon::now()->startOfMonth()->subMonths($i);
-            $revenue = Invoice::where('status', 'paid')
-                ->whereYear('issue_date', $month->year)
-                ->whereMonth('issue_date', $month->month)
-                ->sum('total');
-            $months->push([
-                'label' => $month->format('M'),
-                'value' => round((float) $revenue, 2),
-            ]);
-        }
-
-        // Last 6 months expenses (by expense_date) — aligned with the revenue series above.
-        $expenseSeries = collect();
-        for ($i = 5; $i >= 0; $i--) {
-            $month = Carbon::now()->startOfMonth()->subMonths($i);
-            $expenseSeries->push(round((float) Expense::whereYear('expense_date', $month->year)
-                ->whereMonth('expense_date', $month->month)
-                ->sum('amount'), 2));
-        }
-
-        // Year-to-date profit & loss (revenue collected vs expenses incurred this year).
-        $revenueThisYear = (float) Payment::whereYear('payment_date', now()->year)->sum('amount');
-        $expensesThisYear = (float) Expense::whereYear('expense_date', now()->year)->sum('amount');
-        $netProfit = round($revenueThisYear - $expensesThisYear, 2);
-
-        // Activity feed — filtered by type group, limited (load-more grows the limit).
-        $activityQuery = ActivityLog::latest();
-        if (isset(ActivityLog::GROUPS[$this->activityFilter])) {
-            $activityQuery->whereIn('type', ActivityLog::GROUPS[$this->activityFilter]);
-        }
-        $activities = $activityQuery->limit($this->activityLimit + 1)->get();
-        $hasMoreActivity = $activities->count() > $this->activityLimit;
-        $activities = $activities->take($this->activityLimit);
-
-        $overdueInvoices = Invoice::where('status', 'overdue')->get();
-
-        // Recurring revenue + upcoming renewals (next 7 days).
-        $activeSubscriptions = Subscription::where('status', 'active')->get();
-        $mrr = round($activeSubscriptions->sum('monthly_value'), 2);
-        $upcomingRenewals = Subscription::with('client')
-            ->where('status', 'active')
-            ->whereBetween('next_billing_date', [today(), today()->addDays(7)])
-            ->orderBy('next_billing_date')
-            ->take(6)
-            ->get();
-
-        // Sales pipeline snapshot (active, non-lost, non-converted leads + per-stage funnel).
-        $activeLeads = Lead::whereNull('converted_to_client_id')
-            ->whereHas('stage', fn ($q) => $q->where('is_lost', false))
-            ->get();
-        $pipelineFunnel = PipelineStage::where('is_lost', false)
-            ->orderBy('sort_order')
-            ->withCount(['leads' => fn ($q) => $q->whereNull('converted_to_client_id')])
-            ->get();
-        $wonThisMonthCount = Lead::whereNotNull('converted_at')
-            ->whereMonth('converted_at', now()->month)
-            ->whereYear('converted_at', now()->year)
-            ->count();
-
-        // Low-stock products needing reorder.
-        $lowStockCount = Product::where('track_inventory', true)
-            ->whereNotNull('low_stock_threshold')
-            ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')
-            ->where('is_active', true)->count();
-
-        // Foreign-currency invoices (shown in LKR equivalent).
-        $foreignInvoices = Invoice::where('currency_code', '!=', 'LKR')->get(['id', 'total_lkr']);
-        $foreignInvoiceCount = $foreignInvoices->count();
-        $foreignRevenueLkr = round((float) $foreignInvoices->sum('total_lkr'), 2);
-
-        $activeProjects = Project::where('status', 'active')->count();
-        $overdueProjects = Project::whereNotIn('status', ['completed', 'cancelled'])
-            ->whereNotNull('due_date')
-            ->whereDate('due_date', '<', today())
-            ->count();
-        $recentProjects = Project::with('client')
-            ->withCount(['tasks', 'tasks as done_tasks_count' => fn ($q) => $q->where('status', 'done')])
-            ->whereNotIn('status', ['completed', 'cancelled'])
-            ->latest()
-            ->take(3)
-            ->get();
-
-        $recurringCount = Invoice::where('is_recurring', true)->count();
-        $recurringMonthlyValue = Invoice::where('is_recurring', true)
-            ->where('recurring_cycle', 'monthly')
-            ->sum('total');
-
-        return view('livewire.admin.dashboard', [
-            'totalRevenue' => $totalRevenue,
-            'outstanding' => $outstanding,
-            'totalClients' => $totalClients,
-            'pendingEstimates' => $pendingEstimates,
-            'overdueCount' => $overdueInvoices->count(),
-            'overdueTotal' => $overdueInvoices->sum('total'),
-            'activeProjects' => $activeProjects,
-            'overdueProjects' => $overdueProjects,
-            'recentProjects' => $recentProjects,
-            'openTickets' => Ticket::where('status', 'open')->count(),
-            'recentTickets' => Ticket::with('client')->whereNotIn('status', ['closed'])->latest()->take(3)->get(),
-            'expensesThisYear' => $expensesThisYear,
-            'revenueThisYear' => $revenueThisYear,
-            'netProfit' => $netProfit,
-            'mrr' => $mrr,
-            'upcomingRenewals' => $upcomingRenewals,
-            'pipelineLeadCount' => $activeLeads->count(),
-            'pipelineValue' => $activeLeads->sum('value'),
-            'pipelineWeighted' => $activeLeads->sum('weighted_value'),
-            'pipelineFunnel' => $pipelineFunnel,
-            'leadsWonThisMonth' => $wonThisMonthCount,
-            'foreignInvoiceCount' => $foreignInvoiceCount,
-            'foreignRevenueLkr' => $foreignRevenueLkr,
-            'lowStockCount' => $lowStockCount,
-            'activities' => $activities,
-            'hasMoreActivity' => $hasMoreActivity,
-            'chartLabels' => $months->pluck('label'),
-            'chartValues' => $months->pluck('value'),
-            'expenseValues' => $expenseSeries,
-            'recurringCount' => $recurringCount,
-            'recurringMonthlyValue' => $recurringMonthlyValue,
-            'recentInvoices' => Invoice::with('client')->latest()->take(5)->get(),
-            'recentEstimates' => Estimate::with('client')->latest()->take(5)->get(),
-        ]);
+        return view('livewire.admin.dashboard');
     }
 }

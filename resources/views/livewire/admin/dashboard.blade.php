@@ -1,455 +1,384 @@
 <div>
-    {{-- Overdue warning --}}
-    @if($overdueCount > 0)
-    <div class="mb-5 flex items-center justify-between rounded-lg border border-red-200 border-l-4 border-l-red-500 bg-red-50 px-4 py-3 dark:border-red-800 dark:border-l-red-500 dark:bg-red-900/20">
-        <div class="flex items-center gap-3">
-            <svg class="h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            </svg>
-            <div>
-                <p class="text-sm font-semibold text-red-700 dark:text-red-400">
-                    {{ $overdueCount }} {{ Str::plural('Invoice', $overdueCount) }} Overdue
-                </p>
-                <p class="text-xs text-red-600 dark:text-red-500">
-                    Total outstanding: {{ money($overdueTotal) }}
-                </p>
+    @php
+        $spanFor = fn ($size) => match ($size) {
+            'medium' => 'sm:col-span-2 xl:col-span-2',
+            'large' => 'sm:col-span-2 xl:col-span-4',
+            default => '',
+        };
+        $statusBg = ['paid' => 'rgba(16,185,129,0.12)', 'sent' => 'rgba(109,92,255,0.12)', 'overdue' => 'rgba(239,68,68,0.12)', 'accepted' => 'rgba(16,185,129,0.12)', 'rejected' => 'rgba(239,68,68,0.12)'];
+        $statusFg = ['paid' => '#10b981', 'sent' => '#6d5cff', 'overdue' => '#ef4444', 'accepted' => '#10b981', 'rejected' => '#ef4444'];
+    @endphp
+
+    {{-- Header --}}
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ now()->format('l, F j, Y') }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button wire:click="refreshWidgets" wire:loading.attr="disabled" class="btn-secondary !py-1.5 text-sm">
+                <svg wire:loading.class="animate-spin" wire:target="refreshWidgets" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                Refresh
+            </button>
+            <button wire:click="toggleEditMode" @class(['btn !py-1.5 text-sm', 'btn-primary' => $editMode, 'btn-secondary' => ! $editMode])>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 17a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM14 13a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z" /></svg>
+                {{ $editMode ? 'Done' : 'Customize' }}
+            </button>
+        </div>
+    </div>
+
+    {{-- Edit-mode panel --}}
+    @if ($editMode)
+        <div class="card mb-6 p-5">
+            <div class="mb-4 flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Show or hide widgets</p>
+                <button wire:click="resetLayout" class="btn-secondary !py-1.5 text-xs">Reset to Default</button>
             </div>
+            @php $grouped = collect($availableWidgets)->groupBy('category'); @endphp
+            @foreach ($grouped as $category => $widgets)
+                <div class="mb-3 last:mb-0">
+                    <p class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{{ $category }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($widgets as $widgetId => $widget)
+                            @php $isVisible = collect($layout)->where('id', $widgetId)->where('visible', true)->isNotEmpty(); @endphp
+                            <button wire:click="{{ $isVisible ? "toggleWidget('$widgetId')" : "addWidget('$widgetId')" }}"
+                                    @class([
+                                        'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition',
+                                        'text-white' => $isVisible,
+                                        'border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 dark:border-ink-600 dark:bg-ink-800 dark:text-gray-300' => ! $isVisible,
+                                    ])
+                                    @style(['background: var(--brand-gradient)' => $isVisible])>
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $widget['icon'] }}" /></svg>
+                                {{ $widget['name'] }}
+                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $isVisible ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4' }}" /></svg>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
         </div>
-        <a href="{{ route('admin.invoices.index', ['status' => 'overdue']) }}"
-           class="rounded-md border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/30">
-            View All &rarr;
-        </a>
-    </div>
     @endif
 
-    {{-- Overdue projects warning --}}
-    @if($overdueProjects > 0)
-    <div class="mb-5 flex items-center justify-between rounded-lg border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:border-l-amber-500 dark:bg-amber-900/20">
-        <div class="flex items-center gap-3">
-            <svg class="h-5 w-5 flex-shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                {{ $overdueProjects }} {{ Str::plural('Project', $overdueProjects) }} past due date
-            </p>
-        </div>
-        <a href="{{ route('admin.projects.index') }}"
-           class="rounded-md border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 dark:border-amber-700 dark:bg-transparent dark:text-amber-400 dark:hover:bg-amber-900/30">
-            View All &rarr;
-        </a>
-    </div>
-    @endif
-
-    {{-- Stat cards --}}
+    {{-- Widget grid --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        @php
-            $cards = [
-                ['Total Revenue', money($totalRevenue), 'gold', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'],
-                ['Outstanding', money($outstanding), 'amber', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['Total Clients', number_format($totalClients), 'blue', 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z'],
-                ['Pending Estimates', number_format($pendingEstimates), 'green', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2'],
-                ['Active Projects', number_format($activeProjects), 'blue', 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
-                ['Open Tickets', number_format($openTickets), $openTickets > 0 ? 'red' : 'green', 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z'],
-                ['Expenses (YTD)', money($expensesThisYear), 'red', 'M9 7h6m-6 4h6m-6 4h4M5 3h14a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 011-1z'],
-                ['Net Profit (YTD)', money($netProfit), $netProfit >= 0 ? 'green' : 'red', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
-                ['MRR', money($mrr), 'blue', 'M7 7h10v10M17 7L7 17'],
-            ];
-            if ($foreignInvoiceCount > 0) {
-                $cards[] = ['Foreign Revenue', money($foreignRevenueLkr), 'gold', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13h-1v6l5.25 3.15.5-.82-4.75-2.83z'];
-            }
-        @endphp
-        @foreach ($cards as [$label, $value, $color, $icon])
-            <div class="card p-5">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $label }}</span>
-                    <span @class([
-                        'flex h-9 w-9 items-center justify-center rounded-lg',
-                        'bg-gold/15 text-gold' => $color === 'gold',
-                        'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' => $color === 'amber',
-                        'bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple' => $color === 'blue',
-                        'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' => $color === 'green',
-                        'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' => $color === 'red',
-                    ])>
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}" />
-                        </svg>
-                    </span>
-                </div>
-                <p class="mt-3 text-2xl font-semibold text-gray-900 dark:text-white">{{ $value }}</p>
-            </div>
-        @endforeach
-    </div>
+        @foreach ($layout as $widget)
+            @continue(! ($widget['visible'] ?? false))
+            @php $data = $widgetData[$widget['id']] ?? []; $def = $availableWidgets[$widget['id']] ?? []; @endphp
 
-    {{-- Recurring invoices widget --}}
-    @if($recurringCount > 0)
-    <div class="mt-4 flex items-center justify-between rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-4 py-3 dark:border-brand-purple/30 dark:bg-brand-purple/10">
-        <div class="flex items-center gap-3">
-            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-            </span>
-            <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Recurring Invoices</p>
-                <p class="text-lg font-semibold text-brand-purple">{{ $recurringCount }} active</p>
-            </div>
-        </div>
-        <div class="text-right">
-            <p class="text-xs text-gray-500 dark:text-gray-400">Monthly value</p>
-            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ money($recurringMonthlyValue) }}</p>
-        </div>
-    </div>
-    @endif
+            <div wire:key="w-{{ $widget['id'] }}" class="{{ $spanFor($widget['size'] ?? 'small') }}">
+                @switch($widget['id'])
 
-    {{-- Knowledge base widget --}}
-    <a href="{{ route('admin.kb.index') }}" wire:navigate class="mt-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 hover:border-brand-purple/40 dark:border-ink-600 dark:bg-ink-850">
-        <div class="flex items-center gap-3">
-            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.247m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.247" /></svg>
-            </span>
-            <div>
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">Knowledge Base</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ \App\Models\KbArticle::where('status', 'published')->count() }} published · {{ number_format((int) \App\Models\KbArticle::sum('view_count')) }} total views</p>
-            </div>
-        </div>
-        <span class="text-xs font-medium text-brand-purple">Manage →</span>
-    </a>
-
-    {{-- Revenue vs Expenses chart --}}
-    <div class="mt-6 card p-5">
-        <h2 class="mb-1 text-base font-semibold text-gray-900 dark:text-white">Revenue vs Expenses</h2>
-        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Paid invoices and expenses over the last 6 months</p>
-        <div class="h-72"
-             wire:ignore
-             x-data
-             x-init="
-                const ctx = $refs.revenueChart.getContext('2d');
-                const dark = document.documentElement.classList.contains('dark');
-                new window.Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: @js($chartLabels),
-                        datasets: [
-                            {
-                                label: 'Revenue',
-                                data: @js($chartValues),
-                                backgroundColor: '#D4AF37',
-                                borderRadius: 6,
-                                maxBarThickness: 36,
-                            },
-                            {
-                                label: 'Expenses',
-                                data: @js($expenseValues),
-                                backgroundColor: '#ef4444',
-                                borderRadius: 6,
-                                maxBarThickness: 36,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: true, labels: { color: dark ? '#9ca3af' : '#6b7280' } } },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { color: dark ? '#9ca3af' : '#6b7280' } },
-                            y: { beginAtZero: true, grid: { color: dark ? '#2a2a2a' : '#e5e7eb' }, ticks: { color: dark ? '#9ca3af' : '#6b7280' } }
-                        }
-                    }
-                });
-             ">
-            <canvas x-ref="revenueChart"></canvas>
-        </div>
-
-        {{-- Financial summary (year to date) --}}
-        <div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-ink-600 dark:bg-ink-800">
-            <p class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Financial Summary — {{ now()->format('Y') }}</p>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Total Revenue</p>
-                    <p class="mt-1 text-xl font-bold text-green-600 dark:text-green-400">{{ money($revenueThisYear) }}</p>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Total Expenses</p>
-                    <p class="mt-1 text-xl font-bold text-red-600 dark:text-red-400">{{ money($expensesThisYear) }}</p>
-                </div>
-                <div class="sm:border-l sm:border-gray-200 sm:pl-4 dark:sm:border-ink-600">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Net Profit</p>
-                    <p class="mt-1 text-xl font-bold {{ $netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                        {{ money($netProfit) }}
-                        <span class="text-sm">{{ $netProfit >= 0 ? '▲' : '▼' }}</span>
-                    </p>
-                    @if ($revenueThisYear > 0)
-                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ round(($netProfit / $revenueThisYear) * 100, 1) }}% margin</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Upcoming renewals (next 7 days) --}}
-    @if ($upcomingRenewals->isNotEmpty())
-        <div class="mt-6 card overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Upcoming Renewals</h2>
-                <a href="{{ route('admin.subscriptions.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
-            </div>
-            <div class="divide-y divide-gray-100 dark:divide-ink-700">
-                @foreach ($upcomingRenewals as $sub)
-                    <a href="{{ route('admin.subscriptions.show', $sub) }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
-                        <div class="flex items-center gap-3">
-                            <svg class="h-5 w-5 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10v10M17 7L7 17" /></svg>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $sub->subscription_number }} · {{ $sub->client?->name }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $sub->name }}</p>
+                    @case('revenue_stat')
+                    @case('outstanding_stat')
+                    @case('net_profit_stat')
+                    @case('mrr_stat')
+                    @case('clients_stat')
+                    @case('pipeline_stat')
+                    @case('open_tickets_stat')
+                    @case('active_projects_stat')
+                    @case('time_today')
+                        @php $isNeg = $widget['id'] === 'open_tickets_stat' && ($data['value'] ?? 0) > 0; @endphp
+                        <div class="card relative overflow-hidden p-5">
+                            <div class="flex items-start justify-between">
+                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $def['name'] ?? '' }}</span>
+                                <span class="flex h-9 w-9 items-center justify-center rounded-lg" style="background: var(--brand-gradient); opacity:0.14;"></span>
+                                <svg class="absolute right-[22px] top-[22px] h-5 w-5" style="color: var(--brand-2);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $def['icon'] ?? '' }}" /></svg>
                             </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ money($sub->amount) }}</p>
-                            <p class="text-xs {{ $sub->days_until_next_billing <= 0 ? 'text-amber-500' : 'text-green-500' }}">
-                                {{ $sub->days_until_next_billing <= 0 ? 'due today' : 'in ' . $sub->days_until_next_billing . 'd' }}
-                            </p>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    {{-- Low stock alert --}}
-    @if ($lowStockCount > 0)
-        <div class="mt-6 flex items-center justify-between gap-3 rounded-lg border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">
-            <div class="flex items-center gap-3">
-                <svg class="h-5 w-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                <div>
-                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ $lowStockCount }} {{ Str::plural('item', $lowStockCount) }} running low</p>
-                    <p class="text-xs text-amber-700 dark:text-amber-400">Check inventory before accepting new orders.</p>
-                </div>
-            </div>
-            <a href="{{ route('admin.products.index', ['stock' => 'low']) }}" class="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-50 dark:border-amber-900/40 dark:bg-ink-800 dark:text-amber-300">View items →</a>
-        </div>
-    @endif
-
-    {{-- Sales pipeline snapshot --}}
-    @if ($pipelineLeadCount > 0 || $pipelineFunnel->sum('leads_count') > 0)
-        <div class="mt-6 card overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Sales Pipeline</h2>
-                <a href="{{ route('admin.pipeline.index') }}" class="text-sm font-medium text-gold hover:underline">Open board</a>
-            </div>
-            <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-ink-700 sm:grid-cols-4">
-                <div class="bg-white p-4 dark:bg-ink-850">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Active Leads</p>
-                    <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{{ $pipelineLeadCount }}</p>
-                </div>
-                <div class="bg-white p-4 dark:bg-ink-850">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Pipeline Value</p>
-                    <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{{ money($pipelineValue) }}</p>
-                </div>
-                <div class="bg-white p-4 dark:bg-ink-850">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Weighted</p>
-                    <p class="mt-1 text-lg font-semibold text-brand-purple">{{ money($pipelineWeighted) }}</p>
-                </div>
-                <div class="bg-white p-4 dark:bg-ink-850">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Won This Month</p>
-                    <p class="mt-1 text-xl font-semibold text-green-600 dark:text-green-400">{{ $leadsWonThisMonth }}</p>
-                </div>
-            </div>
-            {{-- Mini funnel: leads per stage --}}
-            <div class="space-y-2 p-5">
-                @php $funnelMax = max(1, $pipelineFunnel->max('leads_count')); @endphp
-                @foreach ($pipelineFunnel as $stage)
-                    <div class="flex items-center gap-3">
-                        <span class="w-28 shrink-0 truncate text-xs text-gray-600 dark:text-gray-300">{{ $stage->name }}</span>
-                        <div class="h-4 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-800">
-                            <div class="h-4 rounded-full" style="width: {{ round($stage->leads_count / $funnelMax * 100) }}%; min-width: {{ $stage->leads_count > 0 ? '8px' : '0' }}; background-color: {{ $stage->color }};"></div>
-                        </div>
-                        <span class="w-6 shrink-0 text-right text-xs font-medium text-gray-700 dark:text-gray-200">{{ $stage->leads_count }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    {{-- Recent activity --}}
-    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {{-- Recent invoices --}}
-        <div class="card overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Invoices</h2>
-                <a href="{{ route('admin.invoices.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
-            </div>
-            <div class="divide-y divide-gray-100 dark:divide-ink-700">
-                @forelse ($recentInvoices as $invoice)
-                    <a href="{{ route('admin.invoices.show', $invoice) }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $invoice->invoice_number }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $invoice->client?->name ?? '—' }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($invoice, $invoice->total) }}</p>
-                            <x-status-badge :color="$invoice->statusColor()" :label="$invoice->status" class="mt-1" />
-                        </div>
-                    </a>
-                @empty
-                    <p class="px-5 py-8 text-center text-sm text-gray-400">No invoices yet.</p>
-                @endforelse
-            </div>
-        </div>
-
-        {{-- Recent estimates --}}
-        <div class="card overflow-hidden">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Estimates</h2>
-                <a href="{{ route('admin.estimates.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
-            </div>
-            <div class="divide-y divide-gray-100 dark:divide-ink-700">
-                @forelse ($recentEstimates as $estimate)
-                    <a href="{{ route('admin.estimates.show', $estimate) }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $estimate->estimate_number }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $estimate->client?->name ?? '—' }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currency_amount($estimate, $estimate->total) }}</p>
-                            <x-status-badge :color="$estimate->statusColor()" :label="$estimate->status" class="mt-1" />
-                        </div>
-                    </a>
-                @empty
-                    <p class="px-5 py-8 text-center text-sm text-gray-400">No estimates yet.</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    {{-- Recent projects --}}
-    @if ($recentProjects->count())
-    <div class="mt-6 card overflow-hidden">
-        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Active Projects</h2>
-            <a href="{{ route('admin.projects.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
-        </div>
-        <div class="divide-y divide-gray-100 dark:divide-ink-700">
-            @foreach ($recentProjects as $project)
-                @php $pct = $project->tasks_count ? (int) round($project->done_tasks_count / $project->tasks_count * 100) : 0; @endphp
-                <a href="{{ route('admin.projects.show', $project) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $project->name }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $project->client?->name ?? 'No client' }}</p>
-                    </div>
-                    <div class="hidden w-40 sm:block">
-                        <div class="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-700">
-                            <div class="h-full rounded-full bg-gradient-brand" style="width: {{ $pct }}%"></div>
-                        </div>
-                    </div>
-                    <span class="w-10 text-right text-xs text-gray-400">{{ $pct }}%</span>
-                    <x-status-badge :color="$project->statusColor()" :label="$project->statusLabel()" />
-                </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    {{-- Recent tickets --}}
-    @if ($recentTickets->count())
-    <div class="mt-6 card overflow-hidden">
-        <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-ink-600">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Recent Tickets</h2>
-            <a href="{{ route('admin.tickets.index') }}" class="text-sm font-medium text-gold hover:underline">View all</a>
-        </div>
-        <div class="divide-y divide-gray-100 dark:divide-ink-700">
-            @foreach ($recentTickets as $ticket)
-                <a href="{{ route('admin.tickets.show', $ticket) }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 dark:hover:bg-ink-800">
-                    <span class="font-mono text-xs font-semibold text-brand-purple">{{ $ticket->ticket_number }}</span>
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $ticket->subject }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $ticket->client?->name ?? '—' }} · {{ $ticket->created_at->diffForHumans() }}</p>
-                    </div>
-                    <x-status-badge :color="$ticket->statusColor()" :label="$ticket->statusLabel()" />
-                </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    {{-- Activity feed --}}
-    <div class="mt-6 card overflow-hidden" wire:poll.30s="loadActivities">
-        <div class="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 dark:border-ink-600 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
-                <svg class="h-5 w-5 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4" /></svg>
-                Recent Activity
-            </h2>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-400">Auto-refreshes every 30s</span>
-                <button wire:click="loadActivities" class="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-medium text-brand-purple hover:bg-brand-purple/5">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    Refresh
-                </button>
-            </div>
-        </div>
-
-        {{-- Filter chips --}}
-        <div class="flex flex-wrap gap-2 border-b border-gray-100 px-5 py-3 dark:border-ink-700">
-            @foreach (['all' => 'All', 'invoices' => 'Invoices', 'payments' => 'Payments', 'tickets' => 'Tickets', 'clients' => 'Clients', 'projects' => 'Projects'] as $key => $label)
-                <button wire:click="filterActivity('{{ $key }}')"
-                        @class([
-                            'rounded-full px-3 py-1 text-xs font-medium transition',
-                            'bg-gradient-brand text-white' => $activityFilter === $key,
-                            'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-ink-600 dark:text-gray-300 dark:hover:bg-ink-700' => $activityFilter !== $key,
-                        ])>
-                    {{ $label }}
-                </button>
-            @endforeach
-        </div>
-
-        {{-- Activity list --}}
-        <div class="max-h-[480px] divide-y divide-gray-100 overflow-y-auto dark:divide-ink-700">
-            @forelse ($activities as $activity)
-                <div wire:key="activity-{{ $activity->id }}" class="flex items-start gap-3 px-5 py-3">
-                    <div class="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg" style="background-color: {{ $activity->color }}1a; color: {{ $activity->color }}">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $activity->icon_path }}" /></svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm text-gray-900 dark:text-white">{{ $activity->description }}</p>
-                        <div class="mt-1 flex flex-wrap items-center gap-2">
-                            <span @class([
-                                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
-                                'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300' => $activity->causer_type === 'client',
-                                'bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20' => $activity->causer_type !== 'client',
-                            ])>
-                                {{ $activity->causer_type === 'client' ? '👤' : '⚡' }} {{ $activity->causer_name ?? 'System' }}
-                            </span>
-                            <span class="text-xs text-gray-400">{{ $activity->created_at->diffForHumans() }}</span>
-                            @if ($activity->subject_label)
-                                <span class="rounded bg-brand-purple/8 px-1.5 py-0.5 font-mono text-[10px] text-brand-purple dark:bg-brand-purple/15">{{ $activity->subject_label }}</span>
+                            <p class="mt-3 text-2xl font-semibold {{ $isNeg ? 'text-red-500' : 'text-gradient-brand' }}">{{ $data['formatted'] ?? '—' }}</p>
+                            @if (! empty($data['change']))
+                                <p class="mt-1 text-xs text-gray-400">{{ $data['change'] }}</p>
                             @endif
                         </div>
-                    </div>
-                    <span class="mt-0.5 flex-shrink-0 whitespace-nowrap text-[10px] text-gray-400">{{ $activity->created_at->format('M d, H:i') }}</span>
-                </div>
-            @empty
-                <div class="px-5 py-12 text-center">
-                    <svg class="mx-auto mb-2 h-8 w-8 text-gray-300 dark:text-ink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4" /></svg>
-                    <p class="text-sm text-gray-400">No activity yet</p>
-                    <p class="mt-1 text-xs text-gray-400">Actions will appear here as you use the system</p>
-                </div>
-            @endforelse
-        </div>
+                        @break
 
-        {{-- Load more --}}
-        @if ($hasMoreActivity)
-            <div class="border-t border-gray-100 px-5 py-3 text-center dark:border-ink-700">
-                <button wire:click="loadMore" class="text-xs font-medium text-brand-purple hover:underline">Load more activity →</button>
+                    @case('revenue_chart')
+                        <div class="card p-5">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Revenue vs Expenses</h3>
+                            <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Last 6 months</p>
+                            <div class="h-72" wire:ignore x-data x-init="
+                                const dark = document.documentElement.classList.contains('dark');
+                                const c1 = getComputedStyle(document.documentElement).getPropertyValue('--brand-1').trim() || '#00d4ff';
+                                const d = @js($data);
+                                new window.Chart($refs.canvas.getContext('2d'), {
+                                    type: 'bar',
+                                    data: { labels: d.labels || [], datasets: [
+                                        { label: 'Revenue', data: d.revenue || [], backgroundColor: c1, borderRadius: 6, maxBarThickness: 36 },
+                                        { label: 'Expenses', data: d.expenses || [], backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 36 },
+                                    ]},
+                                    options: { responsive: true, maintainAspectRatio: false,
+                                        plugins: { legend: { labels: { color: dark ? '#9ca3af' : '#6b7280' } } },
+                                        scales: { x: { grid: { display: false }, ticks: { color: dark ? '#9ca3af' : '#6b7280' } },
+                                                  y: { beginAtZero: true, grid: { color: dark ? '#2a2a2a' : '#e5e7eb' }, ticks: { color: dark ? '#9ca3af' : '#6b7280', callback: v => 'LKR ' + (v/1000).toFixed(0) + 'k' } } } }
+                                });
+                            ">
+                                <canvas x-ref="canvas"></canvas>
+                            </div>
+                        </div>
+                        @break
+
+                    @case('profit_loss_chart')
+                        <div class="card p-5">
+                            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Profit &amp; Loss — Last 6 Months</h3>
+                            <div class="h-72" wire:ignore x-data x-init="
+                                const dark = document.documentElement.classList.contains('dark');
+                                const c2 = getComputedStyle(document.documentElement).getPropertyValue('--brand-2').trim() || '#6d5cff';
+                                const d = @js($data);
+                                new window.Chart($refs.canvas.getContext('2d'), {
+                                    type: 'line',
+                                    data: { labels: d.labels || [], datasets: [
+                                        { label: 'Net Profit', data: d.profit || [], borderColor: c2, backgroundColor: c2 + '22', fill: true, tension: 0.4, pointBackgroundColor: c2, pointRadius: 3 },
+                                    ]},
+                                    options: { responsive: true, maintainAspectRatio: false,
+                                        plugins: { legend: { display: false } },
+                                        scales: { x: { grid: { display: false }, ticks: { color: dark ? '#9ca3af' : '#6b7280' } },
+                                                  y: { grid: { color: dark ? '#2a2a2a' : '#e5e7eb' }, ticks: { color: dark ? '#9ca3af' : '#6b7280', callback: v => 'LKR ' + (v/1000).toFixed(0) + 'k' } } } }
+                                });
+                            ">
+                                <canvas x-ref="canvas"></canvas>
+                            </div>
+                        </div>
+                        @break
+
+                    @case('invoice_status_chart')
+                        <div class="card p-5">
+                            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Invoice Status</h3>
+                            <div class="h-64" wire:ignore x-data x-init="
+                                const dark = document.documentElement.classList.contains('dark');
+                                const d = @js($data);
+                                new window.Chart($refs.canvas.getContext('2d'), {
+                                    type: 'doughnut',
+                                    data: { labels: d.labels || [], datasets: [{ data: d.data || [], backgroundColor: d.colors || [], borderWidth: 0, hoverOffset: 6 }] },
+                                    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: dark ? '#9ca3af' : '#6b7280', padding: 14 } } } }
+                                });
+                            ">
+                                <canvas x-ref="canvas"></canvas>
+                            </div>
+                        </div>
+                        @break
+
+                    @case('quick_actions')
+                        <div class="card p-5">
+                            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach ($data['actions'] ?? [] as $action)
+                                    <a href="{{ $action['url'] }}" wire:navigate
+                                       @class([
+                                           'flex flex-col items-center gap-2 rounded-lg p-3 text-center text-xs font-medium',
+                                           'text-white' => $action['color'] === 'gradient',
+                                           'bg-gray-50 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-ink-800 dark:text-gray-300 dark:ring-ink-600' => $action['color'] !== 'gradient',
+                                       ])
+                                       @style(['background: var(--brand-gradient)' => $action['color'] === 'gradient'])>
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $action['icon'] }}" /></svg>
+                                        {{ $action['label'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        @break
+
+                    @case('recent_invoices')
+                    @case('recent_estimates')
+                        @php $isInv = $widget['id'] === 'recent_invoices'; @endphp
+                        <div class="card overflow-hidden">
+                            <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-ink-700">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $isInv ? 'Recent Invoices' : 'Recent Estimates' }}</span>
+                                <a href="{{ route($isInv ? 'admin.invoices.index' : 'admin.estimates.index') }}" wire:navigate class="text-xs font-medium text-brand-purple hover:underline">View all →</a>
+                            </div>
+                            @forelse ($data['items'] ?? [] as $item)
+                                <a href="{{ $item['url'] }}" wire:navigate class="flex items-center gap-3 border-b border-gray-50 px-4 py-2.5 last:border-0 hover:bg-gray-50 dark:border-ink-800 dark:hover:bg-ink-800">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-mono text-xs font-medium text-brand-purple">{{ $item['number'] }}</p>
+                                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $item['client'] }}</p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <p class="text-xs font-medium text-gray-900 dark:text-white">{{ $item['amount'] }}</p>
+                                        <p class="text-[10px] text-gray-400">{{ $item['date'] }}</p>
+                                    </div>
+                                    <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium" style="background: {{ $statusBg[$item['status']] ?? 'rgba(148,163,184,0.15)' }}; color: {{ $statusFg[$item['status']] ?? '#64748b' }};">{{ ucfirst($item['status']) }}</span>
+                                </a>
+                            @empty
+                                <p class="px-4 py-8 text-center text-sm text-gray-400">No items yet</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('overdue_invoices')
+                        <div class="card overflow-hidden" style="border-top:3px solid #ef4444;">
+                            <div class="flex items-center justify-between border-b border-red-100 px-4 py-3 dark:border-red-900/30">
+                                <span class="flex items-center gap-1.5 text-sm font-semibold text-red-600 dark:text-red-400">
+                                    Overdue Invoices
+                                    @if (($data['total'] ?? 0) > 0)<span class="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">{{ $data['total'] }}</span>@endif
+                                </span>
+                                <a href="{{ route('admin.invoices.index', ['status' => 'overdue']) }}" wire:navigate class="text-xs font-medium text-red-500 hover:underline">View all →</a>
+                            </div>
+                            @forelse ($data['items'] ?? [] as $item)
+                                <a href="{{ $item['url'] }}" wire:navigate class="flex items-center gap-3 border-b border-red-50 px-4 py-2.5 last:border-0 hover:bg-red-50/50 dark:border-red-900/20 dark:hover:bg-red-900/10">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-mono text-xs font-medium text-red-500">{{ $item['number'] }}</p>
+                                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $item['client'] }}</p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <p class="text-xs font-semibold text-red-600 dark:text-red-400">{{ $item['amount'] }}</p>
+                                        <p class="text-[10px] text-red-500">{{ $item['days_overdue'] }}d overdue</p>
+                                    </div>
+                                </a>
+                            @empty
+                                <p class="px-4 py-6 text-center text-sm text-green-600 dark:text-green-400">✓ No overdue invoices</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('upcoming_renewals')
+                        <div class="card overflow-hidden">
+                            <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-ink-700">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">Upcoming Renewals</span>
+                                <a href="{{ route('admin.subscriptions.index') }}" wire:navigate class="text-xs font-medium text-brand-purple hover:underline">View all →</a>
+                            </div>
+                            @forelse ($data['items'] ?? [] as $item)
+                                <a href="{{ $item['url'] }}" wire:navigate class="flex items-center gap-3 border-b border-gray-50 px-4 py-2.5 last:border-0 hover:bg-gray-50 dark:border-ink-800 dark:hover:bg-ink-800">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-xs font-medium text-gray-900 dark:text-white">{{ $item['name'] }}</p>
+                                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $item['client'] }}</p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <p class="text-xs font-semibold text-brand-purple">{{ $item['amount'] }}</p>
+                                        <p class="text-[10px] {{ $item['days_until'] <= 3 ? 'text-red-500' : 'text-gray-400' }}">in {{ $item['days_until'] }}d · {{ $item['date'] }}</p>
+                                    </div>
+                                </a>
+                            @empty
+                                <p class="px-4 py-8 text-center text-sm text-gray-400">No renewals in next 14 days</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('pipeline_funnel')
+                        <div class="card p-5">
+                            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Pipeline Funnel</h3>
+                            @php $maxCount = collect($data['stages'] ?? [])->max('count') ?: 1; @endphp
+                            @forelse ($data['stages'] ?? [] as $stage)
+                                <div class="mb-3 last:mb-0">
+                                    <div class="mb-1 flex justify-between text-xs">
+                                        <span class="text-gray-500 dark:text-gray-400">{{ $stage['name'] }}</span>
+                                        <span class="font-medium text-gray-900 dark:text-white">{{ $stage['count'] }} leads</span>
+                                    </div>
+                                    <div class="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-700">
+                                        <div class="h-full rounded-full" style="width: {{ round(($stage['count'] / $maxCount) * 100) }}%; background: {{ $stage['color'] }};"></div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="py-6 text-center text-sm text-gray-400">No pipeline stages</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('top_clients')
+                        <div class="card p-5">
+                            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Top Clients by Revenue</h3>
+                            @forelse ($data['items'] ?? [] as $i => $client)
+                                <div class="flex items-center gap-3 border-b border-gray-50 py-2 last:border-0 dark:border-ink-800">
+                                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white" style="background: var(--brand-gradient);">{{ $i + 1 }}</span>
+                                    <a href="{{ $client['url'] }}" wire:navigate class="flex-1 truncate text-sm font-medium text-gray-900 hover:text-brand-purple dark:text-white">{{ $client['name'] }}</a>
+                                    <span class="shrink-0 font-mono text-xs font-semibold text-brand-purple">{{ $client['total'] }}</span>
+                                </div>
+                            @empty
+                                <p class="py-6 text-center text-sm text-gray-400">No client revenue yet</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('recent_tickets')
+                        <div class="card overflow-hidden">
+                            <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-ink-700">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">Recent Tickets</span>
+                                <a href="{{ route('admin.tickets.index') }}" wire:navigate class="text-xs font-medium text-brand-purple hover:underline">View all →</a>
+                            </div>
+                            @forelse ($data['items'] ?? [] as $item)
+                                <a href="{{ $item['url'] }}" wire:navigate class="flex items-center gap-3 border-b border-gray-50 px-4 py-2.5 last:border-0 hover:bg-gray-50 dark:border-ink-800 dark:hover:bg-ink-800">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-xs font-medium text-gray-900 dark:text-white">{{ $item['subject'] }}</p>
+                                        <p class="font-mono text-[10px] text-gray-400">{{ $item['number'] }} · {{ $item['client'] }}</p>
+                                    </div>
+                                    <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium" style="background: {{ $item['priority_color'] }}1a; color: {{ $item['priority_color'] }};">{{ $item['priority'] }}</span>
+                                    <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium" style="background: {{ $item['status_color'] }}1a; color: {{ $item['status_color'] }};">{{ $item['status'] }}</span>
+                                </a>
+                            @empty
+                                <p class="px-4 py-8 text-center text-sm text-gray-400">No open tickets</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('project_progress')
+                        <div class="card p-5">
+                            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Project Progress</h3>
+                            @forelse ($data['items'] ?? [] as $project)
+                                <div class="mb-3 last:mb-0">
+                                    <div class="mb-1 flex justify-between text-xs">
+                                        <a href="{{ $project['url'] }}" wire:navigate class="font-medium text-gray-900 hover:text-brand-purple dark:text-white">{{ $project['name'] }}</a>
+                                        <span class="font-semibold text-brand-purple">{{ $project['completion'] }}%</span>
+                                    </div>
+                                    <div class="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-700">
+                                        <div class="h-full rounded-full" style="width: {{ $project['completion'] }}%; background: var(--brand-gradient);"></div>
+                                    </div>
+                                    <p class="mt-1 text-[10px] text-gray-400">{{ $project['tasks_done'] }}/{{ $project['tasks_total'] }} tasks</p>
+                                </div>
+                            @empty
+                                <p class="py-6 text-center text-sm text-gray-400">No active projects</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('expense_breakdown')
+                        <div class="card p-5">
+                            <div class="mb-4 flex items-center justify-between">
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Expenses This Month</h3>
+                                <span class="text-sm font-semibold text-red-500">LKR {{ number_format($data['total'] ?? 0, 0) }}</span>
+                            </div>
+                            @php $maxExp = collect($data['items'] ?? [])->max('total') ?: 1; @endphp
+                            @forelse ($data['items'] ?? [] as $exp)
+                                <div class="mb-2.5 last:mb-0">
+                                    <div class="mb-1 flex justify-between text-xs">
+                                        <span class="flex items-center gap-1.5 text-gray-600 dark:text-gray-300"><span class="h-2 w-2 rounded-full" style="background: {{ $exp['color'] }};"></span>{{ $exp['name'] }}</span>
+                                        <span class="font-medium text-gray-900 dark:text-white">LKR {{ number_format($exp['total'], 0) }}</span>
+                                    </div>
+                                    <div class="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-ink-700">
+                                        <div class="h-full rounded-full" style="width: {{ round(($exp['total'] / $maxExp) * 100) }}%; background: {{ $exp['color'] }};"></div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="py-6 text-center text-sm text-gray-400">No expenses this month</p>
+                            @endforelse
+                        </div>
+                        @break
+
+                    @case('activity_feed')
+                        <div class="card overflow-hidden" wire:poll.30s="refreshWidgets">
+                            <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-ink-700">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">Recent Activity</span>
+                                <span class="text-[11px] text-gray-400">Auto-refreshes every 30s</span>
+                            </div>
+                            <div class="max-h-80 overflow-y-auto">
+                                @forelse ($data['items'] ?? [] as $activity)
+                                    <div class="flex items-start gap-3 border-b border-gray-50 px-4 py-2.5 last:border-0 dark:border-ink-800">
+                                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style="background: {{ $activity['color'] }}1a;">
+                                            <svg class="h-3.5 w-3.5" style="color: {{ $activity['color'] }};" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $activity['icon'] }}" /></svg>
+                                        </span>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs leading-snug text-gray-700 dark:text-gray-200">{{ $activity['description'] }}</p>
+                                            <p class="mt-0.5 text-[10px] text-gray-400">
+                                                {{ $activity['causer'] }} · {{ $activity['time'] }}
+                                                @if ($activity['label'])<span class="ml-1 rounded px-1 font-mono" style="color: var(--brand-2); background: var(--brand-2-soft);">{{ $activity['label'] }}</span>@endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="px-4 py-8 text-center text-sm text-gray-400">No recent activity</p>
+                                @endforelse
+                            </div>
+                        </div>
+                        @break
+
+                @endswitch
             </div>
-        @endif
-    </div>
-
-    {{-- Report quick links --}}
-    <div class="mt-4 flex flex-wrap gap-2">
-        @foreach (['revenue' => 'Revenue Report', 'profit-loss' => 'P&L', 'invoice-aging' => 'Invoice Aging', 'tax' => 'Tax Summary'] as $route => $label)
-            <a href="{{ route('admin.reports.' . $route) }}"
-               class="rounded-md border border-brand-purple/30 bg-brand-purple/5 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-brand-purple/10">
-                {{ $label }} →
-            </a>
         @endforeach
     </div>
 </div>

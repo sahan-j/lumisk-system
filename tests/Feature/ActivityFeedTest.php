@@ -52,37 +52,52 @@ class ActivityFeedTest extends TestCase
         $this->assertSame('LT-007', $log->subject_label);
     }
 
-    public function test_dashboard_filter_limits_to_type_group(): void
+    public function test_dashboard_activity_widget_shows_recent_activity(): void
     {
         ActivityLog::log('invoice_created', 'Invoice A created', ['subject_label' => 'A']);
         ActivityLog::log('payment_recorded', 'Payment for A', ['subject_label' => 'A']);
         ActivityLog::log('ticket_created', 'Ticket opened', ['subject_label' => 'T-1']);
 
+        // The activity_feed widget is part of the default dashboard layout.
         Livewire::actingAs($this->admin)
             ->test(Dashboard::class)
             ->assertSee('Invoice A created')
             ->assertSee('Payment for A')
-            ->call('filterActivity', 'payments')
-            ->assertSee('Payment for A')
-            ->assertDontSee('Invoice A created')
-            ->assertDontSee('Ticket opened');
+            ->assertSee('Ticket opened');
     }
 
-    public function test_load_more_grows_the_limit(): void
+    public function test_activity_widget_caps_at_latest_ten(): void
     {
         // Distinct, descending timestamps so ordering is deterministic.
-        foreach (range(1, 20) as $i) {
+        foreach (range(1, 12) as $i) {
             $log = ActivityLog::log('invoice_created', "ActivityItem-{$i}", ['subject_label' => "N{$i}"]);
-            $log->created_at = now()->subMinutes($i); // item 1 newest … item 20 oldest
+            $log->created_at = now()->subMinutes($i); // item 1 newest … item 12 oldest
             $log->save();
         }
 
+        // Widget shows the 10 newest → items 1..10 visible, 11 & 12 not.
+        Livewire::actingAs($this->admin)
+            ->test(Dashboard::class)
+            ->assertSee('ActivityItem-1')
+            ->assertSee('ActivityItem-10')
+            ->assertDontSee('ActivityItem-11');
+    }
+
+    public function test_dashboard_layout_persists_and_resets(): void
+    {
         $component = Livewire::actingAs($this->admin)->test(Dashboard::class);
-        // 15 newest shown → item 15 visible, item 16 not yet.
-        $component->assertSee('ActivityItem-15')->assertDontSee('ActivityItem-16');
-        $component->call('loadMore')
-            ->assertSet('activityLimit', 30)
-            ->assertSee('ActivityItem-16');
+
+        // Hiding a widget persists to dashboard_preferences.
+        $component->call('toggleWidget', 'mrr_stat');
+        $this->assertDatabaseHas('dashboard_preferences', ['user_id' => $this->admin->id]);
+
+        $hidden = collect($component->get('layout'))->firstWhere('id', 'mrr_stat');
+        $this->assertFalse($hidden['visible']);
+
+        // Reset restores the default layout (mrr_stat visible again).
+        $component->call('resetLayout');
+        $reset = collect($component->get('layout'))->firstWhere('id', 'mrr_stat');
+        $this->assertTrue($reset['visible']);
     }
 
     public function test_cleanup_command_deletes_old_logs(): void
