@@ -34,7 +34,7 @@
                 <p class="text-sm font-medium text-gray-900 dark:text-white">Show or hide widgets</p>
                 <button wire:click="resetLayout" class="btn-secondary !py-1.5 text-xs">Reset to Default</button>
             </div>
-            @php $grouped = collect($availableWidgets)->groupBy('category'); @endphp
+            @php $grouped = collect($availableWidgets)->groupBy('category', preserveKeys: true); @endphp
             @foreach ($grouped as $category => $widgets)
                 <div class="mb-3 last:mb-0">
                     <p class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{{ $category }}</p>

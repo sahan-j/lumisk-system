@@ -87,6 +87,9 @@ class ActivityFeedTest extends TestCase
     {
         $component = Livewire::actingAs($this->admin)->test(Dashboard::class);
 
+        // Customize chips must carry the real widget id (groupBy keys preserved).
+        $component->call('toggleEditMode')->assertSeeHtml("toggleWidget('revenue_stat')");
+
         // Hiding a widget persists to dashboard_preferences.
         $component->call('toggleWidget', 'mrr_stat');
         $this->assertDatabaseHas('dashboard_preferences', ['user_id' => $this->admin->id]);
