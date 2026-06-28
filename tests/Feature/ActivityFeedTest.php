@@ -94,6 +94,12 @@ class ActivityFeedTest extends TestCase
         $hidden = collect($component->get('layout'))->firstWhere('id', 'mrr_stat');
         $this->assertFalse($hidden['visible']);
 
+        // Adding a widget that isn't in the default layout appends it as visible.
+        $component->call('toggleWidget', 'quick_actions');
+        $added = collect($component->get('layout'))->firstWhere('id', 'quick_actions');
+        $this->assertNotNull($added);
+        $this->assertTrue($added['visible']);
+
         // Reset restores the default layout (mrr_stat visible again).
         $component->call('resetLayout');
         $reset = collect($component->get('layout'))->firstWhere('id', 'mrr_stat');

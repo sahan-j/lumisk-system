@@ -41,7 +41,7 @@
                     <div class="flex flex-wrap gap-2">
                         @foreach ($widgets as $widgetId => $widget)
                             @php $isVisible = collect($layout)->where('id', $widgetId)->where('visible', true)->isNotEmpty(); @endphp
-                            <button wire:click="{{ $isVisible ? "toggleWidget('$widgetId')" : "addWidget('$widgetId')" }}"
+                            <button type="button" wire:click="toggleWidget('{{ $widgetId }}')"
                                     @class([
                                         'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition',
                                         'text-white' => $isVisible,

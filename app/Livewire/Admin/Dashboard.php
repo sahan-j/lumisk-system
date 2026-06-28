@@ -55,16 +55,33 @@ class Dashboard extends Component
 
     public function toggleWidget(string $widgetId): void
     {
+        if (! isset($this->availableWidgets[$widgetId])) {
+            return;
+        }
+
+        $found = false;
         foreach ($this->layout as &$widget) {
             if ($widget['id'] === $widgetId) {
                 $widget['visible'] = ! $widget['visible'];
                 if ($widget['visible']) {
                     $this->widgetData[$widgetId] = DashboardWidgetService::getWidgetData($widgetId);
                 }
+                $found = true;
                 break;
             }
         }
         unset($widget);
+
+        // Widget wasn't in the layout yet (e.g. one not part of the default) — append it.
+        if (! $found) {
+            $this->layout[] = [
+                'id' => $widgetId,
+                'visible' => true,
+                'position' => (int) (collect($this->layout)->max('position') ?? 0) + 1,
+                'size' => $this->availableWidgets[$widgetId]['size'] ?? 'medium',
+            ];
+            $this->widgetData[$widgetId] = DashboardWidgetService::getWidgetData($widgetId);
+        }
 
         $this->saveLayout();
     }
