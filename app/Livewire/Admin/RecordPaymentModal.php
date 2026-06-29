@@ -103,6 +103,10 @@ class RecordPaymentModal extends Component
                 $this->invoice->update(['status' => 'sent']);
             }
 
+            // Notify the team and the client about the recorded payment.
+            \App\Models\User::all()->each(fn ($admin) => $admin->notify(new \App\Notifications\Admin\PaymentRecordedNotification($payment, $this->invoice)));
+            $this->invoice->client?->notify(new \App\Notifications\Client\PaymentConfirmedNotification($payment, $this->invoice));
+
             $this->dispatch('payment-recorded');
             $this->dispatch('toast', type: 'success', message: 'Payment of ' . money($validated['amount']) . ' recorded.');
 

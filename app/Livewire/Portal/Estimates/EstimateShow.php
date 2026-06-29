@@ -62,6 +62,11 @@ class EstimateShow extends Component
              'subject_label' => $this->estimate->estimate_number,
              'causer_type' => 'client', 'causer_name' => $client->name, 'client_id' => $client->id]);
 
+        $notification = $this->responseAction === 'accepted'
+            ? new \App\Notifications\Admin\EstimateAcceptedNotification($this->estimate)
+            : new \App\Notifications\Admin\EstimateRejectedNotification($this->estimate);
+        \App\Models\User::all()->each(fn ($admin) => $admin->notify($notification));
+
         $this->showResponse = false;
         $this->dispatch('toast', type: 'success', message: 'Estimate ' . $this->responseAction . '.');
     }

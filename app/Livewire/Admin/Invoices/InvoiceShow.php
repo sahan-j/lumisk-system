@@ -47,6 +47,11 @@ class InvoiceShow extends Component
                  'subject_label' => $this->invoice->invoice_number, 'client_id' => $this->invoice->client_id]);
         }
 
+        // Let the client know their invoice is ready to view/pay.
+        if ($status === 'sent') {
+            $this->invoice->client?->notify(new \App\Notifications\Client\InvoiceReadyNotification($this->invoice));
+        }
+
         $this->dispatch('toast', type: 'success', message: 'Status updated to ' . ucfirst($status) . '.');
     }
 

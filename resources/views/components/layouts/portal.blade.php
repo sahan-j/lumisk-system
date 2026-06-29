@@ -48,6 +48,7 @@
                 </nav>
 
                 <div class="ml-auto flex items-center gap-3">
+                    <livewire:notification-bell guard="client" />
                     <x-theme-toggle />
                     <div class="relative hidden sm:block" x-data="{ open: false }">
                         <button @click="open = !open" type="button" class="flex items-center gap-2">

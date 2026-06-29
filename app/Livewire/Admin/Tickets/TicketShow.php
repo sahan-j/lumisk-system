@@ -77,6 +77,8 @@ class TicketShow extends Component
                     report($e);
                 }
             }
+
+            $this->ticket->client?->notify(new \App\Notifications\Client\TicketRepliedClientNotification($this->ticket));
         }
 
         $this->reset('replyMessage', 'isInternalNote', 'attachments');
@@ -105,6 +107,8 @@ class TicketShow extends Component
                 "Ticket {$this->ticket->ticket_number} resolved",
                 ['subject_type' => 'Ticket', 'subject_id' => $this->ticket->id,
                  'subject_label' => $this->ticket->ticket_number, 'client_id' => $this->ticket->client_id]);
+
+            $this->ticket->client?->notify(new \App\Notifications\Client\TicketResolvedNotification($this->ticket));
         }
 
         $company = Company::settings();

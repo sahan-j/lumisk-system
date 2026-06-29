@@ -28,6 +28,7 @@ class SendSubscriptionReminders extends Command
                 try {
                     Mail::to($sub->client->email)
                         ->send(new SubscriptionReminderMail($sub, $company, $days));
+                    $sub->client->notify(new \App\Notifications\Client\RenewalReminderNotification($sub));
                     $this->info("{$days}-day reminder sent: {$sub->client->name} ({$sub->subscription_number})");
                 } catch (\Exception $e) {
                     $this->error("Failed {$sub->subscription_number}: {$e->getMessage()}");

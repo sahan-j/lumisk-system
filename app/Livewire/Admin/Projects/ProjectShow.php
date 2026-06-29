@@ -93,6 +93,11 @@ class ProjectShow extends Component
                  'subject_label' => $this->project->name, 'client_id' => $this->project->client_id]);
         }
 
+        // Keep the client informed of project status changes.
+        if ($this->project->client_id) {
+            $this->project->client?->notify(new \App\Notifications\Client\ProjectUpdateNotification($this->project));
+        }
+
         $this->dispatch('toast', type: 'success', message: 'Status updated.');
     }
 

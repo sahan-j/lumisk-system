@@ -25,14 +25,17 @@ class MarkOverdueInvoices extends Command
             ->whereHas('client', fn ($q) => $q->whereNotNull('email'))
             ->get();
 
-        // Capture every invoice about to transition (for the activity log), then bulk-update.
-        $transitioning = Invoice::where('status', 'sent')
+        // Capture every invoice about to transition (for the activity log + admin alerts), then bulk-update.
+        $transitioning = Invoice::with('client')
+            ->where('status', 'sent')
             ->where('due_date', '<', today())
-            ->get(['id', 'invoice_number', 'client_id']);
+            ->get();
 
         $updated = Invoice::where('status', 'sent')
             ->where('due_date', '<', today())
             ->update(['status' => 'overdue']);
+
+        $admins = \App\Models\User::all();
 
         foreach ($transitioning as $inv) {
             ActivityLog::log('invoice_overdue',
@@ -40,6 +43,8 @@ class MarkOverdueInvoices extends Command
                 ['subject_type' => 'Invoice', 'subject_id' => $inv->id,
                  'subject_label' => $inv->invoice_number, 'client_id' => $inv->client_id,
                  'causer_name' => 'System']);
+
+            $admins->each(fn ($admin) => $admin->notify(new \App\Notifications\Admin\InvoiceOverdueNotification($inv)));
         }
 
         $this->info("Marked {$updated} invoice(s) as overdue.");

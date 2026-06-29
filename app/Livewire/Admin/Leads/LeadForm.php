@@ -89,6 +89,8 @@ class LeadForm extends Component
                 "Lead '{$lead->name}' created",
                 ['subject_type' => 'Lead', 'subject_id' => $lead->id, 'subject_label' => $lead->name]);
 
+            User::all()->each(fn ($admin) => $admin->notify(new \App\Notifications\Admin\NewLeadNotification($lead)));
+
             $this->dispatch('toast', type: 'success', message: 'Lead created.');
         }
 

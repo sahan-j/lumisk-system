@@ -39,6 +39,8 @@ class EstimateShow extends Component
                 "Estimate {$this->estimate->estimate_number} sent",
                 ['subject_type' => 'Estimate', 'subject_id' => $this->estimate->id,
                  'subject_label' => $this->estimate->estimate_number, 'client_id' => $this->estimate->client_id]);
+
+            $this->estimate->client?->notify(new \App\Notifications\Client\EstimateSentNotification($this->estimate));
         }
 
         $this->dispatch('toast', type: 'success', message: 'Status updated to ' . ucfirst($status) . '.');

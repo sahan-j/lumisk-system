@@ -94,6 +94,8 @@ class TicketCreate extends Component
             }
         }
 
+        \App\Models\User::all()->each(fn ($admin) => $admin->notify(new \App\Notifications\Admin\NewTicketNotification($ticket)));
+
         $this->dispatch('toast', type: 'success', message: "Ticket {$ticket->ticket_number} created.");
 
         return $this->redirect(route('portal.tickets.show', $ticket), navigate: true);

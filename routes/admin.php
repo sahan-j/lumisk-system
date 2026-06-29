@@ -185,6 +185,9 @@ Route::middleware('admin.auth')->group(function () {
         Route::get('knowledge-base/articles/{article}/edit', KbArticleForm::class)->name('kb.articles.edit');
     });
 
+    // Notifications
+    Route::get('notifications', \App\Livewire\Admin\NotificationsIndex::class)->name('notifications.index');
+
     // Profile
     Route::get('profile', [AdminProfileController::class, 'show'])->name('profile');
     Route::put('profile', [AdminProfileController::class, 'update'])->name('profile.update');

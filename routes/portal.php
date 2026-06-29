@@ -75,6 +75,9 @@ Route::middleware('client.auth')->group(function () {
     Route::get('tickets/{ticket}', TicketShow::class)->name('tickets.show');
     Route::get('tickets/{ticket}/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachment.download');
 
+    // Notifications
+    Route::get('notifications', \App\Livewire\Portal\NotificationsIndex::class)->name('notifications.index');
+
     // Help center / knowledge base
     Route::get('help', HelpCenter::class)->name('kb.index');
     Route::get('help/category/{category:slug}', HelpCategory::class)->name('kb.category');

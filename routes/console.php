@@ -17,3 +17,4 @@ Schedule::command('inventory:check-low-stock')->dailyAt('09:00');
 Schedule::command('invoices:generate-recurring')->dailyAt('07:30');
 Schedule::command('db:backup')->dailyAt('02:00');
 Schedule::command('audit:clean')->monthly();
+Schedule::command('notifications:clean')->monthly();

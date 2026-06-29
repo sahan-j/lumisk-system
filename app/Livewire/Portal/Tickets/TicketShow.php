@@ -88,6 +88,8 @@ class TicketShow extends Component
             }
         }
 
+        \App\Models\User::all()->each(fn ($admin) => $admin->notify(new \App\Notifications\Admin\TicketRepliedNotification($this->ticket)));
+
         $this->reset('replyMessage', 'attachments');
         $this->ticket->refresh();
         $this->dispatch('toast', type: 'success', message: 'Reply sent.');

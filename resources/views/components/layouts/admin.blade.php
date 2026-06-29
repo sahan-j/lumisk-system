@@ -257,6 +257,7 @@
                 </div>
 
                 <div class="ml-auto flex items-center gap-3 md:ml-0">
+                    <livewire:notification-bell guard="web" />
                     <x-theme-toggle />
                     <div class="relative border-l border-gray-200 pl-3 dark:border-ink-600" x-data="{ open: false }">
                         <button @click="open = !open" type="button" class="flex items-center gap-2">
