@@ -75,6 +75,11 @@ Route::middleware('client.auth')->group(function () {
     Route::get('tickets/{ticket}', TicketShow::class)->name('tickets.show');
     Route::get('tickets/{ticket}/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachment.download');
 
+    // Documents (two-way file sharing)
+    Route::get('documents', \App\Livewire\Portal\Documents\DocumentsIndex::class)->name('documents.index');
+    Route::get('documents/{document}/download', [\App\Http\Controllers\Portal\DocumentController::class, 'download'])->name('documents.download');
+    Route::get('documents/{document}/preview', [\App\Http\Controllers\Portal\DocumentController::class, 'preview'])->name('documents.preview');
+
     // Notifications
     Route::get('notifications', \App\Livewire\Portal\NotificationsIndex::class)->name('notifications.index');
 

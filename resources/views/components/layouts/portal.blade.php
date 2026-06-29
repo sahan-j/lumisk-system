@@ -31,6 +31,7 @@
                     $links += [
                         'portal.subscriptions.index' => 'Subscriptions',
                         'portal.projects.index' => 'Projects',
+                        'portal.documents.index' => 'Documents',
                         'portal.tickets.index' => 'Support',
                         'portal.kb.index' => 'Help',
                     ];
@@ -42,7 +43,7 @@
                                   {{ request()->routeIs(str_replace('.index','',$route).'*')
                                       ? 'bg-gray-100 text-navy dark:bg-ink-700 dark:text-brand-purple'
                                       : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white' }}">
-                            {{ $label }}
+                            {{ $label }}@if ($route === 'portal.documents.index' && ($newFromLumiskCount ?? 0) > 0)<span class="ml-1 rounded-full bg-brand-purple px-1.5 py-0.5 text-[10px] font-semibold text-white">{{ $newFromLumiskCount }}</span>@endif
                         </a>
                     @endforeach
                 </nav>

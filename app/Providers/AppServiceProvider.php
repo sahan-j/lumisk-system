@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\ClientDocument;
 use App\Models\Product;
 use App\Models\Subscription;
 use App\Models\Ticket;
@@ -40,9 +41,25 @@ class AppServiceProvider extends ServiceProvider
                     ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')
                     ->where('is_active', true)->count()
                 : 0;
+            $unreadDocs = Schema::hasTable('client_documents')
+                ? ClientDocument::where('uploaded_by', 'client')->where('viewed_by_admin', false)->count()
+                : 0;
             $view->with('openTicketsCount', $openTickets);
             $view->with('pastDueCount', $pastDue);
             $view->with('lowStockCount', $lowStock);
+            $view->with('unreadDocumentsCount', $unreadDocs);
+        });
+
+        // "New documents from us" badge for the portal nav.
+        View::composer('components.layouts.portal', function ($view) {
+            $count = 0;
+            if (Schema::hasTable('client_documents') && auth('client')->check()) {
+                $count = ClientDocument::where('client_id', auth('client')->id())
+                    ->where('uploaded_by', 'admin')
+                    ->where('viewed_by_client', false)
+                    ->count();
+            }
+            $view->with('newFromLumiskCount', $count);
         });
     }
 }

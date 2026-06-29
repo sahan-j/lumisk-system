@@ -24,6 +24,7 @@ class Client extends Authenticatable
         'company_name',
         'default_currency',
         'default_hourly_rate',
+        'unread_documents_count',
         'portal_enabled',
     ];
 
@@ -74,5 +75,10 @@ class Client extends Authenticatable
     public function creditNotes(): HasMany
     {
         return $this->hasMany(CreditNote::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ClientDocument::class);
     }
 }

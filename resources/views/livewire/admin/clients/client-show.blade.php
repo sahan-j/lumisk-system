@@ -21,6 +21,14 @@
                             <x-status-badge color="gray" label="Portal disabled" />
                         @endif
                     </div>
+                    <a href="{{ route('admin.clients.documents', $client) }}" wire:navigate
+                       class="mt-2 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium {{ ($client->unread_documents_count ?? 0) > 0 ? 'border-brand-purple/30 bg-brand-purple/5 text-brand-purple' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-ink-600 dark:text-gray-300 dark:hover:bg-ink-800' }}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                        Documents
+                        @if (($client->unread_documents_count ?? 0) > 0)
+                            <span class="rounded-full bg-brand-purple px-1.5 py-0.5 text-[10px] text-white">{{ $client->unread_documents_count }} new</span>
+                        @endif
+                    </a>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">

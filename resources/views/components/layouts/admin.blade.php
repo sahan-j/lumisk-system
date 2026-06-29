@@ -131,6 +131,7 @@
                         ]],
                         ['crm', 'CRM & Sales', [
                             ['admin.clients.index',      'Clients',      'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z', 'clients.view'],
+                            ['admin.documents.index',    'Documents',    'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2', 'clients.view'],
                             ['admin.pipeline.index',     'Pipeline',     'M9 17V9m4 8V5m4 12v-4M5 17v-2m-2 6h18a1 1 0 001-1V4a1 1 0 00-1-1H3a1 1 0 00-1 1v15a1 1 0 001 1z', 'pipeline.view'],
                             ['admin.estimates.index',    'Estimates',    'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'estimates.view'],
                             ['admin.invoices.index',     'Invoices',     'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'invoices.view'],
@@ -199,6 +200,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}" />
                                         </svg>
                                         <span class="ls-item-label" x-show="!collapsed">{{ $label }}</span>
+                                        @if ($route === 'admin.documents.index' && ($unreadDocumentsCount ?? 0) > 0)
+                                            <span class="ls-badge" style="background:#6d5cff;" x-show="!collapsed">{{ $unreadDocumentsCount }}</span>
+                                        @endif
                                         @if ($route === 'admin.tickets.index' && ($openTicketsCount ?? 0) > 0)
                                             <span class="ls-badge" style="background:#ef4444;" x-show="!collapsed">{{ $openTicketsCount }}</span>
                                         @endif

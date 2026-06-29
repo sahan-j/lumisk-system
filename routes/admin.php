@@ -76,7 +76,12 @@ Route::middleware('admin.auth')->group(function () {
 
     // Clients
     Route::get('clients', ClientsIndex::class)->name('clients.index')->middleware('permission:clients.view');
+    Route::get('clients/{client}/documents', \App\Livewire\Admin\Clients\ClientDocuments::class)->name('clients.documents')->middleware('permission:clients.view');
     Route::get('clients/{client}', ClientShow::class)->name('clients.show')->middleware('permission:clients.view');
+
+    // Documents (overview + secure download)
+    Route::get('documents', \App\Livewire\Admin\Documents\DocumentsIndex::class)->name('documents.index')->middleware('permission:clients.view');
+    Route::get('documents/{document}/download', [\App\Http\Controllers\Admin\ClientDocumentController::class, 'download'])->name('documents.download')->middleware('permission:clients.view');
 
     // CRM sales pipeline (kanban board + leads)
     Route::get('pipeline', PipelineBoard::class)->name('pipeline.index')->middleware('permission:pipeline.view');
