@@ -50,7 +50,9 @@ class DocumentsIndex extends Component
 
         $this->validate([
             'files' => ['required', 'array', 'min:1', 'max:10'],
-            'files.*' => ['file', 'max:20480', 'mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,csv,txt,zip,rar,mp4,mp3,wav'],
+            // Files are stored on a private disk and only served via controller (never executed),
+            // so a strict mimes list (which silently rejects valid Livewire temp uploads) isn't needed.
+            'files.*' => ['file', 'max:20480'],
             'category' => ['required', 'in:' . implode(',', ClientDocument::CATEGORIES)],
             'projectId' => ['nullable', 'exists:projects,id'],
             'clientNote' => ['nullable', 'string', 'max:500'],

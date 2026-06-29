@@ -23,14 +23,20 @@
             Upload Documents
         </h3>
 
+        @if ($errors->any())
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/10">
+                @foreach ($errors->all() as $error)
+                    <p class="text-xs text-red-600 dark:text-red-400">{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="sm:col-span-2">
                 <label class="form-label">Files <span class="text-red-500">*</span></label>
                 <input wire:model="files" type="file" multiple class="form-input-base text-sm">
                 <p class="mt-1 text-xs text-gray-400">PDF, images, Word, Excel, ZIP — max 20MB each.</p>
                 <div wire:loading wire:target="files" class="mt-1 text-xs text-brand-purple">Uploading…</div>
-                @error('files.*') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                @error('files') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="form-label">Category <span class="text-red-500">*</span></label>
