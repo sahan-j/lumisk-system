@@ -35,6 +35,8 @@
                         'portal.tickets.index' => 'Support',
                         'portal.kb.index' => 'Help',
                     ];
+                    // Drop any link whose route isn't registered (stale cache / not-yet-deployed) so the page never 500s.
+                    $links = array_filter($links, fn ($r) => \Illuminate\Support\Facades\Route::has($r), ARRAY_FILTER_USE_KEY);
                 @endphp
                 <nav class="hidden items-center gap-1 md:flex">
                     @foreach ($links as $route => $label)

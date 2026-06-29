@@ -165,7 +165,8 @@
 
                 @foreach ($navGroups as [$groupKey, $groupLabel, $items])
                     @php
-                        $visibleItems = array_filter($items, fn($item) => auth()->user()->hasPermission($item[3]));
+                        // Guard on Route::has() so a not-yet-deployed / stale-cached route hides the link instead of 500-ing the page.
+                        $visibleItems = array_filter($items, fn($item) => \Illuminate\Support\Facades\Route::has($item[0]) && auth()->user()->hasPermission($item[3]));
                     @endphp
                     @if (count($visibleItems) > 0)
 
