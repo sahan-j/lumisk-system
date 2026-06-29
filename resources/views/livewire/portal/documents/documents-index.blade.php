@@ -17,11 +17,18 @@
     </div>
 
     {{-- Upload --}}
-    <form wire:submit="upload" class="card mb-6 p-5">
+    <form method="POST" action="{{ route('portal.documents.upload') }}" enctype="multipart/form-data" class="card mb-6 p-5">
+        @csrf
         <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
             <svg class="h-4 w-4 text-brand-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
             Upload Documents
         </h3>
+
+        @if (session('success'))
+            <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-900/40 dark:bg-green-900/10">
+                <p class="text-xs text-green-700 dark:text-green-400">{{ session('success') }}</p>
+            </div>
+        @endif
 
         @if ($errors->any())
             <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/10">
@@ -34,13 +41,12 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="sm:col-span-2">
                 <label class="form-label">Files <span class="text-red-500">*</span></label>
-                <input wire:model="files" type="file" multiple class="form-input-base text-sm">
+                <input type="file" name="files[]" multiple class="form-input-base text-sm">
                 <p class="mt-1 text-xs text-gray-400">PDF, images, Word, Excel, ZIP — max 20MB each.</p>
-                <div wire:loading wire:target="files" class="mt-1 text-xs text-brand-purple">Uploading…</div>
             </div>
             <div>
                 <label class="form-label">Category <span class="text-red-500">*</span></label>
-                <select wire:model="category" class="form-input-base">
+                <select name="category" class="form-input-base">
                     <option value="">Select category…</option>
                     <option value="payment_proof">💳 Payment Proof</option>
                     <option value="requirements">📋 Requirements / Brief</option>
@@ -53,22 +59,19 @@
             </div>
             <div>
                 <label class="form-label">Related Project</label>
-                <select wire:model="projectId" class="form-input-base">
+                <select name="project_id" class="form-input-base">
                     <option value="">No specific project</option>
                     @foreach ($projects as $project)<option value="{{ $project->id }}">{{ $project->name }}</option>@endforeach
                 </select>
             </div>
             <div class="sm:col-span-2">
                 <label class="form-label">Note for Lumisk Team</label>
-                <textarea wire:model="clientNote" rows="2" placeholder="Any notes about these files…" class="form-input-base text-sm"></textarea>
+                <textarea name="client_note" rows="2" placeholder="Any notes about these files…" class="form-input-base text-sm"></textarea>
             </div>
         </div>
 
         <div class="mt-4 flex justify-end">
-            <button type="submit" class="btn-primary" wire:loading.attr="disabled" wire:target="upload,files">
-                <span wire:loading.remove wire:target="upload">Upload Files</span>
-                <span wire:loading wire:target="upload">Uploading…</span>
-            </button>
+            <button type="submit" class="btn-primary">Upload Files</button>
         </div>
     </form>
 

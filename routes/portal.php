@@ -77,6 +77,7 @@ Route::middleware('client.auth')->group(function () {
 
     // Documents (two-way file sharing)
     Route::get('documents', \App\Livewire\Portal\Documents\DocumentsIndex::class)->name('documents.index');
+    Route::post('documents/upload', [\App\Http\Controllers\Portal\DocumentController::class, 'upload'])->name('documents.upload');
     Route::get('documents/{document}/download', [\App\Http\Controllers\Portal\DocumentController::class, 'download'])->name('documents.download');
     Route::get('documents/{document}/preview', [\App\Http\Controllers\Portal\DocumentController::class, 'preview'])->name('documents.preview');
 
