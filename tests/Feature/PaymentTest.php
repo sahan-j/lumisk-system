@@ -145,16 +145,16 @@ class PaymentTest extends TestCase
             ->assertSee(money(600, false));  // outstanding
     }
 
-    public function test_portal_dashboard_shows_paid_and_unpaid_amounts(): void
+    public function test_portal_dashboard_shows_outstanding_balance(): void
     {
         $invoice = $this->makeInvoice('sent', 1000);
         $invoice->payments()->create(['amount' => 400, 'payment_method' => 'cash', 'payment_date' => now()]);
 
         Livewire::actingAs($this->client, 'client')
             ->test(PortalDashboard::class)
-            ->assertSee('Paid Amount')
-            ->assertSee(money(400))   // paid
-            ->assertSee(money(600));  // unpaid (outstanding)
+            ->assertSee('Outstanding')
+            ->assertSee(money(1000))  // total invoiced
+            ->assertSee(money(600));  // outstanding balance
     }
 
     public function test_client_cannot_view_another_clients_invoice(): void
