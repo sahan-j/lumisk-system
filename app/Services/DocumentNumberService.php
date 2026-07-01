@@ -48,6 +48,14 @@ class DocumentNumberService
         return self::next('credit_note_prefix', 'credit_note_next_number');
     }
 
+    /**
+     * Reserve and return the next quote-request number (e.g. QR-001).
+     */
+    public static function nextQuoteRequestNumber(): string
+    {
+        return self::next('quote_request_prefix', 'quote_request_next_number');
+    }
+
     protected static function next(string $prefixColumn, string $counterColumn): string
     {
         return DB::transaction(function () use ($prefixColumn, $counterColumn) {

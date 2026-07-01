@@ -81,6 +81,13 @@ Route::middleware('client.auth')->group(function () {
     Route::get('documents/{document}/download', [\App\Http\Controllers\Portal\DocumentController::class, 'download'])->name('documents.download');
     Route::get('documents/{document}/preview', [\App\Http\Controllers\Portal\DocumentController::class, 'preview'])->name('documents.preview');
 
+    // Quote requests
+    Route::get('quote-requests', [\App\Http\Controllers\Portal\PortalQuoteRequestController::class, 'index'])->name('quote-requests.index');
+    Route::get('quote-requests/create', [\App\Http\Controllers\Portal\PortalQuoteRequestController::class, 'create'])->name('quote-requests.create');
+    Route::post('quote-requests', [\App\Http\Controllers\Portal\PortalQuoteRequestController::class, 'store'])->name('quote-requests.store');
+    Route::get('quote-requests/{quoteRequest}', [\App\Http\Controllers\Portal\PortalQuoteRequestController::class, 'show'])->name('quote-requests.show');
+    Route::get('quote-requests/{quoteRequest}/attachments/{index}/download', [\App\Http\Controllers\Portal\PortalQuoteRequestController::class, 'downloadAttachment'])->name('quote-requests.attachment.download');
+
     // Notifications
     Route::get('notifications', \App\Livewire\Portal\NotificationsIndex::class)->name('notifications.index');
 

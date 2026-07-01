@@ -44,10 +44,14 @@ class AppServiceProvider extends ServiceProvider
             $unreadDocs = Schema::hasTable('client_documents')
                 ? ClientDocument::where('uploaded_by', 'client')->where('viewed_by_admin', false)->count()
                 : 0;
+            $pendingQuotes = Schema::hasTable('quote_requests')
+                ? \App\Models\QuoteRequest::where('status', 'pending')->count()
+                : 0;
             $view->with('openTicketsCount', $openTickets);
             $view->with('pastDueCount', $pastDue);
             $view->with('lowStockCount', $lowStock);
             $view->with('unreadDocumentsCount', $unreadDocs);
+            $view->with('pendingQuoteRequestsCount', $pendingQuotes);
         });
 
         // "New documents from us" badge for the portal nav.

@@ -133,6 +133,7 @@
                             ['admin.clients.index',      'Clients',      'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z', 'clients.view'],
                             ['admin.documents.index',    'Documents',    'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2', 'clients.view'],
                             ['admin.pipeline.index',     'Pipeline',     'M9 17V9m4 8V5m4 12v-4M5 17v-2m-2 6h18a1 1 0 001-1V4a1 1 0 00-1-1H3a1 1 0 00-1 1v15a1 1 0 001 1z', 'pipeline.view'],
+                            ['admin.quote-requests.index', 'Quote Requests', 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z', 'estimates.view'],
                             ['admin.estimates.index',    'Estimates',    'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'estimates.view'],
                             ['admin.invoices.index',     'Invoices',     'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'invoices.view'],
                             ['admin.credit-notes.index', 'Credit Notes', 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z', 'credit-notes.view'],
@@ -203,6 +204,9 @@
                                         <span class="ls-item-label" x-show="!collapsed">{{ $label }}</span>
                                         @if ($route === 'admin.documents.index' && ($unreadDocumentsCount ?? 0) > 0)
                                             <span class="ls-badge" style="background:#6d5cff;" x-show="!collapsed">{{ $unreadDocumentsCount }}</span>
+                                        @endif
+                                        @if ($route === 'admin.quote-requests.index' && ($pendingQuoteRequestsCount ?? 0) > 0)
+                                            <span class="ls-badge" style="background:#f59e0b;" x-show="!collapsed">{{ $pendingQuoteRequestsCount }}</span>
                                         @endif
                                         @if ($route === 'admin.tickets.index' && ($openTicketsCount ?? 0) > 0)
                                             <span class="ls-badge" style="background:#ef4444;" x-show="!collapsed">{{ $openTicketsCount }}</span>

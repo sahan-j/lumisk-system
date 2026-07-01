@@ -106,6 +106,13 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('invoices/{invoice}/credit-note', fn (\App\Models\Invoice $invoice) => redirect()->route('admin.credit-notes.create', ['invoice' => $invoice->id]))
         ->name('invoices.credit-note')->middleware('permission:credit-notes.create');
 
+    // Quote requests (client-submitted → convert to estimate)
+    Route::get('quote-requests', [\App\Http\Controllers\Admin\AdminQuoteRequestController::class, 'index'])->name('quote-requests.index')->middleware('permission:estimates.view');
+    Route::get('quote-requests/{quoteRequest}', [\App\Http\Controllers\Admin\AdminQuoteRequestController::class, 'show'])->name('quote-requests.show')->middleware('permission:estimates.view');
+    Route::post('quote-requests/{quoteRequest}/convert', [\App\Http\Controllers\Admin\AdminQuoteRequestController::class, 'convertToEstimate'])->name('quote-requests.convert')->middleware('permission:estimates.create');
+    Route::post('quote-requests/{quoteRequest}/decline', [\App\Http\Controllers\Admin\AdminQuoteRequestController::class, 'decline'])->name('quote-requests.decline')->middleware('permission:estimates.edit');
+    Route::get('quote-requests/{quoteRequest}/attachments/{index}/download', [\App\Http\Controllers\Admin\AdminQuoteRequestController::class, 'downloadAttachment'])->name('quote-requests.attachment.download')->middleware('permission:estimates.view');
+
     // Estimates
     Route::get('estimates', EstimatesIndex::class)->name('estimates.index')->middleware('permission:estimates.view');
     Route::get('estimates/create', EstimateForm::class)->name('estimates.create')->middleware('permission:estimates.create');

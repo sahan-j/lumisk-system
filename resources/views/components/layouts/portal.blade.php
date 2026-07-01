@@ -23,6 +23,7 @@
                         'portal.dashboard' => 'Dashboard',
                         'portal.invoices.index' => 'Invoices',
                         'portal.estimates.index' => 'Estimates',
+                        'portal.quote-requests.index' => 'Request Quote',
                     ];
                     // Show Credit Notes only when the client actually has some.
                     if (\App\Models\CreditNote::where('client_id', auth('client')->id())->where('status', '!=', 'draft')->exists()) {

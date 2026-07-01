@@ -81,4 +81,9 @@ class Client extends Authenticatable
     {
         return $this->hasMany(ClientDocument::class);
     }
+
+    public function quoteRequests(): HasMany
+    {
+        return $this->hasMany(QuoteRequest::class);
+    }
 }
