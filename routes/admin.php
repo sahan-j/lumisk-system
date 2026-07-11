@@ -66,7 +66,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin.guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store'])->name('login.store');
+    // Throttle credential submission to blunt brute-force / credential-stuffing.
+    Route::post('login', [LoginController::class, 'store'])->name('login.store')->middleware('throttle:5,1');
 });
 
 Route::middleware('admin.auth')->group(function () {

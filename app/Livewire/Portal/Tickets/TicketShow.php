@@ -60,7 +60,8 @@ class TicketShow extends Component
         ]);
 
         foreach ($this->attachments as $file) {
-            $path = $file->store('tickets', 'public');
+            // Private disk: ticket files are served only via the ownership-checked download controller.
+            $path = $file->store('tickets', 'private');
             $this->ticket->attachments()->create([
                 'ticket_message_id' => $message->id,
                 'filename' => $file->getClientOriginalName(),

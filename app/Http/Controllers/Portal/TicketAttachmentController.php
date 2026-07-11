@@ -19,8 +19,11 @@ class TicketAttachmentController extends Controller
 
         // Internal-note attachments must never be exposed to clients.
         abort_if($attachment->message && $attachment->message->is_internal_note, 403);
-        abort_unless(Storage::disk('public')->exists($attachment->path), 404);
 
-        return Storage::disk('public')->download($attachment->path, $attachment->filename);
+        // New uploads live on the private disk; fall back to public for legacy files.
+        $disk = Storage::disk('private')->exists($attachment->path) ? 'private' : 'public';
+        abort_unless(Storage::disk($disk)->exists($attachment->path), 404);
+
+        return Storage::disk($disk)->download($attachment->path, $attachment->filename);
     }
 }

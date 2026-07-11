@@ -32,13 +32,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('client.guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store'])->name('login.store');
+    // Throttle credential submission to blunt brute-force / credential-stuffing.
+    Route::post('login', [LoginController::class, 'store'])->name('login.store')->middleware('throttle:5,1');
 
     // Password reset
     Route::get('forgot-password', [PortalPasswordResetController::class, 'showForgotForm'])->name('password.request');
-    Route::post('forgot-password', [PortalPasswordResetController::class, 'sendResetLink'])->name('password.email');
+    Route::post('forgot-password', [PortalPasswordResetController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:5,1');
     Route::get('reset-password/{token}', [PortalPasswordResetController::class, 'showResetForm'])->name('password.reset');
-    Route::post('reset-password', [PortalPasswordResetController::class, 'resetPassword'])->name('password.update');
+    Route::post('reset-password', [PortalPasswordResetController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
 });
 
 Route::middleware('client.auth')->group(function () {
