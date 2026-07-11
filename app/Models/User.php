@@ -20,6 +20,8 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // NOTE: 'role' is intentionally NOT mass-assignable — it must be set explicitly
+    // (see StaffForm) so a stray create()/update() can never escalate privileges.
     protected $fillable = [
         'name',
         'email',
@@ -28,7 +30,6 @@ class User extends Authenticatable
         'job_title',
         'hourly_rate',
         'avatar',
-        'role',
         'is_active',
         'last_login_at',
         'created_by',

@@ -99,7 +99,6 @@ class StaffForm extends Component
             'phone' => $validated['phone'] ?? null,
             'job_title' => $validated['job_title'] ?? null,
             'hourly_rate' => $this->hourly_rate,
-            'role' => $validated['role'],
             'is_active' => $this->is_active,
         ];
 
@@ -108,13 +107,18 @@ class StaffForm extends Component
         }
 
         if ($this->user) {
-            $this->user->update($data);
+            $this->user->fill($data);
+            // 'role' is not mass-assignable — set it explicitly from the in:admin,staff-validated input.
+            $this->user->role = $validated['role'];
+            $this->user->save();
             $user = $this->user;
             $message = 'Staff member updated!';
         } else {
             $data['password'] = Hash::make($this->password);
             $data['created_by'] = Auth::id();
-            $user = User::create($data);
+            $user = new User($data);
+            $user->role = $validated['role'];
+            $user->save();
             $message = 'Staff member created!';
         }
 

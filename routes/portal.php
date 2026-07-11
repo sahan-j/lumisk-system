@@ -37,7 +37,7 @@ Route::middleware('client.guest')->group(function () {
 
     // Password reset
     Route::get('forgot-password', [PortalPasswordResetController::class, 'showForgotForm'])->name('password.request');
-    Route::post('forgot-password', [PortalPasswordResetController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:5,1');
+    Route::post('forgot-password', [PortalPasswordResetController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:3,1');
     Route::get('reset-password/{token}', [PortalPasswordResetController::class, 'showResetForm'])->name('password.reset');
     Route::post('reset-password', [PortalPasswordResetController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
 });

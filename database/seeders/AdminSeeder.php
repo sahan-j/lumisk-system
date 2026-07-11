@@ -10,15 +10,18 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@lumisktechnology.com'],
             [
                 'name' => 'Lumisk Admin',
                 'password' => Hash::make('admin123'),
-                'role' => 'super_admin',
                 'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );
+
+        // 'role' is not mass-assignable — set it explicitly.
+        $admin->role = 'super_admin';
+        $admin->save();
     }
 }

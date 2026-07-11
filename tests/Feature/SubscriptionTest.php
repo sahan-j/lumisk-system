@@ -35,10 +35,15 @@ class SubscriptionTest extends TestCase
 
     private function admin(string $role = 'super_admin'): User
     {
-        return User::create([
+        // 'role' is not mass-assignable — set it explicitly.
+        $user = new User([
             'name' => ucfirst($role), 'email' => $role . fake()->unique()->numerify('##') . '@x.com',
-            'password' => Hash::make('password123'), 'role' => $role, 'is_active' => true,
+            'password' => Hash::make('password123'), 'is_active' => true,
         ]);
+        $user->role = $role;
+        $user->save();
+
+        return $user;
     }
 
     private function makeSubscription(array $overrides = []): Subscription

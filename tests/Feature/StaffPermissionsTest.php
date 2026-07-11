@@ -26,10 +26,15 @@ class StaffPermissionsTest extends TestCase
 
     private function makeUser(string $role, bool $active = true): User
     {
-        return User::create([
+        // 'role' is not mass-assignable — set it explicitly (mirrors StaffForm).
+        $user = new User([
             'name' => ucfirst($role), 'email' => $role . fake()->unique()->numerify('##') . '@x.com',
-            'password' => Hash::make('password123'), 'role' => $role, 'is_active' => $active,
+            'password' => Hash::make('password123'), 'is_active' => $active,
         ]);
+        $user->role = $role;
+        $user->save();
+
+        return $user;
     }
 
     public function test_super_admin_has_every_permission(): void
